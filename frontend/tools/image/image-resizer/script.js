@@ -37,6 +37,8 @@ function loadImage(file) {
     return;
   }
 
+  window.NexaurenLoader?.showProcessing('A carregar imagem…');
+
   const url = URL.createObjectURL(file);
   const img = new Image();
 
@@ -54,11 +56,13 @@ function loadImage(file) {
     workspace.classList.remove('hidden');
     downloadButton.classList.add('hidden');
     setStatus('Imagem carregada. Ajuste as dimensões e processe.');
+    window.NexaurenLoader?.hideProcessing();
   };
 
   img.onerror = () => {
     URL.revokeObjectURL(url);
     setStatus('Não foi possível carregar esta imagem.', 'error');
+    window.NexaurenLoader?.hideProcessing();
   };
 
   img.src = url;
@@ -100,6 +104,9 @@ resizeButton.addEventListener('click', () => {
     return;
   }
 
+  window.NexaurenLoader?.showProcessing('A redimensionar imagem…');
+  resizeButton.disabled = true;
+
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -123,8 +130,11 @@ resizeButton.addEventListener('click', () => {
       : 'jpg';
 
   canvas.toBlob((blob) => {
+    resizeButton.disabled = false;
+
     if (!blob) {
       setStatus('Não foi possível gerar a imagem.', 'error');
+      window.NexaurenLoader?.hideProcessing();
       return;
     }
 
@@ -136,6 +146,7 @@ resizeButton.addEventListener('click', () => {
     preview.src = url;
     fileInfo.textContent = `Resultado • ${width} × ${height}px • ${formatBytes(blob.size)}`;
     setStatus('Imagem processada com sucesso.', 'success');
+    window.NexaurenLoader?.hideProcessing();
   }, formatInput.value, quality);
 });
 
