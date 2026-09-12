@@ -28,6 +28,8 @@ Aplicação Cloudflare Worker + D1 para o sistema de ferramentas do Nexauren.
 A primeira conta registrada recebe o papel `admin`. Depois disso, novas contas recebem `user`.
 
 ## Deploy
-O workflow de GitHub Actions aplica a migration D1 e publica o Worker automaticamente. Configure os secrets `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID` no repositório.
+O repositório está conectado ao Cloudflare. O deploy do Worker é feito automaticamente pelo Cloudflare quando alterações são enviadas para a branch `main`.
+
+A migration inicial do D1 está em `migrations/0001_initial.sql`. Como o banco começa sem tabelas, ela precisa ser executada uma vez no banco remoto `nexauren-db` antes do primeiro uso da aplicação.
 
 O domínio configurado é `nexaurenstory.com`.
