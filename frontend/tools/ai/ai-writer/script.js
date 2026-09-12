@@ -4,7 +4,6 @@
   const result = $("result");
   const status = $("status");
   const generateButton = $("generateButton");
-  const usageText = $("usageText");
   const resultPanel = $("resultPanel");
   let mode = "write";
 
@@ -70,9 +69,6 @@
 
       result.value = data.text || "";
       resultPanel.classList.remove("hidden");
-      usageText.textContent = data.usage
-        ? `${data.usage.used} / ${data.usage.limit} free uses today`
-        : "Free usage available";
       setStatus("Done.", "success");
     } catch (error) {
       console.error(error);
@@ -82,22 +78,6 @@
       if (window.NexaurenLoader) {
         NexaurenLoader.hideProcessing(120);
       }
-    }
-  }
-
-  async function loadUsage() {
-    try {
-      const response = await fetch(
-        "/api/tools/ai-writer/usage",
-        { credentials: "same-origin" }
-      );
-      const data = await response.json().catch(() => ({}));
-      if (response.ok && data.ok) {
-        usageText.textContent =
-          `${data.used} / ${data.limit} free uses today`;
-      }
-    } catch (error) {
-      console.error(error);
     }
   }
 
@@ -118,6 +98,4 @@
     status.textContent = message;
     status.className = `status ${type}`.trim();
   }
-
-  loadUsage();
 })();
