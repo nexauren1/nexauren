@@ -1,69 +1,9 @@
 {
   "tools": [
-    {
-      "id": "aud-001",
-      "slug": "audio-converter",
-      "name": "Audio Converter",
-      "category": "audio",
-      "icon": "♫",
-      "status": "published",
-      "description": "Converta ficheiros de áudio entre formatos populares com uma experiência rápida e simples.",
-      "toolPath": "/tools/audio/audio-converter/",
-      "version": "1.0.0",
-      "featured": true,
-      "createdAt": "2026-09-12"
-    },
-    {
-      "id": "txt-001",
-      "slug": "json-formatter",
-      "name": "JSON Formatter",
-      "category": "text",
-      "icon": "{ }",
-      "status": "published",
-      "description": "Formate, valide e minifique JSON de forma rápida e simples diretamente no navegador.",
-      "toolPath": "/tools/text/json-formatter/",
-      "version": "1.0.0",
-      "featured": true,
-      "createdAt": "2026-09-12"
-    },
-    {
-      "id": "img-001",
-      "slug": "image-resizer",
-      "name": "Image Resizer",
-      "category": "image",
-      "icon": "↔",
-      "status": "published",
-      "description": "Redimensione imagens rapidamente no navegador e escolha o formato e a qualidade de saída.",
-      "toolPath": "/tools/image/image-resizer/",
-      "version": "1.0.0",
-      "featured": true,
-      "createdAt": "2026-09-12"
-    },
-    {
-      "id": "img-002",
-      "slug": "image-enhancer",
-      "name": "Image Enhancer",
-      "category": "image",
-      "icon": "✦",
-      "status": "published",
-      "description": "Melhore a aparência das suas imagens com nitidez, contraste, brilho e saturação ajustáveis.",
-      "toolPath": "/tools/image/image-enhancer/",
-      "version": "1.0.0",
-      "featured": true,
-      "createdAt": "2026-09-12"
-    },
-    {
-      "id": "aud-002",
-      "slug": "sample-pack-generator",
-      "name": "Sample Pack Generator",
-      "category": "audio",
-      "icon": "◈",
-      "status": "published",
-      "description": "Gere até 500 variações de um sample com processamento de áudio, nomes organizados e download em ZIP.",
-      "toolPath": "/tools/audio/sample-pack-generator/",
-      "version": "1.0.0",
-      "featured": true,
-      "createdAt": "2026-09-12"
-    }
+    {"id":"aud-001","slug":"audio-converter","name":"Audio Converter","category":"audio","icon":"♫","status":"published","description":"Convert audio files between popular formats with a fast and simple experience.","toolPath":"/tools/audio/audio-converter/","version":"1.0.0","featured":true,"createdAt":"2026-09-12"},
+    {"id":"txt-001","slug":"json-formatter","name":"JSON Formatter","category":"text","icon":"{ }","status":"published","description":"Format, validate and minify JSON quickly and easily directly in your browser.","toolPath":"/tools/text/json-formatter/","version":"1.0.0","featured":true,"createdAt":"2026-09-12"},
+    {"id":"img-001","slug":"image-resizer","name":"Image Resizer","category":"image","icon":"↔","status":"published","description":"Resize images quickly in your browser and choose the output format and quality.","toolPath":"/tools/image/image-resizer/","version":"1.0.0","featured":true,"createdAt":"2026-09-12"},
+    {"id":"img-002","slug":"image-enhancer","name":"Image Enhancer","category":"image","icon":"✦","status":"published","description":"Improve your images with adjustable sharpness, contrast, brightness and saturation.","toolPath":"/tools/image/image-enhancer/","version":"1.0.0","featured":true,"createdAt":"2026-09-12"},
+    {"id":"aud-002","slug":"sample-pack-generator","name":"Sample Pack Generator","category":"audio","icon":"◈","status":"published","description":"Generate up to 500 sample variations with audio processing, organized names and ZIP download.","toolPath":"/tools/audio/sample-pack-generator/","version":"1.0.0","featured":true,"createdAt":"2026-09-12"}
   ]
 }
