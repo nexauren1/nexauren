@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Formate, valide e organize JSON online de forma rápida e simples.">
+  <title>JSON Formatter — Nexauren</title>
+  <link rel="stylesheet" href="/css/nexauren-theme.css">
+  <link rel="stylesheet" href="/css/nexauren-pages.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="global-header"></div>
+
+  <main class="tool-page">
+    <section class="tool-hero">
+      <div class="tool-icon" aria-hidden="true">{ }</div>
+      <p class="eyebrow">NEXAUREN • TEXT</p>
+      <h1>JSON Formatter</h1>
+      <p class="subtitle">Formate, valide e organize JSON diretamente no navegador.</p>
+    </section>
+
+    <section class="formatter-card" aria-label="JSON Formatter">
+      <div class="editor-grid">
+        <div class="editor-panel">
+          <div class="panel-head">
+            <span>JSON de entrada</span>
+            <button id="sampleBtn" class="secondary-btn" type="button">Exemplo</button>
+          </div>
+          <textarea id="jsonInput" spellcheck="false" placeholder='Cole o seu JSON aqui...'></textarea>
+        </div>
+
+        <div class="editor-panel">
+          <div class="panel-head">
+            <span>Resultado</span>
+            <button id="copyBtn" class="secondary-btn" type="button" disabled>Copiar</button>
+          </div>
+          <textarea id="jsonOutput" spellcheck="false" readonly placeholder="O JSON formatado aparecerá aqui..."></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="formatBtn" class="primary-btn" type="button">Formatar JSON</button>
+        <button id="minifyBtn" class="secondary-btn" type="button">Minificar</button>
+        <button id="clearBtn" class="secondary-btn" type="button">Limpar</button>
+      </div>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="info-section">
+      <h2>Como usar</h2>
+      <ol>
+        <li>Cole ou escreva o seu JSON na caixa de entrada.</li>
+        <li>Escolha <strong>Formatar JSON</strong> para organizar a estrutura.</li>
+        <li>Use <strong>Minificar</strong> para remover espaços desnecessários.</li>
+      </ol>
+      <p>O processamento acontece localmente no navegador. O conteúdo não precisa ser enviado para um servidor.</p>
+    </section>
+  </main>
+
+  <div id="global-footer"></div>
+
+  <script src="/js/global-header.js"></script>
+  <script src="/js/global-footer.js"></script>
+  <script src="/js/global-loader.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
