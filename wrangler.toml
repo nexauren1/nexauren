@@ -1,0 +1,8 @@
+name = "nexauren"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "nexauren-db"
+database_id = "ce127360-0a01-4c84-a099-5c21c10a00c2"
