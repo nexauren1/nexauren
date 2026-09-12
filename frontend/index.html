@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Nexauren — ferramentas digitais simples, rápidas e profissionais para o dia a dia.">
+  <title>Nexauren — Ferramentas digitais</title>
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #64748b;
+      --line: #e5eaf2;
+      --primary: #3157e8;
+      --primary-2: #6947e8;
+      --accent: #12a8a0;
+      --shadow: 0 18px 50px rgba(37, 53, 88, .09);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+    a { color: inherit; text-decoration: none; }
+    .container { width: min(1120px, calc(100% - 32px)); margin: auto; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255,255,255,.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+    .nav {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand { font-weight: 900; font-size: 23px; letter-spacing: -.7px; }
+    .brand span { color: var(--primary); }
+    .links { display: flex; align-items: center; gap: 22px; color: #526078; font-size: 14px; font-weight: 700; }
+    .links a:hover { color: var(--primary); }
+
+    .hero { padding: 92px 0 72px; }
+    .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 54px; align-items: center; }
+    .eyebrow {
+      display: inline-flex;
+      padding: 7px 11px;
+      border: 1px solid #dce4ff;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3157c9;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .3px;
+    }
+    h1 { margin: 18px 0 18px; max-width: 720px; font-size: clamp(42px, 6vw, 70px); line-height: .98; letter-spacing: -3px; }
+    h1 span { color: var(--primary); }
+    .lead { max-width: 650px; margin: 0; color: var(--muted); font-size: 18px; line-height: 1.7; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-weight: 800;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(40,55,90,.1); }
+    .btn.primary { color: #fff; border: 0; background: linear-gradient(135deg, var(--primary), var(--primary-2)); }
+
+    .hero-card {
+      min-height: 330px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: linear-gradient(145deg, #fff, #f2f6ff);
+      box-shadow: var(--shadow);
+    }
+    .hero-card h2 { margin: 0 0 10px; font-size: 22px; }
+    .hero-card p { color: var(--muted); line-height: 1.6; }
+    .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+    .mini { padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+    .mini strong { display: block; margin-bottom: 5px; }
+    .mini small { color: var(--muted); }
+
+    section { padding: 70px 0; }
+    .section-head { margin-bottom: 28px; }
+    .section-head h2 { margin: 0 0 8px; font-size: 32px; letter-spacing: -1px; }
+    .section-head p { margin: 0; color: var(--muted); }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); box-shadow: 0 8px 30px rgba(37,53,88,.05); }
+    .icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; background: #eef2ff; color: var(--primary); font-size: 20px; }
+    .card h3 { margin: 18px 0 8px; }
+    .card p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .cta { padding: 42px; border-radius: 28px; background: linear-gradient(135deg, #eef2ff, #f5f1ff); border: 1px solid #e0e6ff; }
+    .cta h2 { margin: 0 0 10px; font-size: 32px; }
+    .cta p { color: var(--muted); margin-bottom: 24px; }
+    footer { padding: 34px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+    @media (max-width: 800px) {
+      .links a:not(.login) { display: none; }
+      .hero { padding-top: 62px; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr; }
+      h1 { letter-spacing: -2px; }
+      section { padding: 52px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="/">Nexa<span>uren</span></a>
+      <nav class="links" aria-label="Navegação principal">
+        <a href="/tools">Ferramentas</a>
+        <a href="/plans">Planos</a>
+        <a href="/about">Sobre</a>
+        <a class="login" href="/login">Entrar</a>
+        <a class="btn primary" href="/register">Criar conta</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">NEXAUREN TOOLS</span>
+          <h1>Ferramentas digitais <span>feitas para simplificar.</span></h1>
+          <p class="lead">Uma plataforma para encontrar ferramentas úteis, rápidas e fáceis de usar — tudo num só lugar.</p>
+          <div class="actions">
+            <a class="btn primary" href="/tools">Explorar ferramentas</a>
+            <a class="btn" href="/plans">Ver planos</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <h2>Um espaço para criar mais.</h2>
+          <p>Escolha uma ferramenta, faça o seu trabalho e continue. A Nexauren foi pensada para manter cada experiência simples e clara.</p>
+          <div class="mini-grid">
+            <div class="mini"><strong>Rápido</strong><small>Fluxos simples e diretos.</small></div>
+            <div class="mini"><strong>Organizado</strong><small>Ferramentas por categoria.</small></div>
+            <div class="mini"><strong>Flexível</strong><small>Recursos para diferentes necessidades.</small></div>
+            <div class="mini"><strong>Em evolução</strong><small>Novas ferramentas continuamente.</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-head">
+          <h2>Feito para o seu fluxo</h2>
+          <p>Comece pelo que precisa e descubra outras ferramentas quando quiser.</p>
+        </div>
+        <div class="cards">
+          <article class="card"><div class="icon">⚡</div><h3>Simples</h3><p>Interfaces limpas para chegar ao resultado sem complicação.</p></article>
+          <article class="card"><div class="icon">◈</div><h3>Várias categorias</h3><p>Áudio, imagem, PDF, texto, produtividade e outras áreas.</p></article>
+          <article class="card"><div class="icon">✓</div><h3>Uma conta</h3><p>Tenha acesso à sua experiência e aos seus recursos num só lugar.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="cta">
+          <h2>Pronto para experimentar?</h2>
+          <p>Explore as ferramentas disponíveis e encontre a que combina com a sua tarefa.</p>
+          <a class="btn primary" href="/tools">Ver todas as ferramentas</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>© 2026 Nexauren. Todos os direitos reservados.</span>
+      <span><a href="/privacy">Privacidade</a> · <a href="/terms">Termos</a> · <a href="/cookies">Cookies</a></span>
+    </div>
+  </footer>
+</body>
+</html>
