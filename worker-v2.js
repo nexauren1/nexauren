@@ -1,12 +1,13 @@
 const COOKIE = "nexauren_session";
 const SESSION_DAYS = 7;
 
-const json = (data, status = 200) =>
+const json = (data, status = 200, extraHeaders = {}) =>
   new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store"
+      "Cache-Control": "no-store",
+      ...extraHeaders
     }
   });
 
@@ -25,13 +26,9 @@ const token = () => {
 };
 
 async function hash(password, salt) {
-  const data = new TextEncoder().encode(
-    password + salt
-  );
-
   const digest = await crypto.subtle.digest(
     "SHA-256",
-    data
+    new TextEncoder().encode(password + salt)
   );
 
   return [...new Uint8Array(digest)]
@@ -117,7 +114,7 @@ async function ensureAccount(env, userId) {
 async function accountData(env, userId) {
   await ensureAccount(env, userId);
 
-  const [subscription, balance, history] =
+  const [subscription, balance, history, user] =
     await Promise.all([
       env.DB
         .prepare(
@@ -145,21 +142,49 @@ async function accountData(env, userId) {
           "ORDER BY created_at DESC LIMIT 20"
         )
         .bind(userId)
-        .all()
+        .all(),
+      env.DB
+        .prepare(
+          "SELECT id,email,name,role,created_at " +
+          "FROM users WHERE id=? LIMIT 1"
+        )
+        .bind(userId)
+        .first()
     ]);
 
   return {
-    user: await env.DB
-      .prepare(
-        "SELECT id,email,name,role,created_at " +
-        "FROM users WHERE id=? LIMIT 1"
-      )
-      .bind(userId)
-      .first(),
+    user,
     subscription,
     balance,
     history: history.results || []
   };
+}
+
+async function createSession(env, userId) {
+  const session = token();
+
+  await env.DB
+    .prepare(
+      "INSERT INTO sessions(token,user_id,expires_at) " +
+      "VALUES(?,?,?)"
+    )
+    .bind(
+      session,
+      userId,
+      Date.now() + SESSION_DAYS * 86400000
+    )
+    .run();
+
+  return json(
+    { ok: true },
+    200,
+    {
+      "Set-Cookie":
+        `${COOKIE}=${session}; Max-Age=${
+          SESSION_DAYS * 86400
+        }; HttpOnly; Secure; SameSite=Lax; Path=/`
+    }
+  );
 }
 
 async function register(req, env) {
@@ -192,7 +217,6 @@ async function register(req, env) {
   const count = await env.DB
     .prepare("SELECT COUNT(*) count FROM users")
     .first();
-
   const role = Number(count?.count || 0) === 0
     ? "admin"
     : "user";
@@ -255,33 +279,6 @@ async function login(req, env) {
 
   await ensureAccount(env, user.id);
   return createSession(env, user.id);
-}
-
-async function createSession(env, userId) {
-  const session = token();
-
-  await env.DB
-    .prepare(
-      "INSERT INTO sessions(token,user_id,expires_at) " +
-      "VALUES(?,?,?)"
-    )
-    .bind(
-      session,
-      userId,
-      Date.now() + SESSION_DAYS * 86400000
-    )
-    .run();
-
-  return json(
-    { ok: true },
-    200,
-    {
-      "Set-Cookie":
-        `${COOKIE}=${session}; Max-Age=${
-          SESSION_DAYS * 86400
-        }; HttpOnly; Secure; SameSite=Lax; Path=/`
-    }
-  );
 }
 
 async function logout(req, env) {
@@ -557,9 +554,7 @@ async function paypalCapture(req, env) {
       .run();
   }
 
-  return redirect(
-    "/dashboard/?payment=success"
-  );
+  return redirect("/dashboard/?payment=success");
 }
 
 async function paypalSubscription(req, env) {
@@ -644,13 +639,14 @@ import { adminRouter } from "./admin.js";
 
 export default {
   async fetch(req, env) {
-    const adminResponse =
-      await adminRouter(req, env);
-
-    if (adminResponse) return adminResponse;
-
     const url = new URL(req.url);
     const path = url.pathname;
+
+    if (path.startsWith("/admin")) {
+      const adminResponse =
+        await adminRouter(req, env);
+      if (adminResponse) return adminResponse;
+    }
 
     try {
       if (path === "/api/auth/me" &&
