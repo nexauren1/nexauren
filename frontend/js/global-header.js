@@ -7,9 +7,10 @@
     #${ID}{
       position:relative;
       z-index:1000;
-      background:#fff;
-      border-bottom:1px solid #e7eaf0;
-      box-shadow:0 4px 18px rgba(16,24,40,.04)
+      background:rgba(255,255,255,.76);
+      border-bottom:1px solid rgba(223,231,245,.9);
+      box-shadow:0 8px 30px rgba(50,70,120,.05);
+      backdrop-filter:blur(20px)
     }
     #${ID} .nx-head-inner{
       width:min(1180px,92vw);
@@ -21,10 +22,10 @@
       gap:24px
     }
     #${ID} .nx-brand{
-      color:#111827;
+      color:#14213d;
       text-decoration:none;
       font-weight:950;
-      letter-spacing:.08em;
+      letter-spacing:.11em;
       white-space:nowrap
     }
     #${ID} .nx-brand span{color:#7c3aed}
@@ -32,52 +33,66 @@
       display:flex;
       align-items:center;
       justify-content:flex-end;
-      gap:22px
+      gap:7px
     }
     #${ID} .nx-links a{
-      color:#475467;
+      color:#506078;
       text-decoration:none;
       font-weight:750;
-      font-size:14px
-    }
-    #${ID} .nx-links a:hover{color:#2563eb}
-    #${ID} .nx-btn{
-      padding:10px 15px;
+      font-size:14px;
+      padding:10px 12px;
       border-radius:11px;
-      background:#2563eb;
-      color:#fff!important
+      transition:.2s ease
     }
-    #${ID} .nx-btn:hover{background:#1d4ed8}
+    #${ID} .nx-links a:hover{
+      color:#3157e8;
+      background:#f0f4ff
+    }
+    #${ID} .nx-btn{
+      padding:10px 15px!important;
+      background:linear-gradient(135deg,#3157e8,#7c3aed)!important;
+      color:#fff!important;
+      box-shadow:0 10px 26px rgba(73,76,220,.20)
+    }
+    #${ID} .nx-btn:hover{
+      color:#fff!important;
+      transform:translateY(-1px)
+    }
     #${ID} .nx-menu{
       display:none;
-      border:0;
-      background:#f3f5f9;
-      color:#344054;
+      border:1px solid #dfe7f5;
+      background:rgba(255,255,255,.9);
+      color:#3157e8;
       width:42px;
       height:42px;
-      border-radius:11px;
+      border-radius:12px;
       font-size:21px;
-      cursor:pointer
+      cursor:pointer;
+      box-shadow:0 8px 22px rgba(46,66,120,.08)
     }
     #${ID} .nx-mobile{
       display:none;
-      border-top:1px solid #edf0f5;
+      border-top:1px solid #e8edf6;
       padding:12px 4vw 18px;
-      background:#fff
+      background:rgba(255,255,255,.96);
+      backdrop-filter:blur(18px)
     }
     #${ID} .nx-mobile.open{display:grid;gap:4px}
     #${ID} .nx-mobile a{
       color:#344054;
       text-decoration:none;
       padding:12px;
-      border-radius:10px;
+      border-radius:11px;
       font-weight:750
     }
-    #${ID} .nx-mobile a:hover{background:#f5f7fb}
+    #${ID} .nx-mobile a:hover{background:#f0f4ff;color:#3157e8}
     @media(max-width:800px){
       #${ID} .nx-links{display:none}
       #${ID} .nx-menu{display:block}
-      #${ID} .nx-head-inner{min-height:62px}
+      #${ID} .nx-head-inner{min-height:64px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      #${ID} .nx-links a,#${ID} .nx-btn{transition:none}
     }
   `;
   document.head.appendChild(style);
@@ -107,7 +122,12 @@
           <a href="/about/">Sobre</a>
           ${accountLinks}
         </nav>
-        <button class="nx-menu" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
+        <button
+          class="nx-menu"
+          type="button"
+          aria-label="Abrir menu"
+          aria-expanded="false"
+        >☰</button>
       </div>
       <nav class="nx-mobile" aria-label="Menu móvel"></nav>
     `;
@@ -125,17 +145,21 @@
     menu.addEventListener("click", () => {
       const open = mobile.classList.toggle("open");
       menu.setAttribute("aria-expanded", String(open));
+      menu.setAttribute(
+        "aria-label",
+        open ? "Fechar menu" : "Abrir menu"
+      );
       menu.textContent = open ? "×" : "☰";
       document.body.style.overflow = open ? "hidden" : "";
     });
 
     mobile.addEventListener("click", event => {
-      if (event.target.closest("a")) {
-        mobile.classList.remove("open");
-        menu.setAttribute("aria-expanded", "false");
-        menu.textContent = "☰";
-        document.body.style.overflow = "";
-      }
+      if (!event.target.closest("a")) return;
+      mobile.classList.remove("open");
+      menu.setAttribute("aria-expanded", "false");
+      menu.setAttribute("aria-label", "Abrir menu");
+      menu.textContent = "☰";
+      document.body.style.overflow = "";
     });
 
     host.querySelectorAll("[data-nx-logout]").forEach(link => {
