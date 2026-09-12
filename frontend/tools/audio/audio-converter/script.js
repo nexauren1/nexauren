@@ -1,3 +1,6 @@
+import { FFmpeg } from "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm/index.js";
+import { toBlobURL } from "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/esm/index.js";
+
 const fileInput = document.querySelector("#audioFile");
 const dropZone = document.querySelector("#dropZone");
 const filePanel = document.querySelector("#filePanel");
@@ -5,7 +8,11 @@ const fileName = document.querySelector("#fileName");
 const fileSize = document.querySelector("#fileSize");
 const removeFile = document.querySelector("#removeFile");
 const settings = document.querySelector("#settings");
+const formatSelect = document.querySelector("#format");
 const convertButton = document.querySelector("#convertButton");
+const enginePanel = document.querySelector("#enginePanel");
+const engineStatus = document.querySelector("#engineStatus");
+const progressBar = document.querySelector("#progressBar");
 const processing = document.querySelector("#processing");
 const processingTitle = document.querySelector("#processingTitle");
 const processingText = document.querySelector("#processingText");
@@ -15,8 +22,34 @@ const resultSize = document.querySelector("#resultSize");
 const downloadButton = document.querySelector("#downloadButton");
 const notice = document.querySelector("#notice");
 
+const ffmpeg = new FFmpeg();
 let selectedFile = null;
 let resultUrl = null;
+let engineLoaded = false;
+let engineLoading = null;
+
+const OUTPUTS = {
+  mp3: {
+    extension: "mp3",
+    mime: "audio/mpeg",
+    args: ["-vn", "-codec:a", "libmp3lame", "-q:a", "2"]
+  },
+  wav: {
+    extension: "wav",
+    mime: "audio/wav",
+    args: ["-vn", "-codec:a", "pcm_s16le"]
+  },
+  ogg: {
+    extension: "ogg",
+    mime: "audio/ogg",
+    args: ["-vn", "-codec:a", "libvorbis", "-q:a", "5"]
+  },
+  m4a: {
+    extension: "m4a",
+    mime: "audio/mp4",
+    args: ["-vn", "-codec:a", "aac", "-b:a", "192k"]
+  }
+};
 
 function formatSize(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -40,24 +73,87 @@ function clearResult() {
   downloadButton.removeAttribute("href");
 }
 
+function setProgress(value) {
+  const safeValue = Math.max(0, Math.min(100, value));
+  progressBar.style.width = `${safeValue}%`;
+}
+
+async function loadEngine() {
+  if (engineLoaded) return ffmpeg;
+  if (engineLoading) return engineLoading;
+
+  enginePanel.hidden = false;
+  engineStatus.textContent = "A carregar o motor…";
+  setProgress(5);
+
+  engineLoading = (async () => {
+    const baseURL =
+      "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm";
+
+    await ffmpeg.load({
+      coreURL: await toBlobURL(
+        `${baseURL}/ffmpeg-core.js`,
+        "text/javascript"
+      ),
+      wasmURL: await toBlobURL(
+        `${baseURL}/ffmpeg-core.wasm`,
+        "application/wasm"
+      )
+    });
+
+    engineLoaded = true;
+    engineStatus.textContent = "Motor pronto";
+    setProgress(100);
+    return ffmpeg;
+  })();
+
+  try {
+    return await engineLoading;
+  } catch (error) {
+    engineLoading = null;
+    engineStatus.textContent = "Falha ao carregar";
+    setProgress(0);
+    throw error;
+  }
+}
+
+ffmpeg.on("progress", ({ progress }) => {
+  if (!Number.isFinite(progress)) return;
+  setProgress(Math.round(progress * 100));
+});
+
+ffmpeg.on("log", ({ message }) => {
+  if (message) console.debug("[Nexauren Audio Converter]", message);
+});
+
 function setFile(file) {
   if (!file) return;
 
-  if (!file.type.startsWith("audio/")) {
+  const looksLikeAudio =
+    file.type.startsWith("audio/") ||
+    /\.(mp3|wav|ogg|oga|m4a|aac|flac|opus)$/i.test(file.name);
+
+  if (!looksLikeAudio) {
     showNotice("Selecione um ficheiro de áudio válido.", "error");
     return;
   }
 
   if (file.size > 100 * 1024 * 1024) {
-    showNotice("Para uma conversão mais rápida no dispositivo, use ficheiros até 100 MB.", "error");
+    showNotice(
+      "Para uma conversão mais rápida no dispositivo, use ficheiros até 100 MB.",
+      "error"
+    );
     return;
   }
 
   selectedFile = file;
   fileName.textContent = file.name;
-  fileSize.textContent = `${formatSize(file.size)} · ${file.type.replace("audio/", "").toUpperCase()}`;
+  fileSize.textContent = `${formatSize(file.size)} · ${
+    file.type ? file.type.replace("audio/", "").toUpperCase() : "ÁUDIO"
+  }`;
   filePanel.hidden = false;
   settings.hidden = false;
+  enginePanel.hidden = true;
   convertButton.disabled = false;
   processing.hidden = true;
   clearResult();
@@ -65,100 +161,73 @@ function setFile(file) {
   dropZone.classList.remove("dragover");
 }
 
-function makeWavBlob(audioBuffer) {
-  const channels = audioBuffer.numberOfChannels;
-  const sampleRate = audioBuffer.sampleRate;
-  const frameCount = audioBuffer.length;
-  const bytesPerSample = 2;
-  const blockAlign = channels * bytesPerSample;
-  const dataSize = frameCount * blockAlign;
-  const buffer = new ArrayBuffer(44 + dataSize);
-  const view = new DataView(buffer);
-
-  writeString(view, 0, "RIFF");
-  view.setUint32(4, 36 + dataSize, true);
-  writeString(view, 8, "WAVE");
-  writeString(view, 12, "fmt ");
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, channels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * blockAlign, true);
-  view.setUint16(32, blockAlign, true);
-  view.setUint16(34, 16, true);
-  writeString(view, 36, "data");
-  view.setUint32(40, dataSize, true);
-
-  const channelData = [];
-  for (let channel = 0; channel < channels; channel += 1) {
-    channelData.push(audioBuffer.getChannelData(channel));
-  }
-
-  let offset = 44;
-  for (let frame = 0; frame < frameCount; frame += 1) {
-    for (let channel = 0; channel < channels; channel += 1) {
-      const sample = Math.max(-1, Math.min(1, channelData[channel][frame]));
-      const value = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
-      view.setInt16(offset, value, true);
-      offset += 2;
-    }
-  }
-
-  return new Blob([buffer], { type: "audio/wav" });
-}
-
-function writeString(view, offset, value) {
-  for (let index = 0; index < value.length; index += 1) {
-    view.setUint8(offset + index, value.charCodeAt(index));
-  }
-}
-
-async function convertToWav() {
+async function convertAudio() {
   if (!selectedFile) return;
 
+  const output = OUTPUTS[formatSelect.value] || OUTPUTS.mp3;
+  const inputName = `input-${Date.now()}.${
+    selectedFile.name.split(".").pop() || "audio"
+  }`;
+  const outputName = `nexauren-${Date.now()}.${output.extension}`;
+
   clearResult();
+  notice.hidden = true;
   processing.hidden = false;
   convertButton.disabled = true;
-  notice.hidden = true;
-  processingTitle.textContent = "A descodificar o áudio…";
-  processingText.textContent = "O processamento acontece localmente no seu navegador.";
+  enginePanel.hidden = false;
+  setProgress(0);
 
   try {
-    const arrayBuffer = await selectedFile.arrayBuffer();
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    processingTitle.textContent = "A preparar o conversor…";
+    processingText.textContent =
+      "Na primeira conversão, o motor FFmpeg precisa de ser carregado.";
 
-    if (!AudioContextClass) {
-      throw new Error("O navegador não suporta processamento de áudio.");
-    }
+    const engine = await loadEngine();
 
-    const audioContext = new AudioContextClass();
+    processingTitle.textContent = "A converter o áudio…";
+    processingText.textContent =
+      "O ficheiro é processado localmente no navegador.";
 
-    try {
-      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-      processingTitle.textContent = "A criar o WAV…";
-      processingText.textContent = `${audioBuffer.numberOfChannels} canal(is) · ${audioBuffer.sampleRate} Hz`;
+    await engine.writeFile(inputName, new Uint8Array(await selectedFile.arrayBuffer()));
+    setProgress(0);
 
-      await new Promise(resolve => requestAnimationFrame(resolve));
+    await engine.exec([
+      "-i",
+      inputName,
+      ...output.args,
+      outputName
+    ]);
 
-      const wavBlob = makeWavBlob(audioBuffer);
-      const originalBase = selectedFile.name.replace(/\.[^/.]+$/, "");
-      const outputName = `${originalBase || "audio"}.wav`;
+    const data = await engine.readFile(outputName);
+    const bytes = data instanceof Uint8Array
+      ? data
+      : new Uint8Array(data);
+    const blob = new Blob([bytes], { type: output.mime });
 
-      resultUrl = URL.createObjectURL(wavBlob);
-      resultName.textContent = outputName;
-      resultSize.textContent = `${formatSize(wavBlob.size)} · WAV PCM`;
-      downloadButton.href = resultUrl;
-      downloadButton.download = outputName;
-      resultPanel.hidden = false;
+    resultUrl = URL.createObjectURL(blob);
+    const originalBase = selectedFile.name.replace(/\.[^/.]+$/, "");
+    const finalName = `${originalBase || "audio"}.${output.extension}`;
 
-      showNotice("Conversão concluída. O seu ficheiro está pronto para baixar.", "success");
-    } finally {
-      await audioContext.close();
-    }
+    resultName.textContent = finalName;
+    resultSize.textContent = `${formatSize(blob.size)} · ${
+      output.extension.toUpperCase()
+    }`;
+    downloadButton.href = resultUrl;
+    downloadButton.download = finalName;
+    resultPanel.hidden = false;
+
+    showNotice(
+      `Conversão concluída para ${output.extension.toUpperCase()}. O ficheiro está pronto para baixar.`,
+      "success"
+    );
+
+    await engine.deleteFile(inputName);
+    await engine.deleteFile(outputName);
+    setProgress(100);
   } catch (error) {
     console.error(error);
     showNotice(
-      "Não foi possível ler este áudio. Tente outro ficheiro ou um formato suportado pelo navegador.",
+      "Não foi possível converter este áudio. Tente outro ficheiro ou outro formato de saída.",
       "error"
     );
   } finally {
@@ -182,7 +251,10 @@ fileInput.addEventListener("change", () => {
   dropZone.addEventListener(eventName, event => {
     event.preventDefault();
 
-    if (eventName === "dragleave" && !dropZone.contains(event.relatedTarget)) {
+    if (
+      eventName === "dragleave" &&
+      !dropZone.contains(event.relatedTarget)
+    ) {
       dropZone.classList.remove("dragover");
     }
 
@@ -197,10 +269,11 @@ removeFile.addEventListener("click", () => {
   fileInput.value = "";
   filePanel.hidden = true;
   settings.hidden = true;
+  enginePanel.hidden = true;
   processing.hidden = true;
   convertButton.disabled = true;
   clearResult();
   notice.hidden = true;
 });
 
-convertButton.addEventListener("click", convertToWav);
+convertButton.addEventListener("click", convertAudio);
