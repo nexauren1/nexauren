@@ -2,37 +2,6 @@
   const oldFooter = document.querySelector("footer");
   const footer = document.createElement("footer");
   footer.className = "nx-footer";
-  footer.innerHTML = `
-    <div class="nx-footer-inner">
-      <div class="nx-footer-brand">
-        <a href="/" class="nx-footer-logo">NEXA<span>UREN</span></a>
-        <p>Ferramentas digitais simples, rápidas e úteis para o dia a dia.</p>
-      </div>
-      <div class="nx-footer-column">
-        <h3>Explorar</h3>
-        <a href="/tools/">Ferramentas</a>
-        <a href="/plans/">Planos</a>
-        <a href="/about/">Sobre o Nexauren</a>
-      </div>
-      <div class="nx-footer-column">
-        <h3>Conta</h3>
-        <a href="/login/">Entrar</a>
-        <a href="/register/">Criar conta</a>
-        <a href="/dashboard/">Dashboard</a>
-        <a href="/account/">Minha conta</a>
-      </div>
-      <div class="nx-footer-column">
-        <h3>Informações</h3>
-        <a href="/privacy/">Privacidade</a>
-        <a href="/terms/">Termos de uso</a>
-        <a href="/cookies/">Cookies</a>
-      </div>
-    </div>
-    <div class="nx-footer-bottom">
-      <span>© 2026 Nexauren. Todos os direitos reservados.</span>
-      <span>Feito para tornar tarefas digitais mais simples.</span>
-    </div>
-  `;
 
   const style = document.createElement("style");
   style.textContent = `
@@ -52,6 +21,73 @@
     @media(prefers-reduced-motion:reduce){.nx-footer-column a{transition:none}}
   `;
   document.head.appendChild(style);
+
+  const render = user => {
+    const account = user
+      ? `
+        <a href="/dashboard/">Dashboard</a>
+        <a href="/account/">Minha conta</a>
+        <a href="#" data-nx-footer-logout>Sair</a>
+      `
+      : `
+        <a href="/login/">Entrar</a>
+        <a href="/register/">Criar conta</a>
+      `;
+
+    footer.innerHTML = `
+      <div class="nx-footer-inner">
+        <div class="nx-footer-brand">
+          <a href="/" class="nx-footer-logo">NEXA<span>UREN</span></a>
+          <p>Ferramentas digitais simples, rápidas e úteis para o dia a dia.</p>
+        </div>
+        <div class="nx-footer-column">
+          <h3>Explorar</h3>
+          <a href="/tools/">Ferramentas</a>
+          <a href="/plans/">Planos</a>
+          <a href="/about/">Sobre o Nexauren</a>
+        </div>
+        <div class="nx-footer-column">
+          <h3>Conta</h3>
+          ${account}
+        </div>
+        <div class="nx-footer-column">
+          <h3>Informações</h3>
+          <a href="/privacy/">Privacidade</a>
+          <a href="/terms/">Termos de uso</a>
+          <a href="/cookies/">Cookies</a>
+        </div>
+      </div>
+      <div class="nx-footer-bottom">
+        <span>© 2026 Nexauren. Todos os direitos reservados.</span>
+        <span>Feito para tornar tarefas digitais mais simples.</span>
+      </div>
+    `;
+
+    const logout = footer.querySelector("[data-nx-footer-logout]");
+    if (logout) {
+      logout.addEventListener("click", async event => {
+        event.preventDefault();
+        try {
+          await fetch("/api/auth/logout", {
+            method: "POST",
+            credentials: "same-origin"
+          });
+        } finally {
+          location.href = "/";
+        }
+      });
+    }
+  };
+
+  render(null);
   if (oldFooter) oldFooter.replaceWith(footer);
   else document.body.appendChild(footer);
+
+  fetch("/api/auth/me", {
+    credentials: "same-origin",
+    cache: "no-store"
+  })
+    .then(response => response.ok ? response.json() : null)
+    .then(data => render(data?.user || null))
+    .catch(() => render(null));
 })();

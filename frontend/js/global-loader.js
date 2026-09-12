@@ -20,6 +20,11 @@
   loader.innerHTML = '<div class="nx-loader-box"><div class="nx-spinner" aria-hidden="true"></div><div class="nx-loader-text">A carregar…</div></div>';
   document.body.appendChild(loader);
 
+  const headerScript = document.createElement("script");
+  headerScript.src = "/js/global-header.js";
+  headerScript.defer = true;
+  document.head.appendChild(headerScript);
+
   const footerScript = document.createElement("script");
   footerScript.src = "/js/global-footer.js";
   footerScript.defer = true;
