@@ -54,7 +54,23 @@ async function currentUser(req, env) {
     .first();
 }
 
+async function getFreePlanId(env) {
+  const plan = await env.DB
+    .prepare(
+      "SELECT id FROM plans WHERE slug='free' LIMIT 1"
+    )
+    .first();
+
+  if (!plan?.id) {
+    throw new Error("Free plan is not configured");
+  }
+
+  return plan.id;
+}
+
 async function ensureAccount(env, userId) {
+  const now = Date.now();
+
   const balance = await env.DB
     .prepare(
       "SELECT user_id FROM credit_balances " +
@@ -77,8 +93,8 @@ async function ensureAccount(env, userId) {
         0,
         0,
         0,
-        Date.now() + 30 * 86400000,
-        Date.now()
+        now + 30 * 86400000,
+        now
       )
       .run();
   }
@@ -92,6 +108,8 @@ async function ensureAccount(env, userId) {
     .first();
 
   if (!sub) {
+    const freePlanId = await getFreePlanId(env);
+
     await env.DB
       .prepare(
         "INSERT INTO subscriptions(" +
@@ -101,11 +119,11 @@ async function ensureAccount(env, userId) {
       .bind(
         token(),
         userId,
-        "free",
+        freePlanId,
         "active",
-        Date.now(),
-        Date.now(),
-        Date.now()
+        now,
+        now,
+        now
       )
       .run();
   }
@@ -197,7 +215,7 @@ async function register(req, env) {
 
   if (!name || name.length > 80 ||
       !email || password.length < 8) {
-    return json({ error: "Dados inválidos" }, 400);
+    return json({ error: "Invalid account details" }, 400);
   }
 
   const existing = await env.DB
@@ -208,7 +226,9 @@ async function register(req, env) {
     .first();
 
   if (existing) {
-    return json({ error: "Email já registado" }, 409);
+    return json({
+      error: "Email is already registered"
+    }, 409);
   }
 
   const id = token();
@@ -262,7 +282,7 @@ async function login(req, env) {
 
   if (!user) {
     return json({
-      error: "Email ou senha incorretos"
+      error: "Incorrect email or password"
     }, 401);
   }
 
@@ -273,7 +293,7 @@ async function login(req, env) {
 
   if (passwordHash !== user.password_hash) {
     return json({
-      error: "Email ou senha incorretos"
+      error: "Incorrect email or password"
     }, 401);
   }
 
@@ -362,7 +382,7 @@ async function paypalToken(env) {
 async function paypalOrder(req, env) {
   const user = await currentUser(req, env);
   if (!user) {
-    return json({ error: "Login necessário" }, 401);
+    return json({ error: "Login required" }, 401);
   }
 
   const body = await req.json();
@@ -376,7 +396,7 @@ async function paypalOrder(req, env) {
   const amount = prices[credits];
 
   if (!amount) {
-    return json({ error: "Pacote inválido" }, 400);
+    return json({ error: "Invalid package" }, 400);
   }
 
   const pkg = await env.DB
@@ -388,13 +408,13 @@ async function paypalOrder(req, env) {
     .first();
 
   if (!pkg) {
-    return json({ error: "Pacote não encontrado" }, 404);
+    return json({ error: "Package not found" }, 404);
   }
 
   const access = await paypalToken(env);
   if (!access) {
     return json({
-      error: "PayPal Sandbox não configurado"
+      error: "PayPal Sandbox is not configured"
     }, 503);
   }
 
@@ -435,7 +455,7 @@ async function paypalOrder(req, env) {
 
   if (!response.ok) {
     return json({
-      error: "Não foi possível criar o pedido PayPal"
+      error: "Could not create the PayPal order"
     }, 502);
   }
 
@@ -547,7 +567,7 @@ async function paypalCapture(req, env) {
         "purchased",
         purchase.credits,
         0,
-        `Compra de ${purchase.credits} créditos`,
+        `Purchase of ${purchase.credits} credits`,
         orderId,
         Date.now()
       )
@@ -560,34 +580,32 @@ async function paypalCapture(req, env) {
 async function paypalSubscription(req, env) {
   const user = await currentUser(req, env);
   if (!user) {
-    return json({ error: "Login necessário" }, 401);
+    return json({ error: "Login required" }, 401);
   }
 
   const body = await req.json();
-  const plan = String(body.plan || "");
-
-  if (!["pro", "premium"].includes(plan)) {
-    return json({ error: "Plano inválido" }, 400);
-  }
+  const planSlug = String(body?.plan_slug || "")
+    .trim()
+    .toLowerCase();
 
   const adminPlan = await env.DB
     .prepare(
-      "SELECT paypal_plan_id FROM nexauren_admin_plans " +
+      "SELECT * FROM plans " +
       "WHERE slug=? AND active=1 LIMIT 1"
     )
-    .bind(plan)
+    .bind(planSlug)
     .first();
 
   if (!adminPlan?.paypal_plan_id) {
     return json({
-      error: "Plano PayPal não configurado"
-    }, 400);
+      error: "PayPal plan is not configured"
+    }, 404);
   }
 
   const access = await paypalToken(env);
   if (!access) {
     return json({
-      error: "PayPal Sandbox não configurado"
+      error: "PayPal Sandbox is not configured"
     }, 503);
   }
 
@@ -619,8 +637,7 @@ async function paypalSubscription(req, env) {
 
   if (!response.ok) {
     return json({
-      error:
-        "Não foi possível criar a assinatura PayPal"
+      error: "Could not create the PayPal subscription"
     }, 502);
   }
 
@@ -676,7 +693,7 @@ export default {
           req.method === "GET") {
         const user = await currentUser(req, env);
         if (!user) {
-          return json({ error: "Login necessário" }, 401);
+          return json({ error: "Login required" }, 401);
         }
         return json(await accountData(env, user.id));
       }
@@ -704,7 +721,7 @@ export default {
       return env.ASSETS.fetch(req);
     } catch (error) {
       return json({
-        error: "Erro interno",
+        error: "Internal server error",
         detail: String(error?.message || error)
       }, 500);
     }
