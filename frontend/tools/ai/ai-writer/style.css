@@ -77,6 +77,95 @@
   color: var(--tool-accent);
 }
 
+.advanced-section {
+  margin: 0 0 22px;
+  padding: 17px;
+  border: 1px solid #e2e8f0;
+  border-radius: 17px;
+  background: #f8fafc;
+}
+
+.advanced-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 13px;
+}
+
+.advanced-head div {
+  display: grid;
+  gap: 3px;
+}
+
+.advanced-head span:not(.plan-badge) {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.plan-badge {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #e0e7ff;
+  color: #4338ca;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.advanced-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.feature-card {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  min-height: 100px;
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  background: #fff;
+  color: #0f172a;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-1px);
+  border-color: #93c5fd;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, .07);
+}
+
+.feature-card.selected {
+  border-color: var(--tool-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+}
+
+.feature-card small {
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.feature-lock {
+  width: fit-content;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.feature-card.premium .feature-lock {
+  background: #fef3c7;
+  color: #92400e;
+}
+
 .field-label,
 .settings-grid label {
   display: grid;
@@ -214,5 +303,7 @@ button:disabled {
   .tool-page { padding: 34px 14px 54px; }
   .writer-card { padding: 15px; border-radius: 18px; }
   .settings-grid { grid-template-columns: 1fr; }
+  .advanced-grid { grid-template-columns: 1fr; }
+  .advanced-head { align-items: flex-start; }
   .actions button { flex: 1 1 140px; }
 }
