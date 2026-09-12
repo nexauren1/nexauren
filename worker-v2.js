@@ -109,7 +109,11 @@ async function paypalSubscription(req, env) {
   const u = await me(req, env); if (!u) return json({ error: "Login necessário" }, 401); const { plan } = await req.json(); const planId = plan === "pro" ? env.PAYPAL_PRO_PLAN_ID : plan === "premium" ? env.PAYPAL_PREMIUM_PLAN_ID : null; if (!planId) return json({ error: "ID do plano PayPal Sandbox ainda não configurado." }, 503); const access = await paypalToken(env); if (!access) return json({ error: "PayPal Sandbox não configurado." }, 503); const base = env.PAYPAL_BASE_URL || "https://api-m.sandbox.paypal.com"; const origin = new URL(req.url).origin; const r = await fetch(`${base}/v1/billing/subscriptions`, { method: "POST", headers: { Authorization: `Bearer ${access}`, "Content-Type": "application/json" }, body: JSON.stringify({ plan_id: planId, custom_id: u.id, application_context: { brand_name: "Nexauren", user_action: "SUBSCRIBE_NOW", return_url: `${origin}/dashboard`, cancel_url: `${origin}/plans` } }) }); if (!r.ok) return json({ error: "Não foi possível criar a assinatura PayPal." }, 502); const d = await r.json(); const url = d.links?.find(x => x.rel === "approve")?.href; return json({ url, subscription_id: d.id });
 }
 
+import { adminRouter } from "./admin.js";
+
 export default { async fetch(req, env) {
+  const __adminResponse = await adminRouter(req, env);
+  if (__adminResponse) return __adminResponse;
   const url = new URL(req.url); const p = url.pathname; const u = await me(req, env);
   try {
     if ((p === "/register" || p === "/login") && u) return red("/dashboard");
