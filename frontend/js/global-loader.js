@@ -20,6 +20,11 @@
   loader.innerHTML = '<div class="nx-loader-box"><div class="nx-spinner" aria-hidden="true"></div><div class="nx-loader-text">A carregar…</div></div>';
   document.body.appendChild(loader);
 
+  const footerScript = document.createElement("script");
+  footerScript.src = "/js/global-footer.js";
+  footerScript.defer = true;
+  document.head.appendChild(footerScript);
+
   let timer = null;
   let firstLoad = true;
   const show = () => {
@@ -33,7 +38,6 @@
 
   window.NexaurenLoader = { show, hide };
 
-  // Also works on standalone tool pages: show during the initial page load.
   show();
   const finishInitialLoad = () => {
     if (!firstLoad) return;
