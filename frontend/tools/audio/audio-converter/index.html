@@ -67,8 +67,10 @@
       </div>
 
       <div class="engine-panel" id="enginePanel" hidden>
-        <strong>Motor de conversão</strong>
-        <span id="engineStatus">Pronto para iniciar</span>
+        <div class="engine-row">
+          <strong>Motor de conversão</strong>
+          <span id="engineStatus">Pronto para iniciar</span>
+        </div>
         <div class="progress-track">
           <div class="progress-bar" id="progressBar"></div>
         </div>
@@ -100,6 +102,9 @@
       <article><span>03</span><h3>Resultado</h3><p>Baixe o novo ficheiro diretamente para o seu dispositivo.</p></article>
     </section>
   </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
