@@ -20,10 +20,20 @@
   const planMeta = $("planMeta");
   const planBox = $("planBox");
   const generateBtn = $("generateBtn");
+  const costBox = $("costBox");
+  const costText = $("costText");
+  const costHint = $("costHint");
+  const creditSourceBox = $("creditSourceBox");
+  const planCreditBtn = $("planCreditBtn");
+  const purchasedCreditBtn = $("purchasedCreditBtn");
+  const planCreditBalance = $("planCreditBalance");
+  const purchasedCreditBalance = $("purchasedCreditBalance");
+  const sourceStatus = $("sourceStatus");
 
   let sourceFile = null;
   let finalZip = null;
   let limits = null;
+  let selectedSource = null;
 
   const names = [
     "Deep", "Bright", "Punch", "Warm",
@@ -71,11 +81,14 @@
     baseName.dataset.edited = "1";
   });
 
-  amount.addEventListener("input", () => {
-    const max = limits?.max_samples || 500;
-    let value = Number(amount.value || 1);
-    value = Math.max(1, Math.min(max, value));
-    amount.value = value;
+  amount.addEventListener("input", updateCost);
+
+  planCreditBtn.addEventListener("click", () => {
+    selectSource("plan");
+  });
+
+  purchasedCreditBtn.addEventListener("click", () => {
+    selectSource("purchased");
   });
 
   async function loadLimits() {
@@ -88,30 +101,127 @@
 
       if (!response.ok || !data.ok) {
         planName.textContent = "Login necessário";
-        planMeta.textContent = "Entre na sua conta para usar o gerador.";
+        planMeta.textContent =
+          "Entre na sua conta para usar o gerador.";
         generateBtn.disabled = true;
-        return;
+        return false;
       }
 
       limits = data;
-      amount.max = String(data.max_samples);
+      amount.max = String(data.max_samples || 500);
 
       const current = Number(amount.value || 1);
-      if (current > data.max_samples) {
-        amount.value = data.max_samples;
+      if (current > Number(data.max_samples || 500)) {
+        amount.value = data.max_samples || 500;
       }
 
-      planName.textContent = `${data.plan_name} · até ${data.max_samples} samples`;
+      planName.textContent =
+        `${data.plan_name} · ${data.included_samples} samples incluídos`;
       planMeta.textContent =
-        `${data.available_credits} créditos disponíveis · 1 crédito por sample`;
+        `${data.plan_credits} créditos do plano · ` +
+        `${data.purchased_credits} créditos comprados`;
       amountHint.textContent =
-        `Máximo do plano: ${data.max_samples} samples por geração.`;
+        `${data.included_samples} samples incluídos sem custo. ` +
+        `Até ${data.max_samples} samples por geração.`;
       planBox.dataset.plan = data.plan;
+
+      updateBalances(data);
+      updateCost();
+      return true;
     } catch (error) {
-      planName.textContent = "Não foi possível verificar o plano";
+      console.error(error);
+      planName.textContent =
+        "Não foi possível verificar o plano";
       planMeta.textContent = "Tente atualizar a página.";
       generateBtn.disabled = true;
+      return false;
     }
+  }
+
+  function updateBalances(data) {
+    planCreditBalance.textContent =
+      `${Number(data.plan_credits || 0)} disponíveis`;
+    purchasedCreditBalance.textContent =
+      `${Number(data.purchased_credits || 0)} disponíveis`;
+
+    planCreditBtn.disabled =
+      Number(data.plan_credits || 0) <= 0;
+    purchasedCreditBtn.disabled =
+      Number(data.purchased_credits || 0) <= 0;
+  }
+
+  function updateCost() {
+    if (!limits) return;
+
+    const max = Number(limits.max_samples || 500);
+    let count = Number(amount.value || 1);
+    count = Math.max(1, Math.min(max, count));
+    amount.value = count;
+
+    const included = Number(limits.included_samples || 0);
+    const extra = Math.max(0, count - included);
+
+    costText.textContent =
+      `${extra} crédito${extra === 1 ? "" : "s"}`;
+
+    if (extra === 0) {
+      costHint.textContent =
+        `${count} samples estão dentro do limite incluído do seu plano.`;
+      creditSourceBox.hidden = true;
+      selectedSource = null;
+      clearSourceSelection();
+      generateBtn.disabled = false;
+      return;
+    }
+
+    costHint.textContent =
+      `${count} pedidos − ${included} incluídos = ` +
+      `${extra} samples extra.`;
+    creditSourceBox.hidden = false;
+
+    const available = selectedSource === "plan"
+      ? Number(limits.plan_credits || 0)
+      : selectedSource === "purchased"
+        ? Number(limits.purchased_credits || 0)
+        : 0;
+
+    if (selectedSource) {
+      sourceStatus.textContent =
+        available >= extra
+          ? `Selecionado: ${sourceLabel(selectedSource)} · ` +
+            `${extra} crédito${extra === 1 ? "" : "s"} será${extra === 1 ? "" : "ão"} gasto${extra === 1 ? "" : "s"}.`
+          : `A fonte selecionada tem ${available} créditos, ` +
+            `mas são necessários ${extra}.`;
+      generateBtn.disabled = available < extra;
+    } else {
+      sourceStatus.textContent =
+        `Escolha uma fonte para gastar os ${extra} créditos extra.`;
+      generateBtn.disabled = true;
+    }
+  }
+
+  function sourceLabel(source) {
+    return source === "plan"
+      ? "🟡 Créditos do plano"
+      : "🔵 Créditos comprados";
+  }
+
+  function selectSource(source) {
+    selectedSource = source;
+    clearSourceSelection();
+
+    if (source === "plan") {
+      planCreditBtn.classList.add("selected");
+    } else {
+      purchasedCreditBtn.classList.add("selected");
+    }
+
+    updateCost();
+  }
+
+  function clearSourceSelection() {
+    planCreditBtn.classList.remove("selected");
+    purchasedCreditBtn.classList.remove("selected");
   }
 
   function loadFile(file) {
@@ -141,7 +251,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 3000);
   });
 
-  async function authorizeGeneration(count) {
+  async function authorizeGeneration(count, creditSource) {
     const response = await fetch(
       "/api/tools/sample-pack/consume",
       {
@@ -150,7 +260,10 @@
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ count })
+        body: JSON.stringify({
+          count,
+          credit_source: creditSource
+        })
       }
     );
 
@@ -166,8 +279,12 @@
     }
 
     limits.available_credits = data.remaining_credits;
+    limits.plan_credits = data.plan_credits;
+    limits.purchased_credits = data.purchased_credits;
+    updateBalances(limits);
     planMeta.textContent =
-      `${data.remaining_credits} créditos disponíveis · 1 crédito por sample`;
+      `${data.plan_credits} créditos do plano · ` +
+      `${data.purchased_credits} créditos comprados`;
     return data;
   }
 
@@ -178,50 +295,63 @@
     }
 
     if (!window.JSZip) {
-      alert("O módulo ZIP ainda está a carregar. Tente novamente em alguns segundos.");
+      alert(
+        "O módulo ZIP ainda está a carregar. " +
+        "Tente novamente em alguns segundos."
+      );
       return;
     }
 
     if (!limits) {
-      await loadLimits();
-      if (!limits) return;
+      const loaded = await loadLimits();
+      if (!loaded) return;
     }
 
     const count = Number(amount.value);
-    const max = Number(limits.max_samples);
+    const max = Number(limits.max_samples || 500);
+    const included = Number(limits.included_samples || 0);
+    const extra = Math.max(0, count - included);
 
     if (!Number.isInteger(count) || count < 1 || count > max) {
       alert(`Escolha entre 1 e ${max} samples.`);
       return;
     }
 
-    if (count > Number(limits.available_credits)) {
-      alert(
-        `Você tem ${limits.available_credits} créditos, ` +
-        `mas esta geração precisa de ${count}.`
-      );
-      return;
+    if (extra > 0) {
+      if (!selectedSource) {
+        alert("Escolha créditos do plano ou créditos comprados.");
+        return;
+      }
+
+      const available = selectedSource === "plan"
+        ? Number(limits.plan_credits || 0)
+        : Number(limits.purchased_credits || 0);
+
+      if (available < extra) {
+        alert(
+          `Você selecionou ${sourceLabel(selectedSource)}, ` +
+          `mas tem ${available} créditos e precisa de ${extra}.`
+        );
+        updateCost();
+        return;
+      }
     }
 
     generateBtn.disabled = true;
     progressBox.hidden = false;
     resultBox.hidden = true;
     progressBar.style.width = "0%";
-    progressText.textContent = "A verificar créditos…";
+    progressText.textContent = "A preparar o áudio…";
 
     if (window.NexaurenLoader) {
       NexaurenLoader.showProcessing(
-        `A reservar ${count} créditos…`
+        extra > 0
+          ? `A preparar ${extra} créditos…`
+          : "A preparar geração gratuita…"
       );
     }
 
     try {
-      await authorizeGeneration(count);
-
-      if (window.NexaurenLoader) {
-        NexaurenLoader.setText(`A gerar sample 1/${count}…`);
-      }
-
       const arrayBuffer = await sourceFile.arrayBuffer();
       const AudioCtx =
         window.AudioContext || window.webkitAudioContext;
@@ -278,12 +408,8 @@
         await new Promise(requestAnimationFrame);
       }
 
-      const name =
-        baseName.value || sampleType.value;
-      const readme = buildReadme(
-        generated.length,
-        name
-      );
+      const name = baseName.value || sampleType.value;
+      const readme = buildReadme(generated.length, name);
       const info = buildInfo(generated);
 
       if ($("includeReadme").checked) {
@@ -313,24 +439,49 @@
         }
       );
 
-      resultMeta.textContent =
-        `${generated.length} samples • ZIP pronto • ` +
-        `${limits.available_credits} créditos restantes`;
+      if (window.NexaurenLoader) {
+        NexaurenLoader.setText(
+          extra > 0
+            ? "A confirmar o uso dos créditos…"
+            : "A registar a geração…"
+        );
+      }
+
+      const charged = await authorizeGeneration(
+        count,
+        extra > 0 ? selectedSource : null
+      );
+
+      resultMeta.textContent = extra > 0
+        ? `${generated.length} samples • ${extra} créditos gastos ` +
+          `(${sourceLabel(charged.credit_source)}) • ` +
+          `${charged.remaining_credits} créditos restantes`
+        : `${generated.length} samples • 0 créditos gastos • ` +
+          `limite incluído do plano`;
       resultBox.hidden = false;
       progressBox.hidden = true;
+      updateCost();
     } catch (error) {
       console.error(error);
 
-      if (error.code === "PLAN_LIMIT") {
-        alert(error.message);
+      if (error.code === "CREDIT_SOURCE_REQUIRED") {
+        alert(
+          `Escolha a fonte de créditos. ` +
+          `São necessários ${error.data?.required_credits || 0} créditos.`
+        );
       } else if (error.code === "INSUFFICIENT_CREDITS") {
         alert(
-          `${error.message} Disponíveis: ` +
+          `${error.message} Necessários: ` +
+          `${error.data?.required_credits || 0}. ` +
+          `Disponíveis nessa fonte: ` +
           `${error.data?.available_credits || 0}.`
         );
+        await loadLimits();
       } else if (error.code === "BALANCE_CHANGED") {
         alert(error.message);
         await loadLimits();
+      } else if (error.code === "MAX_SAMPLES") {
+        alert(error.message);
       } else {
         alert(
           `Não foi possível gerar o pack: ` +
@@ -396,31 +547,25 @@
       Math.ceil(duration * sampleRate),
       sampleRate
     );
-    const source =
-      offline.createBufferSource();
+    const source = offline.createBufferSource();
     source.buffer = buffer;
-    source.playbackRate.value =
-      s.playbackRate;
+    source.playbackRate.value = s.playbackRate;
 
-    const filter =
-      offline.createBiquadFilter();
+    const filter = offline.createBiquadFilter();
     filter.type = s.filterType;
     filter.frequency.value = s.filterFreq;
-    filter.Q.value =
-      0.35 + Math.random() * 2.5;
+    filter.Q.value = 0.35 + Math.random() * 2.5;
 
     const gain = offline.createGain();
     gain.gain.value = s.gain;
 
-    const shaper =
-      offline.createWaveShaper();
+    const shaper = offline.createWaveShaper();
     shaper.curve = makeDriveCurve(s.drive);
     shaper.oversample = "2x";
 
-    const panner =
-      offline.createStereoPanner
-        ? offline.createStereoPanner()
-        : null;
+    const panner = offline.createStereoPanner
+      ? offline.createStereoPanner()
+      : null;
 
     if (panner) {
       panner.pan.value = s.pan;
@@ -459,23 +604,18 @@
     const k = 1 + amount * 18;
 
     for (let i = 0; i < n; i++) {
-      const x =
-        i * 2 / (n - 1) - 1;
-      curve[i] =
-        Math.tanh(k * x) /
-        Math.tanh(k);
+      const x = i * 2 / (n - 1) - 1;
+      curve[i] = Math.tanh(k * x) / Math.tanh(k);
     }
 
     return curve;
   }
 
   function audioBufferToWav(buffer) {
-    const channels =
-      buffer.numberOfChannels;
+    const channels = buffer.numberOfChannels;
     const length = buffer.length;
     const sampleRate = buffer.sampleRate;
-    const bytes =
-      44 + length * channels * 2;
+    const bytes = 44 + length * channels * 2;
     const array = new ArrayBuffer(bytes);
     const view = new DataView(array);
 
@@ -496,11 +636,7 @@
       sampleRate * channels * 2,
       true
     );
-    view.setUint16(
-      32,
-      channels * 2,
-      true
-    );
+    view.setUint16(32, channels * 2, true);
     view.setUint16(34, 16, true);
     writeString(view, 36, "data");
     view.setUint32(
@@ -515,10 +651,7 @@
       for (let ch = 0; ch < channels; ch++) {
         const sample = Math.max(
           -1,
-          Math.min(
-            1,
-            buffer.getChannelData(ch)[i]
-          )
+          Math.min(1, buffer.getChannelData(ch)[i])
         );
         view.setInt16(
           offset,
@@ -531,9 +664,7 @@
       }
     }
 
-    return new Blob([array], {
-      type: "audio/wav"
-    });
+    return new Blob([array], { type: "audio/wav" });
   }
 
   function writeString(view, offset, text) {
@@ -563,16 +694,32 @@
   function safeName(value) {
     return String(value)
       .trim()
-      .replace(
-        /[^a-zA-Z0-9_-]+/g,
-        "-"
-      )
+      .replace(/[^a-zA-Z0-9_-]+/g, "-")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "") || "Sample";
   }
 
   function buildReadme(count, name) {
-    return `NEXAUREN — SAMPLE PACK GENERATOR\n\nPack: ${name}\nSamples gerados: ${count}\n\nObrigado por usar o Nexauren.\n\nEste pack foi criado a partir do sample enviado pelo utilizador. O Nexauren aplicou variações de processamento para criar versões diferentes, mantendo o processo no navegador.\n\nDICAS\n• Ouça cada variação antes de a usar num projeto.\n• Combine diferentes versões para criar grooves e camadas.\n• Guarde o ZIP original para manter a organização do pack.\n\nDIREITOS\nO Nexauren não reivindica propriedade sobre o áudio original enviado pelo utilizador nem sobre as variações geradas. O utilizador é responsável por garantir que possui os direitos necessários sobre o material de origem e por respeitar as licenças aplicáveis.\n\nVOLTE AO NEXAUREN\nExplore mais ferramentas para áudio, imagem, texto, produtividade e criação.\n\nNexauren — ferramentas para criar, trabalhar e produzir melhor.\n`;
+    return `NEXAUREN — SAMPLE PACK GENERATOR\n\n` +
+      `Pack: ${name}\n` +
+      `Samples gerados: ${count}\n\n` +
+      `Obrigado por usar o Nexauren.\n\n` +
+      `Este pack foi criado a partir do sample enviado pelo utilizador. ` +
+      `O Nexauren aplicou variações de processamento para criar versões ` +
+      `diferentes, mantendo o processo no navegador.\n\n` +
+      `DICAS\n` +
+      `• Ouça cada variação antes de a usar num projeto.\n` +
+      `• Combine diferentes versões para criar grooves e camadas.\n` +
+      `• Guarde o ZIP original para manter a organização do pack.\n\n` +
+      `DIREITOS\n` +
+      `O Nexauren não reivindica propriedade sobre o áudio original ` +
+      `enviado pelo utilizador nem sobre as variações geradas. O utilizador ` +
+      `é responsável por garantir que possui os direitos necessários sobre ` +
+      `o material de origem e por respeitar as licenças aplicáveis.\n\n` +
+      `VOLTE AO NEXAUREN\n` +
+      `Explore mais ferramentas para áudio, imagem, texto, produtividade ` +
+      `e criação.\n\n` +
+      `Nexauren — ferramentas para criar, trabalhar e produzir melhor.\n`;
   }
 
   function buildInfo(items) {
@@ -589,7 +736,16 @@
   }
 
   function buildLicense() {
-    return `NEXAUREN — DIREITOS E USO\n\nO Nexauren não reivindica a propriedade do sample de origem nem do conteúdo criado pelo utilizador. A utilização do resultado depende dos direitos que o utilizador possui sobre o material de origem.\n\nSe o sample original pertence a outra pessoa, uma transformação automática não elimina a licença, copyright ou outras restrições existentes. Verifique sempre a licença antes de distribuir ou vender o resultado.\n\nEste ficheiro é informativo e não substitui aconselhamento jurídico.\n`;
+    return `NEXAUREN — DIREITOS E USO\n\n` +
+      `O Nexauren não reivindica a propriedade do sample de origem nem ` +
+      `do conteúdo criado pelo utilizador. A utilização do resultado ` +
+      `depende dos direitos que o utilizador possui sobre o material ` +
+      `de origem.\n\n` +
+      `Se o sample original pertence a outra pessoa, uma transformação ` +
+      `automática não elimina a licença, copyright ou outras restrições ` +
+      `existentes. Verifique sempre a licença antes de distribuir ou ` +
+      `vender o resultado.\n\n` +
+      `Este ficheiro é informativo e não substitui aconselhamento jurídico.\n`;
   }
 
   loadLimits();
