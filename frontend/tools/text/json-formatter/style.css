@@ -1,0 +1,188 @@
+:root {
+  --tool-accent: #7c3aed;
+  --tool-accent-soft: #ede9fe;
+}
+
+.tool-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 48px 20px 72px;
+}
+
+.tool-hero {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.tool-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: var(--tool-accent-soft);
+  color: var(--tool-accent);
+  font: 700 18px/1 monospace;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--tool-accent);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.tool-hero h1 {
+  margin: 0;
+  font-size: clamp(32px, 6vw, 48px);
+  line-height: 1.05;
+}
+
+.subtitle {
+  max-width: 620px;
+  margin: 14px auto 0;
+  color: #64748b;
+  font-size: 17px;
+}
+
+.formatter-card {
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, .08);
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.editor-panel {
+  min-width: 0;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 9px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+textarea {
+  width: 100%;
+  min-height: 360px;
+  box-sizing: border-box;
+  resize: vertical;
+  padding: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  outline: none;
+  background: #f8fafc;
+  color: #0f172a;
+  font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+textarea:focus {
+  border-color: var(--tool-accent);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, .12);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.primary-btn,
+.secondary-btn {
+  min-height: 44px;
+  padding: 0 17px;
+  border-radius: 11px;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  transition: transform .15s ease, opacity .15s ease, background .15s ease;
+}
+
+.primary-btn {
+  border-color: var(--tool-accent);
+  background: var(--tool-accent);
+  color: #fff;
+}
+
+.secondary-btn {
+  background: #fff;
+  color: #334155;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover {
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.status {
+  min-height: 24px;
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.status.success {
+  color: #15803d;
+}
+
+.status.error {
+  color: #b91c1c;
+}
+
+.info-section {
+  max-width: 780px;
+  margin: 38px auto 0;
+  color: #475569;
+}
+
+.info-section h2 {
+  color: #0f172a;
+}
+
+.info-section li {
+  margin: 8px 0;
+}
+
+@media (max-width: 760px) {
+  .tool-page {
+    padding: 34px 14px 54px;
+  }
+
+  .formatter-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  textarea {
+    min-height: 260px;
+  }
+
+  .actions button {
+    flex: 1 1 140px;
+  }
+}
