@@ -1,10 +1,28 @@
-import { tools } from "../data/tools.js";
+const registryUrl = "/data/tools.json";
+let registryPromise = null;
 
-/**
- * Universal category registry for Nexauren tools.
- * One file handles every category automatically.
- */
-export function getCategories() {
+async function loadRegistry() {
+  if (!registryPromise) {
+    registryPromise = fetch(registryUrl, { cache: "no-cache" })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Falha ao carregar ${registryUrl}: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => Array.isArray(data) ? data : data.tools)
+      .then(list => Array.isArray(list) ? list : []);
+  }
+
+  return registryPromise;
+}
+
+export async function getTools() {
+  return loadRegistry();
+}
+
+export async function getCategories() {
+  const tools = await loadRegistry();
   const categories = new Map();
 
   for (const tool of tools) {
@@ -26,19 +44,20 @@ export function getCategories() {
   return [...categories.values()];
 }
 
-export function getCategory(categorySlug) {
-  return getCategories().find(category => category.slug === categorySlug) || null;
+export async function getCategory(categorySlug) {
+  const categories = await getCategories();
+  return categories.find(category => category.slug === categorySlug) || null;
 }
 
-export function getToolsForCategory(categorySlug) {
-  const category = getCategory(categorySlug);
+export async function getToolsForCategory(categorySlug) {
+  const category = await getCategory(categorySlug);
   return category ? category.tools : [];
 }
 
-export function renderCategory(container, categorySlug) {
+export async function renderCategory(container, categorySlug) {
   if (!container) return;
 
-  const category = getCategory(categorySlug);
+  const category = await getCategory(categorySlug);
 
   if (!category) {
     container.innerHTML = "";
@@ -48,10 +67,12 @@ export function renderCategory(container, categorySlug) {
   container.innerHTML = category.tools.map(renderToolCard).join("");
 }
 
-export function renderAllCategories(container) {
+export async function renderAllCategories(container) {
   if (!container) return;
 
-  container.innerHTML = getCategories()
+  const categories = await getCategories();
+
+  container.innerHTML = categories
     .map(category => `
       <section class="tools-category" data-category="${escapeHtml(category.slug)}">
         <div class="category-header">
@@ -79,14 +100,18 @@ function renderToolCard(tool) {
             <span class="tool-status">${escapeHtml(tool.status)}</span>
           </div>
           <p>${escapeHtml(tool.description || "")}</p>
+          <span class="tool-open">Abrir ferramenta →</span>
         </div>
       </a>
-      <button class="tool-info-button" type="button" aria-label="Informações sobre ${escapeHtml(tool.name)}" data-tool-info="${escapeHtml(tool.id)}">ℹ️</button>
+      <button class="tool-info-button" type="button"
+        aria-label="Informações sobre ${escapeHtml(tool.name)}"
+        data-tool-info="${escapeHtml(tool.id)}">ℹ️</button>
     </article>
   `;
 }
 
-export function getToolInfo(toolId) {
+export async function getToolInfo(toolId) {
+  const tools = await loadRegistry();
   return tools.find(tool => tool.id === toolId) || null;
 }
 
@@ -98,7 +123,7 @@ function formatCategoryName(slug) {
 }
 
 function escapeHtml(value) {
-  return String(value)
+  return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -106,7 +131,6 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-// Keep the mobile tool library readable while preserving the required 2-column grid.
 function installMobileToolLibraryStyles() {
   if (document.getElementById("nexauren-category-mobile-styles")) return;
 
@@ -114,17 +138,26 @@ function installMobileToolLibraryStyles() {
   style.id = "nexauren-category-mobile-styles";
   style.textContent = `
     @media (max-width:680px){
-      .tools-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch}
-      .tool-card{position:relative!important;display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;height:auto!important;padding:14px!important;gap:12px!important}
-      .tool-card-main{display:flex!important;flex-direction:column!important;gap:10px!important;min-width:0!important;width:100%!important}
+      .tools-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+      .tool-card{position:relative!important;display:flex!important;
+        flex-direction:column!important;min-width:0!important;
+        min-height:0!important;height:auto!important;padding:14px!important;
+        gap:12px!important}
+      .tool-card-main{display:flex!important;flex-direction:column!important;
+        gap:10px!important;min-width:0!important;width:100%!important}
       .tool-icon{width:42px!important;height:42px!important;flex:none!important}
       .tool-info{width:100%!important;min-width:0!important}
       .tool-title-row{padding-right:26px!important;align-items:flex-start!important}
-      .tool-info h3{font-size:14px!important;line-height:1.25!important;overflow-wrap:anywhere!important}
-      .tool-info p{font-size:12px!important;line-height:1.5!important;display:block!important;overflow:visible!important;white-space:normal!important}
+      .tool-info h3{font-size:14px!important;line-height:1.25!important;
+        overflow-wrap:anywhere!important}
+      .tool-info p{font-size:12px!important;line-height:1.5!important;
+        display:block!important;overflow:visible!important;white-space:normal!important}
       .tool-status{font-size:8px!important;padding:4px 6px!important}
-      .tool-open{width:100%!important;justify-content:center!important;font-size:10px!important;padding:9px 7px!important;margin-top:11px!important;white-space:normal!important;text-align:center!important}
-      .tool-info-button{position:absolute!important;top:12px!important;right:12px!important;width:31px!important;height:31px!important;z-index:2}
+      .tool-open{width:100%!important;justify-content:center!important;
+        font-size:10px!important;padding:9px 7px!important;margin-top:11px!important;
+        white-space:normal!important;text-align:center!important}
+      .tool-info-button{position:absolute!important;top:12px!important;
+        right:12px!important;width:31px!important;height:31px!important;z-index:2}
     }
   `;
   document.head.appendChild(style);
