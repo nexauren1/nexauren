@@ -1,0 +1,123 @@
+(() => {
+  const $ = id => document.getElementById(id);
+  const prompt = $("prompt");
+  const result = $("result");
+  const status = $("status");
+  const generateButton = $("generateButton");
+  const usageText = $("usageText");
+  const resultPanel = $("resultPanel");
+  let mode = "write";
+
+  document.querySelectorAll(".mode").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".mode").forEach(item =>
+        item.classList.remove("active")
+      );
+      button.classList.add("active");
+      mode = button.dataset.mode;
+      prompt.placeholder = placeholderFor(mode);
+    });
+  });
+
+  $("clearButton").addEventListener("click", () => {
+    prompt.value = "";
+    result.value = "";
+    resultPanel.classList.add("hidden");
+    setStatus("");
+  });
+
+  $("copyButton").addEventListener("click", async () => {
+    if (!result.value) return;
+    await navigator.clipboard.writeText(result.value);
+    setStatus("Copied to clipboard.", "success");
+  });
+
+  generateButton.addEventListener("click", generate);
+
+  async function generate() {
+    const text = prompt.value.trim();
+    if (!text) {
+      setStatus("Enter a topic or text first.", "error");
+      prompt.focus();
+      return;
+    }
+
+    generateButton.disabled = true;
+    setStatus("AI is writing…");
+
+    if (window.NexaurenLoader) {
+      NexaurenLoader.showProcessing("Nexauren AI is working…");
+    }
+
+    try {
+      const response = await fetch("/api/tools/ai-writer", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode,
+          prompt: text,
+          tone: $("tone").value,
+          length: $("length").value
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "The AI Writer could not complete the request.");
+      }
+
+      result.value = data.text || "";
+      resultPanel.classList.remove("hidden");
+      usageText.textContent = data.usage
+        ? `${data.usage.used} / ${data.usage.limit} free uses today`
+        : "Free usage available";
+      setStatus("Done.", "success");
+    } catch (error) {
+      console.error(error);
+      setStatus(error.message || "Something went wrong.", "error");
+    } finally {
+      generateButton.disabled = false;
+      if (window.NexaurenLoader) {
+        NexaurenLoader.hideProcessing(120);
+      }
+    }
+  }
+
+  async function loadUsage() {
+    try {
+      const response = await fetch(
+        "/api/tools/ai-writer/usage",
+        { credentials: "same-origin" }
+      );
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.ok) {
+        usageText.textContent =
+          `${data.used} / ${data.limit} free uses today`;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function placeholderFor(value) {
+    if (value === "rewrite") {
+      return "Paste the text you want Nexauren to rewrite…";
+    }
+    if (value === "improve") {
+      return "Paste the text you want Nexauren to improve…";
+    }
+    if (value === "summarize") {
+      return "Paste the text you want Nexauren to summarize…";
+    }
+    return "Example: Write a short product description for a modern productivity app.";
+  }
+
+  function setStatus(message, type = "") {
+    status.textContent = message;
+    status.className = `status ${type}`.trim();
+  }
+
+  loadUsage();
+})();
