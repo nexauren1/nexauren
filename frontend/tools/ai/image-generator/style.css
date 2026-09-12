@@ -1,0 +1,161 @@
+* { box-sizing: border-box; }
+
+:root {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  color: #172033;
+  background: #f5f8ff;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.page {
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: 42px 18px 70px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #e9e7ff;
+  color: #5b45d8;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+h1 {
+  margin: 14px 0 8px;
+  font-size: clamp(32px, 7vw, 52px);
+}
+
+.hero p {
+  margin: 0;
+  color: #65708a;
+}
+
+.card,
+.result {
+  background: #fff;
+  border: 1px solid #e2e7f3;
+  border-radius: 22px;
+  box-shadow: 0 14px 45px rgba(51, 63, 95, .08);
+  padding: 22px;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 750;
+  margin-bottom: 9px;
+}
+
+textarea,
+select {
+  width: 100%;
+  border: 1px solid #d9dfec;
+  border-radius: 13px;
+  background: #fbfcff;
+  color: #172033;
+  outline: none;
+}
+
+textarea {
+  min-height: 150px;
+  resize: vertical;
+  padding: 15px;
+  font: inherit;
+  line-height: 1.5;
+}
+
+textarea:focus,
+select:focus {
+  border-color: #7561e8;
+  box-shadow: 0 0 0 3px rgba(117, 97, 232, .12);
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+select {
+  padding: 12px;
+  font: inherit;
+}
+
+button {
+  width: 100%;
+  margin-top: 18px;
+  border: 0;
+  border-radius: 13px;
+  padding: 14px 18px;
+  background: #6c58df;
+  color: white;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+button:hover { background: #5d49cf; }
+button:disabled { opacity: .65; cursor: wait; }
+
+.status {
+  min-height: 22px;
+  margin: 12px 0 0;
+  text-align: center;
+  color: #66718a;
+  font-size: 14px;
+}
+
+.result {
+  margin-top: 22px;
+}
+
+.result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.result h2 { margin: 0; }
+
+.download {
+  color: #5b45d8;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.image-wrap {
+  overflow: hidden;
+  border-radius: 16px;
+  background: #edf0f7;
+  text-align: center;
+}
+
+.image-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hidden { display: none; }
+
+@media (max-width: 600px) {
+  .page { padding-top: 26px; }
+  .options { grid-template-columns: 1fr; }
+  .result-head { align-items: flex-start; flex-direction: column; }
+}
