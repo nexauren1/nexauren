@@ -2,12 +2,17 @@
   const ID = "nx-global-loader";
   if (document.getElementById(ID)) return;
 
+  const theme = document.createElement("link");
+  theme.rel = "stylesheet";
+  theme.href = "/css/nexauren-theme.css";
+  document.head.appendChild(theme);
+
   const style = document.createElement("style");
   style.textContent = `
-    #${ID}{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(255,255,255,.72);backdrop-filter:blur(8px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,visibility .18s ease}
+    #${ID}{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(247,250,255,.78);backdrop-filter:blur(10px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,visibility .18s ease}
     #${ID}.show{opacity:1;visibility:visible;pointer-events:all}
     #${ID} .nx-loader-box{text-align:center}
-    #${ID} .nx-spinner{width:46px;height:46px;border-radius:50%;border:4px solid #e8edf5;border-top-color:#2563eb;border-right-color:#7c3aed;animation:nxGlobalSpin .72s linear infinite;box-shadow:0 10px 30px rgba(37,99,235,.14)}
+    #${ID} .nx-spinner{width:46px;height:46px;border-radius:50%;border:4px solid #e8edf5;border-top-color:#3157e8;border-right-color:#7c3aed;animation:nxGlobalSpin .72s linear infinite;box-shadow:0 10px 30px rgba(49,87,232,.16)}
     #${ID} .nx-loader-text{margin-top:12px;color:#667085;font:750 13px/1.4 Inter,system-ui,sans-serif}
     @keyframes nxGlobalSpin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){#${ID} .nx-spinner{animation:none}}
