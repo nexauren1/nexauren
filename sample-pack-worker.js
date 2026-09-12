@@ -9,10 +9,13 @@ const json = (data, status = 200) =>
     }
   });
 
-function maxSamplesForPlan(slug) {
-  if (slug === "premium") return 500;
-  if (slug === "pro") return 100;
-  return 20;
+async function getToolLimit(env, planSlug) {
+  const row = await env.TOOLS_DB.prepare(
+    "SELECT max_usage FROM tool_plan_limits " +
+    "WHERE tool_slug=? AND plan_slug=? LIMIT 1"
+  ).bind("sample-pack-generator", planSlug).first();
+
+  return Math.max(0, Number(row?.max_usage || 20));
 }
 
 async function samplePackUser(req, env) {
@@ -30,6 +33,19 @@ async function samplePackUser(req, env) {
   ).bind(match[1], Date.now()).first();
 }
 
+async function getPlanData(userId, env) {
+  return env.DB.prepare(
+    "SELECT p.slug,p.name,p.monthly_credits," +
+    "b.plan_credits,b.plan_credits_used," +
+    "b.purchased_credits,b.purchased_credits_used " +
+    "FROM subscriptions s " +
+    "JOIN plans p ON p.id=s.plan_id " +
+    "JOIN credit_balances b ON b.user_id=s.user_id " +
+    "WHERE s.user_id=? AND s.status='active' " +
+    "ORDER BY s.created_at DESC LIMIT 1"
+  ).bind(userId).first();
+}
+
 async function samplePackLimits(req, env) {
   const user = await samplePackUser(req, env);
   if (!user) {
@@ -39,23 +55,16 @@ async function samplePackLimits(req, env) {
     }, 401);
   }
 
-  const row = await env.DB.prepare(
-    "SELECT p.slug,p.name,p.monthly_credits," +
-    "b.plan_credits,b.plan_credits_used," +
-    "b.purchased_credits,b.purchased_credits_used " +
-    "FROM subscriptions s " +
-    "JOIN plans p ON p.id=s.plan_id " +
-    "JOIN credit_balances b ON b.user_id=s.user_id " +
-    "WHERE s.user_id=? AND s.status='active' " +
-    "ORDER BY s.created_at DESC LIMIT 1"
-  ).bind(user.id).first();
-
+  const row = await getPlanData(user.id, env);
   const plan = String(row?.slug || "free");
+  const maxSamples = await getToolLimit(env, plan);
+
   const planCredits = Math.max(
     0,
     Number(row?.plan_credits || 0) -
     Number(row?.plan_credits_used || 0)
   );
+
   const purchasedCredits = Math.max(
     0,
     Number(row?.purchased_credits || 0) -
@@ -66,7 +75,7 @@ async function samplePackLimits(req, env) {
     ok: true,
     plan,
     plan_name: row?.name || "Free",
-    max_samples: maxSamplesForPlan(plan),
+    max_samples: maxSamples,
     available_credits: planCredits + purchasedCredits,
     plan_credits: planCredits,
     purchased_credits: purchasedCredits
@@ -94,19 +103,9 @@ async function consumeSamplePack(req, env) {
     return json({ error: "Quantidade inválida" }, 400);
   }
 
-  const row = await env.DB.prepare(
-    "SELECT p.slug,p.name,b.plan_credits," +
-    "b.plan_credits_used,b.purchased_credits," +
-    "b.purchased_credits_used " +
-    "FROM subscriptions s " +
-    "JOIN plans p ON p.id=s.plan_id " +
-    "JOIN credit_balances b ON b.user_id=s.user_id " +
-    "WHERE s.user_id=? AND s.status='active' " +
-    "ORDER BY s.created_at DESC LIMIT 1"
-  ).bind(user.id).first();
-
+  const row = await getPlanData(user.id, env);
   const plan = String(row?.slug || "free");
-  const max = maxSamplesForPlan(plan);
+  const max = await getToolLimit(env, plan);
 
   if (count > max) {
     return json({
@@ -123,6 +122,7 @@ async function consumeSamplePack(req, env) {
     Number(row?.plan_credits || 0) -
     Number(row?.plan_credits_used || 0)
   );
+
   const purchasedAvailable = Math.max(
     0,
     Number(row?.purchased_credits || 0) -
@@ -204,6 +204,25 @@ async function consumeSamplePack(req, env) {
     remaining,
     `Sample Pack Generator: ${count} samples`,
     null,
+    now
+  ).run();
+
+  await env.TOOLS_DB.prepare(
+    "INSERT INTO tool_usage(" +
+    "id,user_id,tool_slug,action,amount,plan_slug," +
+    "credits_used,metadata,created_at) " +
+    "VALUES(?,?,?,?,?,?,?,?,?)"
+  ).bind(
+    crypto.randomUUID(),
+    user.id,
+    "sample-pack-generator",
+    "generate",
+    count,
+    plan,
+    count,
+    JSON.stringify({
+      source: "sample-pack-generator"
+    }),
     now
   ).run();
 
