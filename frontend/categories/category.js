@@ -105,3 +105,31 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
+// Keep the mobile tool library readable while preserving the required 2-column grid.
+function installMobileToolLibraryStyles() {
+  if (document.getElementById("nexauren-category-mobile-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "nexauren-category-mobile-styles";
+  style.textContent = `
+    @media (max-width:680px){
+      .tools-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch}
+      .tool-card{position:relative!important;display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;height:auto!important;padding:14px!important;gap:12px!important}
+      .tool-card-main{display:flex!important;flex-direction:column!important;gap:10px!important;min-width:0!important;width:100%!important}
+      .tool-icon{width:42px!important;height:42px!important;flex:none!important}
+      .tool-info{width:100%!important;min-width:0!important}
+      .tool-title-row{padding-right:26px!important;align-items:flex-start!important}
+      .tool-info h3{font-size:14px!important;line-height:1.25!important;overflow-wrap:anywhere!important}
+      .tool-info p{font-size:12px!important;line-height:1.5!important;display:block!important;overflow:visible!important;white-space:normal!important}
+      .tool-status{font-size:8px!important;padding:4px 6px!important}
+      .tool-open{width:100%!important;justify-content:center!important;font-size:10px!important;padding:9px 7px!important;margin-top:11px!important;white-space:normal!important;text-align:center!important}
+      .tool-info-button{position:absolute!important;top:12px!important;right:12px!important;width:31px!important;height:31px!important;z-index:2}
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+if (typeof document !== "undefined") {
+  installMobileToolLibraryStyles();
+}
