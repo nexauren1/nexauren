@@ -123,11 +123,9 @@ select:focus {
   margin-top: 16px;
 }
 
-.usage-box {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  align-items: center;
+.unlimited-note {
+  display: grid;
+  gap: 3px;
   margin-top: 18px;
   padding: 14px 16px;
   border: 1px solid #dbeafe;
@@ -135,23 +133,9 @@ select:focus {
   background: #eff6ff;
 }
 
-.usage-box div {
-  display: grid;
-  gap: 3px;
-}
-
-.usage-box span {
+.unlimited-note span {
   color: #64748b;
   font-size: 13px;
-}
-
-#usageBadge {
-  padding: 5px 9px;
-  border-radius: 999px;
-  background: var(--tool-accent-soft);
-  color: var(--tool-accent);
-  font-size: 11px;
-  font-weight: 800;
 }
 
 .actions {
