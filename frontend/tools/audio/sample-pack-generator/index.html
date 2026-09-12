@@ -60,6 +60,32 @@
             <small id="amountHint">O limite será definido pelo seu plano.</small>
           </label>
 
+          <div class="spg-cost" id="costBox">
+            <div>
+              <span class="cost-label">CUSTO DESTA GERAÇÃO</span>
+              <strong id="costText">0 créditos</strong>
+            </div>
+            <span id="costHint">Os samples incluídos no seu plano não custam créditos.</span>
+          </div>
+
+          <div class="spg-credit-source" id="creditSourceBox" hidden>
+            <div class="source-heading">
+              <strong>Escolha de onde gastar</strong>
+              <span>O Nexauren não troca automaticamente de fonte.</span>
+            </div>
+            <div class="source-options">
+              <button class="credit-source plan-source" id="planCreditBtn" type="button" data-source="plan">
+                <span class="source-icon">🟡</span>
+                <span><b>Créditos do plano</b><small id="planCreditBalance">0 disponíveis</small></span>
+              </button>
+              <button class="credit-source purchased-source" id="purchasedCreditBtn" type="button" data-source="purchased">
+                <span class="source-icon">🔵</span>
+                <span><b>Créditos comprados</b><small id="purchasedCreditBalance">0 disponíveis</small></span>
+              </button>
+            </div>
+            <p class="source-status" id="sourceStatus">Escolha uma fonte para continuar.</p>
+          </div>
+
           <div class="spg-range-row">
             <label for="variation">Intensidade das variações</label>
             <output id="variationValue">50%</output>
@@ -72,7 +98,7 @@
           </div>
 
           <button class="spg-btn primary" id="generateBtn" type="button">Gerar Sample Pack</button>
-          <p class="spg-credit-note">Cada sample gerado consome 1 crédito.</p>
+          <p class="spg-credit-note">Até 20 / 100 / 500 samples podem ser incluídos conforme o plano. Só os samples acima desse limite consomem créditos.</p>
         </div>
       </div>
     </section>
