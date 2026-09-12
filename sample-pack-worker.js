@@ -45,7 +45,7 @@ async function getPlanData(userId, env) {
     "JOIN credit_balances b ON b.user_id=s.user_id " +
     "WHERE s.user_id=? AND s.status='active' " +
     "ORDER BY s.created_at DESC LIMIT 1"
-  ).bind(userId).first();
+  ).bind(userId, env).first();
 }
 
 function balanceData(row) {
@@ -255,7 +255,7 @@ async function consumeSamplePack(req, env) {
   });
 }
 
-function writerInstruction(mode, tone, length) {
+function writerInstruction(mode, tone, length, feature) {
   const modeText = {
     write: "Create the requested text from the user's idea.",
     rewrite: "Rewrite the supplied text while preserving its meaning.",
@@ -263,13 +263,56 @@ function writerInstruction(mode, tone, length) {
     summarize: "Summarize the supplied text and keep the most important information."
   }[mode] || "Create the requested text.";
 
+  const featureText = {
+    "multiple-versions": "Create three clearly different versions of the requested result.",
+    "long-form": "Create a detailed long-form result with strong structure and useful depth.",
+    "advanced-tone": "Apply nuanced tone, style, vocabulary and rhetorical choices appropriate to the request.",
+    "professional-formats": "Use a polished professional structure with clear sections and formatting when appropriate."
+  }[feature] || "";
+
   return [
     "You are Nexauren AI Writer.",
     modeText,
+    featureText,
     `Tone: ${tone}.`,
     `Length: ${length}.`,
-    "Return only the finished text, without explanations, labels or markdown fences."
-  ].join(" ");
+    "Return only the finished text, without explanations or markdown fences unless the requested format needs them."
+  ].filter(Boolean).join(" ");
+}
+
+const AI_FEATURE_PLANS = {
+  "multiple-versions": "pro",
+  "long-form": "pro",
+  "advanced-tone": "pro",
+  "professional-formats": "premium"
+};
+
+const AI_FEATURE_NAMES = {
+  "multiple-versions": "Multiple Versions",
+  "long-form": "Long-form Writing",
+  "advanced-tone": "Advanced Tone & Style",
+  "professional-formats": "Professional Formats"
+};
+
+function planRank(plan) {
+  return { free: 0, pro: 1, premium: 2 }[plan] ?? 0;
+}
+
+async function aiWriterAccess(req, env) {
+  const user = await samplePackUser(req, env);
+  const row = user ? await getPlanData(user.id, env) : null;
+  const plan = String(row?.slug || "free");
+
+  return json({
+    ok: true,
+    plan,
+    features: Object.entries(AI_FEATURE_PLANS).map(([key, required]) => ({
+      key,
+      name: AI_FEATURE_NAMES[key],
+      required_plan: required,
+      unlocked: planRank(plan) >= planRank(required)
+    }))
+  });
 }
 
 async function aiWriter(req, env) {
@@ -283,7 +326,8 @@ async function aiWriter(req, env) {
   const prompt = String(body?.prompt || "").trim();
   const mode = String(body?.mode || "write");
   const tone = String(body?.tone || "professional");
-  const length = String(body?.length || "medium");
+  let length = String(body?.length || "medium");
+  const feature = String(body?.feature || "");
 
   if (!prompt) return json({ ok: false, error: "Enter a topic or text first." }, 400);
   if (prompt.length > 8000) return json({ ok: false, error: "Text is too long." }, 400);
@@ -296,6 +340,26 @@ async function aiWriter(req, env) {
   if (!["short", "medium", "long"].includes(length)) {
     return json({ ok: false, error: "Invalid length." }, 400);
   }
+  if (feature && !AI_FEATURE_PLANS[feature]) {
+    return json({ ok: false, error: "Invalid advanced feature." }, 400);
+  }
+
+  const user = await samplePackUser(req, env);
+  const row = user ? await getPlanData(user.id, env) : null;
+  const plan = String(row?.slug || "free");
+  const requiredPlan = AI_FEATURE_PLANS[feature];
+
+  if (requiredPlan && planRank(plan) < planRank(requiredPlan)) {
+    return json({
+      ok: false,
+      code: "UPGRADE_REQUIRED",
+      upgrade: true,
+      required_plan: requiredPlan,
+      feature_name: AI_FEATURE_NAMES[feature]
+    }, 403);
+  }
+
+  if (feature === "long-form") length = "long";
   if (!env.AI) return json({ ok: false, error: "Workers AI is not configured." }, 503);
 
   try {
@@ -305,7 +369,7 @@ async function aiWriter(req, env) {
         messages: [
           {
             role: "system",
-            content: writerInstruction(mode, tone, length)
+            content: writerInstruction(mode, tone, length, feature)
           },
           { role: "user", content: prompt }
         ],
@@ -341,6 +405,10 @@ async function handleSamplePack(req, env) {
 
   if (path === "/api/tools/sample-pack/consume" && req.method === "POST") {
     return consumeSamplePack(req, env);
+  }
+
+  if (path === "/api/tools/ai-writer/access" && req.method === "GET") {
+    return aiWriterAccess(req, env);
   }
 
   if (path === "/api/tools/ai-writer" && req.method === "POST") {
