@@ -36,6 +36,7 @@
     #${ID} .nx-spinner{
       width:46px;
       height:46px;
+      margin:auto;
       border-radius:50%;
       border:4px solid #e8edf5;
       border-top-color:#3157e8;
@@ -65,6 +66,9 @@
     '</div>';
   document.body.appendChild(loader);
 
+  const text = loader.querySelector(".nx-loader-text");
+  const defaultText = "A carregar…";
+
   const headerScript = document.createElement("script");
   headerScript.src = "/js/global-header.js";
   headerScript.defer = true;
@@ -78,20 +82,31 @@
   let timer = null;
   let firstLoad = true;
 
-  const show = () => {
+  const setText = (message = defaultText) => {
+    text.textContent = message;
+  };
+
+  const show = (message = defaultText) => {
     clearTimeout(timer);
+    setText(message);
     loader.classList.add("show");
   };
 
   const hide = (delay = 120) => {
     clearTimeout(timer);
-    timer = setTimeout(
-      () => loader.classList.remove("show"),
-      delay
-    );
+    timer = setTimeout(() => {
+      loader.classList.remove("show");
+      setText(defaultText);
+    }, delay);
   };
 
-  window.NexaurenLoader = { show, hide };
+  window.NexaurenLoader = {
+    show,
+    hide,
+    showProcessing: (message = "A processar…") => show(message),
+    hideProcessing: hide,
+    setText
+  };
 
   show();
 
