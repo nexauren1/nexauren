@@ -285,12 +285,8 @@ async function aiWriter(req, env) {
   const tone = String(body?.tone || "professional");
   const length = String(body?.length || "medium");
 
-  if (!prompt) {
-    return json({ ok: false, error: "Enter a topic or text first." }, 400);
-  }
-  if (prompt.length > 8000) {
-    return json({ ok: false, error: "Text is too long." }, 400);
-  }
+  if (!prompt) return json({ ok: false, error: "Enter a topic or text first." }, 400);
+  if (prompt.length > 8000) return json({ ok: false, error: "Text is too long." }, 400);
   if (!["write", "rewrite", "improve", "summarize"].includes(mode)) {
     return json({ ok: false, error: "Invalid writing mode." }, 400);
   }
@@ -300,23 +296,18 @@ async function aiWriter(req, env) {
   if (!["short", "medium", "long"].includes(length)) {
     return json({ ok: false, error: "Invalid length." }, 400);
   }
-  if (!env.AI) {
-    return json({ ok: false, error: "Workers AI is not configured." }, 503);
-  }
+  if (!env.AI) return json({ ok: false, error: "Workers AI is not configured." }, 503);
 
   try {
     const response = await env.AI.run(
-      "@cf/meta/llama-3.1-8b-instruct",
+      "@cf/meta/llama-3.1-8b-instruct-fast",
       {
         messages: [
           {
             role: "system",
             content: writerInstruction(mode, tone, length)
           },
-          {
-            role: "user",
-            content: prompt
-          }
+          { role: "user", content: prompt }
         ],
         max_tokens: length === "long" ? 1400 : length === "short" ? 500 : 900,
         temperature: 0.7
