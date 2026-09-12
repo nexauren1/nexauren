@@ -51,6 +51,19 @@
       "version": "1.0.0",
       "featured": true,
       "createdAt": "2026-09-12"
+    },
+    {
+      "id": "aud-002",
+      "slug": "sample-pack-generator",
+      "name": "Sample Pack Generator",
+      "category": "audio",
+      "icon": "◈",
+      "status": "published",
+      "description": "Gere até 500 variações de um sample com processamento de áudio, nomes organizados e download em ZIP.",
+      "toolPath": "/tools/audio/sample-pack-generator/",
+      "version": "1.0.0",
+      "featured": true,
+      "createdAt": "2026-09-12"
     }
   ]
 }
