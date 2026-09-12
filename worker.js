@@ -3,11 +3,7 @@ const SESSION_DAYS = 7;
 
 function escapeHtml(value = "") {
   return String(value).replace(/[&<>"']/g, (char) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   })[char]);
 }
 
@@ -37,8 +33,7 @@ async function userFromRequest(request, env) {
   const cookie = request.headers.get("Cookie") || "";
   const match = cookie.match(new RegExp(`${COOKIE}=([^;]+)`));
   if (!match) return null;
-  return env.DB.prepare("SELECT u.id,u.email,u.name,u.role FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token=? AND s.expires_at>? LIMIT 1")
-    .bind(match[1], Date.now()).first();
+  return env.DB.prepare("SELECT u.id,u.email,u.name,u.role FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token=? AND s.expires_at>? LIMIT 1").bind(match[1], Date.now()).first();
 }
 
 async function home(env) {
@@ -50,15 +45,11 @@ async function home(env) {
 async function tools(request, env) {
   const url = new URL(request.url);
   const category = url.searchParams.get("category");
-  const result = category
-    ? await env.DB.prepare("SELECT slug,name,description,category FROM tools WHERE published=1 AND category=? ORDER BY name").bind(category).all()
-    : await env.DB.prepare("SELECT slug,name,description,category FROM tools WHERE published=1 ORDER BY created_at DESC").all();
+  const result = category ? await env.DB.prepare("SELECT slug,name,description,category FROM tools WHERE published=1 AND category=? ORDER BY name").bind(category).all() : await env.DB.prepare("SELECT slug,name,description,category FROM tools WHERE published=1 ORDER BY created_at DESC").all();
   return page(`<main class="wrap"><h1>Ferramentas</h1><p class="muted">${category ? `Categoria: ${escapeHtml(category)}` : "Todas as categorias"}</p><div class="grid">${result.results.map((t) => `<a class="card" href="/tool/${encodeURIComponent(t.slug)}"><span class="pill">${escapeHtml(t.category)}</span><h3>${escapeHtml(t.name)}</h3><p class="muted">${escapeHtml(t.description || "")}</p></a>`).join("") || `<div class="card"><p>Nenhuma ferramenta encontrada.</p></div>`}</div></main>`, "Ferramentas");
 }
 
-function validToolPath(value) {
-  return /^tools\/(audio|image|pdf|text|productivity|business|marketplace)\/[a-z0-9-]+$/.test(value);
-}
+function validToolPath(value) { return /^tools\/(audio|image|pdf|text|productivity|business|marketplace)\/[a-z0-9-]+$/.test(value); }
 
 async function toolPage(slug, env, request) {
   const tool = await env.DB.prepare("SELECT slug,name,description,category,tool_path,html_file,js_file,css_file FROM tools WHERE slug=? AND published=1 LIMIT 1").bind(slug).first();
@@ -85,14 +76,16 @@ async function auth(request, env, type) {
   if (type === "register") {
     const count = await env.DB.prepare("SELECT COUNT(*) AS count FROM users").first();
     const exists = await env.DB.prepare("SELECT id FROM users WHERE email=? LIMIT 1").bind(email).first();
-    if (exists) return new Response("Email já registrado", { status: 409 });
+    if (exists) return redirect("/login");
     const id = randomToken();
     const salt = randomToken().slice(0, 16);
     const hash = await hashPassword(password, salt);
     const role = Number(count.count) === 0 ? "admin" : "user";
     const name = String(form.get("name") || "Utilizador").trim();
     await env.DB.prepare("INSERT INTO users(id,email,name,password_hash,password_salt,role,created_at) VALUES(?,?,?,?,?,?,?)").bind(id,email,name,hash,salt,role,Date.now()).run();
-    return redirect("/login");
+    const token = randomToken();
+    await env.DB.prepare("INSERT INTO sessions(token,user_id,expires_at) VALUES(?,?,?)").bind(token,id,Date.now() + SESSION_DAYS * 86400000).run();
+    return redirect("/account", { "Set-Cookie": `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_DAYS * 86400}` });
   }
   const user = await env.DB.prepare("SELECT * FROM users WHERE email=? LIMIT 1").bind(email).first();
   if (!user || await hashPassword(password, user.password_salt) !== user.password_hash) return new Response("Email ou senha inválidos", { status: 401 });
@@ -125,9 +118,7 @@ async function newTool(request, env) {
   const user = await userFromRequest(request, env);
   if (!user || user.role !== "admin") return redirect(user ? "/account" : "/login");
   const categories = await env.DB.prepare("SELECT slug,name FROM categories ORDER BY name").all();
-  if (request.method === "GET") {
-    return page(`<main class="wrap"><form class="card form" method="post"><h1>Registrar ferramenta</h1><p class="muted">A ferramenta deve existir em <code>frontend/tools/&lt;categoria&gt;/&lt;slug&gt;/</code> com index.html, script.js e style.css.</p><div class="field"><label>Nome</label><input name="name" required maxlength="120"></div><div class="field"><label>Slug</label><input name="slug" required pattern="[a-z0-9-]+" maxlength="100" placeholder="audio-converter"></div><div class="field"><label>Categoria</label><select name="category" required>${categories.results.map((c) => `<option value="${escapeHtml(c.slug)}">${escapeHtml(c.name)}</option>`).join("")}</select></div><div class="field"><label>Descrição</label><textarea name="description" maxlength="500"></textarea></div><label><input type="checkbox" name="published"> Publicar no catálogo</label><p><button class="btn">Registrar ferramenta</button></p></form></main>`, "Registrar ferramenta");
-  }
+  if (request.method === "GET") return page(`<main class="wrap"><form class="card form" method="post"><h1>Registrar ferramenta</h1><p class="muted">A ferramenta deve existir em <code>frontend/tools/&lt;categoria&gt;/&lt;slug&gt;/</code> com index.html, script.js e style.css.</p><div class="field"><label>Nome</label><input name="name" required maxlength="120"></div><div class="field"><label>Slug</label><input name="slug" required pattern="[a-z0-9-]+" maxlength="100" placeholder="audio-converter"></div><div class="field"><label>Categoria</label><select name="category" required>${categories.results.map((c) => `<option value="${escapeHtml(c.slug)}">${escapeHtml(c.name)}</option>`).join("")}</select></div><div class="field"><label>Descrição</label><textarea name="description" maxlength="500"></textarea></div><label><input type="checkbox" name="published"> Publicar no catálogo</label><p><button class="btn">Registrar ferramenta</button></p></form></main>`, "Registrar ferramenta");
   const form = await request.formData();
   const name = String(form.get("name") || "").trim();
   const slug = String(form.get("slug") || "").trim().toLowerCase();
@@ -141,8 +132,7 @@ async function newTool(request, env) {
   const toolPath = `tools/${category}/${slug}`;
   const published = form.get("published") ? 1 : 0;
   if (published && !env.ASSETS) return new Response("Assets não configurados", { status: 500 });
-  await env.DB.prepare("INSERT INTO tools(slug,name,description,category,tool_path,html_file,js_file,css_file,published,created_at,updated_at,created_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)")
-    .bind(slug,name,description,category,toolPath,"index.html","script.js","style.css",published,Date.now(),Date.now(),user.id).run();
+  await env.DB.prepare("INSERT INTO tools(slug,name,description,category,tool_path,html_file,js_file,css_file,published,created_at,updated_at,created_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)").bind(slug,name,description,category,toolPath,"index.html","script.js","style.css",published,Date.now(),Date.now(),user.id).run();
   return redirect("/dashboard");
 }
 
