@@ -269,7 +269,8 @@ async function paypalSubscriptionSuccess(req, env) {
 
     const localPlan = await env.DB
       .prepare(
-        "SELECT id FROM plans WHERE slug=? LIMIT 1"
+        "SELECT id,name,monthly_credits " +
+        "FROM plans WHERE slug=? LIMIT 1"
       )
       .bind(adminPlan.slug)
       .first();
@@ -341,6 +342,61 @@ async function paypalSubscriptionSuccess(req, env) {
           startDate,
           endDate,
           now,
+          now
+        )
+        .run();
+    }
+
+    const monthlyCredits =
+      Number(localPlan.monthly_credits || 0);
+
+    const planDescription =
+      `Créditos mensais do plano ${localPlan.name} ` +
+      `- assinatura ${subscriptionId}`;
+
+    const existingCreditLog = await env.DB
+      .prepare(
+        "SELECT id FROM credit_transactions " +
+        "WHERE user_id=? AND source='plan' " +
+        "AND description=? LIMIT 1"
+      )
+      .bind(u.id, planDescription)
+      .first();
+
+    if (!existingCreditLog) {
+      await env.DB
+        .prepare(
+          "UPDATE credit_balances " +
+          "SET plan_credits=?, " +
+          "plan_credits_used=0, " +
+          "reset_date=?, " +
+          "updated_at=? " +
+          "WHERE user_id=?"
+        )
+        .bind(
+          monthlyCredits,
+          endDate || (now + 30 * 86400000),
+          now,
+          u.id
+        )
+        .run();
+
+      await env.DB
+        .prepare(
+          "INSERT INTO credit_transactions(" +
+          "id,user_id,type,source,amount,balance_after," +
+          "description,paypal_order_id,created_at) " +
+          "VALUES(?,?,?,?,?,?,?,?,?)"
+        )
+        .bind(
+          AID(),
+          u.id,
+          "plan",
+          "plan",
+          monthlyCredits,
+          monthlyCredits,
+          planDescription,
+          null,
           now
         )
         .run();
