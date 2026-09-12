@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Converter — Nexauren</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="tool-page">
+    <a class="back" href="/tools?category=audio">← Audio Tools</a>
+    <section class="hero">
+      <div class="icon">♫</div>
+      <div>
+        <p class="eyebrow">NEXAUREN AUDIO</p>
+        <h1>Audio Converter</h1>
+        <p>Convert your audio files between supported formats with a clean, fast workflow.</p>
+      </div>
+    </section>
+    <section class="converter-card">
+      <label class="dropzone" for="audioFile">
+        <span class="drop-icon">↑</span>
+        <strong>Select an audio file</strong>
+        <span>Choose a file from your device to begin.</span>
+        <input id="audioFile" type="file" accept="audio/*">
+      </label>
+      <div id="fileInfo" class="file-info" hidden></div>
+      <button id="convertButton" type="button" disabled>Convert Audio</button>
+      <p id="message" class="message" aria-live="polite"></p>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
