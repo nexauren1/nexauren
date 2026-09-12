@@ -208,6 +208,152 @@ async function paypalCreatePlan(env, data) {
   return result;
 }
 
+async function paypalSubscriptionSuccess(req, env) {
+  const u = await adminUser(req, env);
+  if (!u) return ARE("/login");
+
+  const url = new URL(req.url);
+  const subscriptionId =
+    url.searchParams.get("subscription_id");
+
+  if (!subscriptionId) {
+    return ARE("/plans?payment=missing");
+  }
+
+  try {
+    const access = await paypalToken(env);
+    const base = env.PAYPAL_BASE_URL ||
+      "https://api-m.sandbox.paypal.com";
+
+    const r = await fetch(
+      `${base}/v1/billing/subscriptions/${encodeURIComponent(subscriptionId)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${access}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    if (!r.ok) {
+      return ARE("/plans?payment=not_confirmed");
+    }
+
+    const data = await r.json();
+
+    if (data.status !== "ACTIVE") {
+      return ARE("/plans?payment=not_active");
+    }
+
+    if (
+      data.custom_id &&
+      String(data.custom_id) !== String(u.id)
+    ) {
+      return ARE("/plans?payment=invalid_user");
+    }
+
+    const adminPlan = await env.DB
+      .prepare(`
+        SELECT slug
+        FROM nexauren_admin_plans
+        WHERE paypal_plan_id = ?
+          AND active = 1
+        LIMIT 1
+      `)
+      .bind(data.plan_id)
+      .first();
+
+    if (!adminPlan?.slug) {
+      return ARE("/plans?payment=plan_not_found");
+    }
+
+    const localPlan = await env.DB
+      .prepare(
+        "SELECT id FROM plans WHERE slug=? LIMIT 1"
+      )
+      .bind(adminPlan.slug)
+      .first();
+
+    if (!localPlan?.id) {
+      return ARE("/plans?payment=local_plan_not_found");
+    }
+
+    const now = Date.now();
+    const startDate = data.start_time
+      ? Date.parse(data.start_time)
+      : now;
+    const endDate =
+      data.billing_info?.next_billing_time
+        ? Date.parse(
+            data.billing_info.next_billing_time
+          )
+        : null;
+
+    const existing = await env.DB
+      .prepare(
+        "SELECT id FROM subscriptions " +
+        "WHERE user_id=? AND status='active' LIMIT 1"
+      )
+      .bind(u.id)
+      .first();
+
+    if (existing) {
+      await env.DB
+        .prepare(`
+          UPDATE subscriptions
+          SET plan_id=?,
+              status='active',
+              paypal_subscription_id=?,
+              paypal_plan_id=?,
+              start_date=?,
+              end_date=?,
+              cancelled_at=NULL,
+              updated_at=?
+          WHERE id=?
+        `)
+        .bind(
+          localPlan.id,
+          subscriptionId,
+          data.plan_id,
+          startDate,
+          endDate,
+          now,
+          existing.id
+        )
+        .run();
+    } else {
+      await env.DB
+        .prepare(`
+          INSERT INTO subscriptions(
+            id,user_id,plan_id,status,
+            paypal_subscription_id,paypal_plan_id,
+            start_date,end_date,created_at,updated_at
+          )
+          VALUES(?,?,?,?,?,?,?,?,?,?)
+        `)
+        .bind(
+          AID(),
+          u.id,
+          localPlan.id,
+          "active",
+          subscriptionId,
+          data.plan_id,
+          startDate,
+          endDate,
+          now,
+          now
+        )
+        .run();
+    }
+
+    return ARE(
+      `/dashboard?payment=subscription_success&plan=${encodeURIComponent(adminPlan.slug)}`
+    );
+  } catch (e) {
+    return ARE("/plans?payment=paypal_error");
+  }
+}
+
 function adminShell(body, title) {
   return new Response(`<!doctype html>
 <html lang="pt-BR">
@@ -562,6 +708,18 @@ ${rows.results.map(r => `<tr>
 
 export async function adminRouter(req, env) {
   const p = new URL(req.url).pathname;
+
+  if (p === "/dashboard") {
+    const subscriptionId =
+      new URL(req.url).searchParams.get(
+        "subscription_id"
+      );
+
+    if (subscriptionId) {
+      return paypalSubscriptionSuccess(req, env);
+    }
+  }
+
   if (!p.startsWith("/admin")) return null;
 
   if (!(await isAdmin(req, env))) {
