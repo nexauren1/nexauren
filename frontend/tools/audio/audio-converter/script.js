@@ -109,16 +109,10 @@ async function convertAudio() {
   convertButton.disabled = true;
 
   try {
-    processingTitle.textContent = "A ler o áudio…";
-    processingText.textContent =
-      "A preparar os dados de áudio no seu dispositivo.";
+    processingTitle.textContent = "A converter…";
+    processingText.textContent = "";
 
     const { channelData, sampleRate } = await decode(selectedFile);
-
-    processingTitle.textContent = "A converter o áudio…";
-    processingText.textContent =
-      `A criar o ficheiro ${output.extension.toUpperCase()} localmente.`;
-
     const bytes = await encode[output.extension](channelData, {
       sampleRate,
       ...output.options
