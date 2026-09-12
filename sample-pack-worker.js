@@ -398,8 +398,18 @@ async function aiWriter(req, env) {
 
 async function aiImage(req, env) {
   const user = await samplePackUser(req, env);
-  if (!user) return json({ ok: false, error: "Please log in to use AI Image Generator." }, 401);
-  if (!env.AI) return json({ ok: false, error: "Workers AI is not configured." }, 503);
+  if (!user) {
+    return json({
+      ok: false,
+      error: "Please log in to use AI Image Generator."
+    }, 401);
+  }
+  if (!env.AI) {
+    return json({
+      ok: false,
+      error: "Workers AI is not configured."
+    }, 503);
+  }
 
   let body;
   try {
@@ -412,8 +422,15 @@ async function aiImage(req, env) {
   const style = String(body?.style || "photorealistic");
   const size = String(body?.size || "square");
 
-  if (!prompt) return json({ ok: false, error: "Describe the image you want to create." }, 400);
-  if (prompt.length > 2000) return json({ ok: false, error: "Prompt is too long." }, 400);
+  if (!prompt) {
+    return json({
+      ok: false,
+      error: "Describe the image you want to create."
+    }, 400);
+  }
+  if (prompt.length > 2000) {
+    return json({ ok: false, error: "Prompt is too long." }, 400);
+  }
 
   const styles = {
     photorealistic: "photorealistic",
@@ -424,45 +441,65 @@ async function aiImage(req, env) {
   };
 
   const sizes = {
-    square: "square composition",
-    portrait: "portrait composition",
-    landscape: "landscape composition"
+    square: [1024, 1024],
+    portrait: [768, 1024],
+    landscape: [1024, 768]
   };
 
   if (!styles[style] || !sizes[size]) {
     return json({ ok: false, error: "Invalid image options." }, 400);
   }
 
+  const [width, height] = sizes[size];
   const enhancedPrompt = [
     prompt,
     styles[style],
-    sizes[size],
     "high quality, strong composition, coherent details"
   ].join(", ");
 
   try {
+    const form = new FormData();
+    form.append("prompt", enhancedPrompt);
+    form.append("width", String(width));
+    form.append("height", String(height));
+    form.append(
+      "seed",
+      String(Math.floor(Math.random() * 2147483647))
+    );
+
+    const formResponse = new Response(form);
+    const formStream = formResponse.body;
+    const contentType = formResponse.headers.get("content-type");
+
     const response = await env.AI.run(
       "@cf/black-forest-labs/flux-2-klein-9b",
       {
-        prompt: enhancedPrompt,
-        seed: Math.floor(Math.random() * 2147483647)
+        multipart: {
+          body: formStream,
+          contentType
+        }
       }
     );
 
     if (!response?.image) {
-      return json({ ok: false, error: "The image model returned no image." }, 502);
+      return json({
+        ok: false,
+        error: "The image model returned no image."
+      }, 502);
     }
 
     return json({
       ok: true,
       image: response.image,
-      model: "flux-2-klein-9b"
+      model: "flux-2-klein-9b",
+      width,
+      height
     });
   } catch (error) {
     return json({
       ok: false,
       error: "Image generation failed.",
-      detail: String(error?.message || error).slice(0, 300)
+      detail: String(error?.message || error).slice(0, 500)
     }, 502);
   }
 }
