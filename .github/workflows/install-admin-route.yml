@@ -1,0 +1,45 @@
+name: Install Nexauren Admin Route
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  install-admin-route:
+    if: ${{ !contains(github.event.head_commit.message, '[admin-route]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install admin route safely
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('worker-v2.js')
+          s = p.read_text(encoding='utf-8')
+          marker = 'import { adminRouter } from "./admin.js";'
+          if marker in s:
+              print('Admin router already installed; nothing to do.')
+              raise SystemExit(0)
+          target = 'export default { async fetch(req, env) {'
+          if target not in s:
+              raise SystemExit('Worker fetch entry point not found; no changes made.')
+          replacement = marker + '\n\nexport default { async fetch(req, env) {\n  const __adminResponse = await adminRouter(req, env);\n  if (__adminResponse) return __adminResponse;'
+          s2 = s.replace(target, replacement, 1)
+          if s2 == s:
+              raise SystemExit('Admin route insertion did not change the file.')
+          p.write_text(s2, encoding='utf-8')
+          print('Admin router installed successfully.')
+
+      - name: Commit admin route
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add worker-v2.js
+          git diff --cached --quiet && exit 0
+          git commit -m "Install protected admin route [admin-route]"
+          git push origin main
