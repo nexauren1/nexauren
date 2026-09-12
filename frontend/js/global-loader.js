@@ -21,16 +21,28 @@
   document.body.appendChild(loader);
 
   let timer = null;
+  let firstLoad = true;
   const show = () => {
     clearTimeout(timer);
     loader.classList.add("show");
   };
-  const hide = () => {
+  const hide = (delay = 120) => {
     clearTimeout(timer);
-    timer = setTimeout(() => loader.classList.remove("show"), 120);
+    timer = setTimeout(() => loader.classList.remove("show"), delay);
   };
 
   window.NexaurenLoader = { show, hide };
+
+  // Also works on standalone tool pages: show during the initial page load.
+  show();
+  const finishInitialLoad = () => {
+    if (!firstLoad) return;
+    firstLoad = false;
+    hide(180);
+  };
+  if (document.readyState === "complete") finishInitialLoad();
+  else window.addEventListener("load", finishInitialLoad, { once: true });
+  setTimeout(finishInitialLoad, 1400);
 
   document.addEventListener("click", event => {
     const link = event.target.closest?.("a[href]");
@@ -58,6 +70,6 @@
     show();
   }, true);
 
-  window.addEventListener("pageshow", hide);
-  window.addEventListener("pagehide", hide);
+  window.addEventListener("pageshow", () => hide(120));
+  window.addEventListener("pagehide", () => hide(120));
 })();
