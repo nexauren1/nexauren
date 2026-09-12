@@ -12,7 +12,7 @@
     <header class="hero">
       <span class="badge">NEXAUREN AI</span>
       <h1>AI Image Generator</h1>
-      <p>Create new images or upload an image and describe how you want to transform it.</p>
+      <p>Create new images or upload images and describe how you want to transform them.</p>
     </header>
 
     <section class="card">
@@ -35,6 +35,27 @@
           <img id="preview" alt="Selected image preview">
           <button id="removeImage" type="button">Remove</button>
         </div>
+      </div>
+
+      <div id="referenceBox" class="upload-box hidden">
+        <label for="referenceInput" class="upload-label">
+          <strong>Upload reference images</strong>
+          <span>Premium · choose 2 to 4 PNG, JPG or WebP images · max 10 MB each</span>
+          <span class="upload-button">Choose references</span>
+        </label>
+        <input id="referenceInput" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>
+        <div id="referencePreview" class="reference-grid"></div>
+      </div>
+
+      <div id="variationBox" class="options hidden">
+        <label>
+          Variations
+          <select id="variationCount">
+            <option value="2">2 variations</option>
+            <option value="3">3 variations</option>
+            <option value="4" selected>4 variations</option>
+          </select>
+        </label>
       </div>
 
       <div class="options">
@@ -71,7 +92,7 @@
             <span>✦</span><b>AI Image Editing</b><small>Pro · Upload and transform</small>
           </button>
           <button class="feature locked" data-feature="variations" type="button">
-            <span>◈</span><b>Multiple Variations</b><small>Pro · Create variations</small>
+            <span>◈</span><b>Multiple Variations</b><small>Pro · Create 2–4 variations</small>
           </button>
           <button class="feature locked" data-feature="multi-reference" type="button">
             <span>◇</span><b>Multi-Reference</b><small>Premium · Up to 4 images</small>
@@ -88,12 +109,9 @@
 
     <section id="result" class="result hidden">
       <div class="result-head">
-        <h2>Your image</h2>
-        <a id="download" class="download" download="nexauren-ai-image.jpg">Download</a>
+        <h2>Your results</h2>
       </div>
-      <div class="image-wrap">
-        <img id="output" alt="AI generated result">
-      </div>
+      <div id="resultsGrid" class="results-grid"></div>
     </section>
   </main>
   <script src="script.js"></script>
