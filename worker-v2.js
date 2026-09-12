@@ -1134,6 +1134,19 @@ async function paypalCapture(req, env) {
   return red("/dashboard?payment=success");
 }
 
+async function getAdminPayPalPlan(env, slug) {
+  return await env.DB
+    .prepare(`
+      SELECT paypal_plan_id
+      FROM nexauren_admin_plans
+      WHERE slug = ?
+        AND active = 1
+      LIMIT 1
+    `)
+    .bind(slug)
+    .first();
+}
+
 async function paypalSubscription(req, env) {
   const u = await me(req, env);
   if (!u) {
@@ -1142,21 +1155,25 @@ async function paypalSubscription(req, env) {
 
   const { plan } = await req.json();
 
-  const planId =
-    plan === "pro"
-      ? env.PAYPAL_PRO_PLAN_ID
-      : plan === "premium"
-        ? env.PAYPAL_PREMIUM_PLAN_ID
-        : null;
+  const allowed = ["pro", "premium"];
+
+  if (!allowed.includes(plan)) {
+    return json({
+      error: "Plano inválido"
+    }, 400);
+  }
+
+  const adminPlan = await getAdminPayPalPlan(
+    env,
+    plan
+  );
+
+  const planId = adminPlan?.paypal_plan_id;
 
   if (!planId) {
-    return json(
-      {
-        error:
-          "ID do plano PayPal Sandbox ainda não configurado."
-      },
-      503
-    );
+    return json({
+      error: "Plano PayPal não configurado"
+    }, 400);
   }
 
   const access = await paypalToken(env);
