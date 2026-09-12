@@ -396,6 +396,77 @@ async function aiWriter(req, env) {
   }
 }
 
+async function aiImage(req, env) {
+  const user = await samplePackUser(req, env);
+  if (!user) return json({ ok: false, error: "Please log in to use AI Image Generator." }, 401);
+  if (!env.AI) return json({ ok: false, error: "Workers AI is not configured." }, 503);
+
+  let body;
+  try {
+    body = await req.json();
+  } catch (_) {
+    return json({ ok: false, error: "Invalid request." }, 400);
+  }
+
+  const prompt = String(body?.prompt || "").trim();
+  const style = String(body?.style || "photorealistic");
+  const size = String(body?.size || "square");
+
+  if (!prompt) return json({ ok: false, error: "Describe the image you want to create." }, 400);
+  if (prompt.length > 2000) return json({ ok: false, error: "Prompt is too long." }, 400);
+
+  const styles = {
+    photorealistic: "photorealistic",
+    cinematic: "cinematic photography",
+    "digital-art": "high quality digital art",
+    illustration: "clean detailed illustration",
+    minimal: "clean minimalist artwork"
+  };
+
+  const sizes = {
+    square: "square composition",
+    portrait: "portrait composition",
+    landscape: "landscape composition"
+  };
+
+  if (!styles[style] || !sizes[size]) {
+    return json({ ok: false, error: "Invalid image options." }, 400);
+  }
+
+  const enhancedPrompt = [
+    prompt,
+    styles[style],
+    sizes[size],
+    "high quality, strong composition, coherent details"
+  ].join(", ");
+
+  try {
+    const response = await env.AI.run(
+      "@cf/black-forest-labs/flux-2-klein-9b",
+      {
+        prompt: enhancedPrompt,
+        seed: Math.floor(Math.random() * 2147483647)
+      }
+    );
+
+    if (!response?.image) {
+      return json({ ok: false, error: "The image model returned no image." }, 502);
+    }
+
+    return json({
+      ok: true,
+      image: response.image,
+      model: "flux-2-klein-9b"
+    });
+  } catch (error) {
+    return json({
+      ok: false,
+      error: "Image generation failed.",
+      detail: String(error?.message || error).slice(0, 300)
+    }, 502);
+  }
+}
+
 async function handleSamplePack(req, env) {
   const path = new URL(req.url).pathname;
 
@@ -413,6 +484,10 @@ async function handleSamplePack(req, env) {
 
   if (path === "/api/tools/ai-writer" && req.method === "POST") {
     return aiWriter(req, env);
+  }
+
+  if (path === "/api/ai/image" && req.method === "POST") {
+    return aiImage(req, env);
   }
 
   return null;
