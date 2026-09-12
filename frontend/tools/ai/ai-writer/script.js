@@ -6,6 +6,7 @@
   const generateButton = $("generateButton");
   const resultPanel = $("resultPanel");
   let mode = "write";
+  let feature = "";
 
   document.querySelectorAll(".mode").forEach(button => {
     button.addEventListener("click", () => {
@@ -18,10 +19,25 @@
     });
   });
 
+  document.querySelectorAll(".feature-card").forEach(button => {
+    button.addEventListener("click", () => {
+      feature = button.dataset.feature || "";
+      document.querySelectorAll(".feature-card").forEach(item =>
+        item.classList.remove("selected")
+      );
+      button.classList.add("selected");
+      setStatus(`${button.dataset.plan === "premium" ? "Premium" : "Pro"} feature selected. Click Generate to continue.`);
+    });
+  });
+
   $("clearButton").addEventListener("click", () => {
     prompt.value = "";
     result.value = "";
     resultPanel.classList.add("hidden");
+    feature = "";
+    document.querySelectorAll(".feature-card").forEach(item =>
+      item.classList.remove("selected")
+    );
     setStatus("");
   });
 
@@ -57,11 +73,17 @@
           mode,
           prompt: text,
           tone: $("tone").value,
-          length: $("length").value
+          length: $("length").value,
+          feature
         })
       });
 
       const data = await response.json().catch(() => ({}));
+
+      if (response.status === 403 && data.upgrade) {
+        showUpgrade(data.required_plan, data.feature_name);
+        return;
+      }
 
       if (!response.ok || !data.ok) {
         throw new Error(data.error || "The AI Writer could not complete the request.");
@@ -78,6 +100,16 @@
       if (window.NexaurenLoader) {
         NexaurenLoader.hideProcessing(120);
       }
+    }
+  }
+
+  function showUpgrade(plan, featureName) {
+    const label = plan === "premium" ? "Premium" : "Pro";
+    const message = `${featureName || "This feature"} requires ${label}.`;
+    setStatus(message, "error");
+
+    if (window.confirm(`${message}\n\nUpgrade your plan to unlock it?`)) {
+      window.location.href = "/plans/";
     }
   }
 
