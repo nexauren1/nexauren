@@ -1,1 +1,1 @@
-{"name":"nexauren","private":true,"scripts":{"deploy":"wrangler deploy","db:init":"wrangler d1 execute nexauren-db --remote --file=migrations/0001_initial.sql"},"devDependencies":{"wrangler":"^4.0.0"}}
+{"name":"nexauren","private":true,"scripts":{"deploy":"wrangler deploy","db:init":"wrangler d1 execute nexauren-db --remote --file=migrations/0001_initial.sql","db:migrate":"wrangler d1 migrations apply nexauren-db --remote"},"devDependencies":{"wrangler":"^4.0.0"}}
