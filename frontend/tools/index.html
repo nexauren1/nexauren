@@ -9,14 +9,14 @@
   <title>Ferramentas Online | Nexauren</title>
   <style>
     :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;--ink:#101828;--muted:#667085;--line:#e7ebf3;--blue:#2563eb;--violet:#7c3aed;--pink:#ec4899}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:#fff;background-image:radial-gradient(circle at 8% 0,#dbeafe 0,transparent 22%),radial-gradient(circle at 96% 10%,#f3e8ff 0,transparent 22%)}a{text-decoration:none;color:inherit}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:#fff;background-image:radial-gradient(circle at 8% 0,#dbeafe 0,transparent 22%),radial-gradient(circle at 96% 10%,#f3e8ff 0,transparent 22%)}body.modal-open{overflow:hidden}a{text-decoration:none;color:inherit}
     .nav{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 max(20px,5vw);position:sticky;top:0;z-index:20;background:#ffffffdf;backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}.brand{display:flex;gap:11px;align-items:center;font-weight:950;letter-spacing:.08em}.brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--violet),var(--pink));box-shadow:0 8px 22px #7c3aed33}
     .nav-links{display:flex;gap:8px;align-items:center}.nav-link{padding:10px 12px;border-radius:10px;color:#475467;font-weight:700}.nav-link:hover{background:#f2f5fb;color:var(--ink)}.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 17px;border-radius:12px;color:#fff;background:linear-gradient(135deg,var(--blue),var(--violet));font-weight:850;box-shadow:0 10px 24px #2563eb2e}
     .wrap{width:min(1180px,92vw);margin:auto;padding:48px 0 72px}.hero{padding:28px 0 42px}.eyebrow{display:inline-flex;padding:8px 12px;border:1px solid #dbeafe;border-radius:999px;background:#eff6ff;color:var(--blue);font-size:12px;font-weight:850}.hero h1{font-size:clamp(42px,6vw,68px);line-height:1;letter-spacing:-.055em;margin:17px 0 12px}.gradient{background:linear-gradient(90deg,var(--blue),var(--violet),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}.lead{color:var(--muted);font-size:18px;line-height:1.7;max-width:700px}
     .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:14px;background:#ffffffd9;border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 45px #1d4ed80d;position:sticky;top:86px;z-index:10}.search{flex:1;min-width:220px;position:relative}.search input{width:100%;padding:13px 15px 13px 42px;border:1px solid #dfe5ef;border-radius:12px;outline:0;font:inherit;background:#fff}.search-icon{position:absolute;left:15px;top:12px;color:#98a2b3}.select{padding:12px 13px;border:1px solid #dfe5ef;border-radius:12px;background:#fff;color:#344054;font:inherit;font-weight:700;min-width:180px}.count{font-size:13px;color:var(--muted);font-weight:700;white-space:nowrap}
-    .categories{margin-top:24px}.tools-category{margin:0 0 42px}.category-header{display:flex;align-items:end;justify-content:space-between;margin-bottom:14px}.category-header h2{margin:0;font-size:25px;letter-spacing:-.025em}.category-header span{color:var(--muted);font-size:13px;font-weight:700}.tools-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.tool-card{min-height:210px;display:flex;align-items:stretch;gap:8px;padding:21px;border:1px solid var(--line);border-radius:21px;background:#fff;box-shadow:0 16px 45px #1d4ed80b;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}.tool-card:hover{transform:translateY(-6px);box-shadow:0 26px 65px #1d4ed81d;border-color:#d9dff0}.tool-card-main{display:flex;gap:14px;flex:1;min-width:0}.tool-icon{flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:#f1f5ff;color:#4f46e5;font-size:18px;font-weight:900}.tool-info{min-width:0}.tool-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.tool-info h3{margin:1px 0 6px;font-size:18px;letter-spacing:-.02em}.tool-info p{margin:0;color:var(--muted);line-height:1.55;font-size:14px}.tool-type{display:inline-flex;margin-top:12px;padding:6px 9px;border-radius:8px;background:#f7f8fc;border:1px solid #e8ebf2;color:#475467;font-size:11px;font-weight:800}.tool-status{display:inline-flex;padding:5px 8px;border-radius:999px;background:#ecfdf3;color:#027a48;font-size:10px;font-weight:850;text-transform:uppercase}.tool-info-button{flex:none;width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#667085;cursor:pointer}.tool-info-button:hover{background:#f5f7fb;color:var(--blue)}.empty{padding:45px 20px;border:1px dashed #cbd5e1;border-radius:20px;background:#ffffffb8;text-align:center}.empty h3{margin:0 0 7px}.muted{color:var(--muted);line-height:1.6}.footer{border-top:1px solid var(--line);padding:32px 0;color:#98a2b3;font-size:13px}
-    @media(max-width:900px){.tools-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tool-card{padding:15px;border-radius:17px;min-height:190px}.tool-card-main{gap:10px}.tool-icon{width:38px;height:38px;border-radius:11px}.tool-info h3{font-size:15px}.tool-info p{font-size:12px;line-height:1.45}.tool-type{margin-top:9px;font-size:10px;padding:5px 7px}.tool-status{font-size:8px;padding:4px 6px}.tool-info-button{width:31px;height:31px;border-radius:9px;font-size:14px}}
-    @media(max-width:680px){.nav-links{display:none}.wrap{width:92vw;padding-top:32px}.hero h1{font-size:42px}.hero{padding-bottom:30px}.toolbar{position:static;padding:11px;gap:9px}.search{min-width:100%}.select{min-width:0;flex:1}.count{font-size:11px}.tools-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tool-card{min-height:180px;padding:13px;gap:5px;border-radius:16px}.tool-card-main{display:block}.tool-icon{width:36px;height:36px;margin-bottom:10px}.tool-info h3{font-size:14px;line-height:1.25;margin-bottom:6px}.tool-info p{font-size:11px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.tool-title-row{gap:5px}.tool-status{font-size:7px}.tool-type{display:block;width:max-content;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tool-info-button{width:29px;height:29px;font-size:13px}.category-header{align-items:flex-start;gap:8px;flex-direction:column}.category-header h2{font-size:22px}.tools-category{margin-bottom:32px}}
+    .categories{margin-top:24px}.tools-category{margin:0 0 42px}.category-header{display:flex;align-items:end;justify-content:space-between;margin-bottom:14px}.category-header h2{margin:0;font-size:25px;letter-spacing:-.025em}.category-header span{color:var(--muted);font-size:13px;font-weight:700}.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.tool-card{min-height:205px;display:flex;align-items:stretch;gap:8px;padding:21px;border:1px solid var(--line);border-radius:21px;background:#fff;box-shadow:0 16px 45px #1d4ed80b;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}.tool-card:hover{transform:translateY(-6px);box-shadow:0 26px 65px #1d4ed81d;border-color:#d9dff0}.tool-card-main{display:flex;gap:14px;flex:1;min-width:0}.tool-icon{flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:#f1f5ff;color:#4f46e5;font-size:18px;font-weight:900}.tool-info{min-width:0}.tool-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.tool-info h3{margin:1px 0 6px;font-size:18px;letter-spacing:-.02em}.tool-info p{margin:0;color:var(--muted);line-height:1.55;font-size:14px}.tool-status{display:inline-flex;padding:5px 8px;border-radius:999px;background:#ecfdf3;color:#027a48;font-size:10px;font-weight:850;text-transform:uppercase}.tool-info-button{flex:none;width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#667085;cursor:pointer}.tool-info-button:hover{background:#f5f7fb;color:var(--blue)}.tool-open{display:inline-flex;align-items:center;gap:6px;margin-top:13px;padding:9px 12px;border-radius:10px;background:#101828;color:#fff;font-size:12px;font-weight:850}.tool-open:hover{background:#2563eb}.empty{padding:45px 20px;border:1px dashed #cbd5e1;border-radius:20px;background:#ffffffb8;text-align:center}.empty h3{margin:0 0 7px}.muted{color:var(--muted);line-height:1.6}.footer{border-top:1px solid var(--line);padding:32px 0;color:#98a2b3;font-size:13px}
+    dialog.tool-dialog{width:min(560px,calc(100vw - 32px));border:0;border-radius:26px;padding:0;color:var(--ink);box-shadow:0 30px 90px #10182840;background:#fff;overflow:hidden}dialog.tool-dialog::backdrop{background:#10182880;backdrop-filter:blur(7px)}.dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:26px 26px 18px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#f8fbff,#fbf8ff)}.dialog-brand{display:flex;gap:14px;align-items:center}.dialog-icon{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#eff6ff,#f5f3ff);color:#4f46e5;font-size:22px;font-weight:900;border:1px solid #e0e7ff}.dialog-kicker{margin:0 0 4px;color:#667085;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}.dialog-title{margin:0;font-size:23px;letter-spacing:-.03em}.dialog-close{width:38px;height:38px;border:1px solid var(--line);border-radius:11px;background:#fff;color:#667085;font-size:20px;cursor:pointer}.dialog-close:hover{color:var(--ink);background:#f8fafc}.dialog-body{padding:24px 26px}.dialog-description{margin:0;color:#475467;font-size:15px;line-height:1.7}.dialog-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}.meta-box{padding:13px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.meta-label{display:block;color:#98a2b3;font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}.meta-value{font-size:13px;font-weight:800}.dialog-actions{display:flex;gap:10px;padding:0 26px 26px}.dialog-actions a{flex:1}.dialog-open{display:inline-flex;justify-content:center;align-items:center;padding:13px 16px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-weight:850}.dialog-cancel{display:inline-flex;justify-content:center;align-items:center;padding:13px 16px;border-radius:12px;border:1px solid var(--line);background:#fff;color:#344054;font-weight:800;cursor:pointer}
+    @media(max-width:900px){.tools-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:680px){.nav-links{display:none}.wrap{width:92vw;padding-top:32px}.hero h1{font-size:44px}.toolbar{position:static}.tools-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tool-card{min-height:190px;padding:14px;border-radius:16px;gap:5px}.tool-card-main{gap:10px}.tool-icon{width:38px;height:38px;border-radius:11px;font-size:16px}.tool-info h3{font-size:15px}.tool-info p{font-size:12px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.tool-status{font-size:8px;padding:4px 6px}.tool-info-button{width:29px;height:29px;font-size:14px}.tool-open{font-size:10px;padding:8px 9px;margin-top:10px}.category-header{align-items:flex-start;gap:8px;flex-direction:column}.dialog-head{padding:20px 18px 16px}.dialog-body{padding:20px 18px}.dialog-actions{padding:0 18px 18px;flex-direction:column}.dialog-meta{gap:8px}.dialog-title{font-size:20px}}
   </style>
 </head>
 <body>
@@ -30,24 +30,101 @@
     <div id="categories" class="categories"></div>
   </main>
   <footer class="footer"><div class="wrap" style="padding:0">© Nexauren — Ferramentas digitais.</div></footer>
+
+  <dialog id="toolDialog" class="tool-dialog" aria-labelledby="dialogTitle" aria-describedby="dialogDescription">
+    <div class="dialog-head"><div class="dialog-brand"><div class="dialog-icon" id="dialogIcon">◈</div><div><p class="dialog-kicker" id="dialogCategory">Ferramenta</p><h2 class="dialog-title" id="dialogTitle">Informações</h2></div></div><button class="dialog-close" id="dialogClose" type="button" aria-label="Fechar">×</button></div>
+    <div class="dialog-body"><p class="dialog-description" id="dialogDescription"></p><div class="dialog-meta"><div class="meta-box"><span class="meta-label">Status</span><span class="meta-value" id="dialogStatus">—</span></div><div class="meta-box"><span class="meta-label">Versão</span><span class="meta-value" id="dialogVersion">—</span></div><div class="meta-box"><span class="meta-label">ID</span><span class="meta-value" id="dialogId">—</span></div><div class="meta-box"><span class="meta-label">Tipo</span><span class="meta-value" id="dialogType">Ferramenta online</span></div></div></div>
+    <div class="dialog-actions"><button class="dialog-cancel" id="dialogCancel" type="button">Fechar</button><a class="dialog-open" id="dialogOpen" href="#">Abrir ferramenta →</a></div>
+  </dialog>
+
   <script type="module">
     import { getCategories } from "/categories/category.js";
-    const allCategories = getCategories(), q = document.getElementById("q"), cat = document.getElementById("cat"), root = document.getElementById("categories"), n = document.getElementById("n");
-    for (const category of allCategories) { const option=document.createElement("option"); option.value=category.slug; option.textContent=category.name; cat.appendChild(option); }
-    const params=new URLSearchParams(location.search); cat.value=params.get("category")||"";
-    function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));}
-    function render(){
-      const query=q.value.trim().toLowerCase(), selected=cat.value; let total=0;
-      const html=allCategories.map(category=>{
-        if(selected&&category.slug!==selected)return "";
-        const items=category.tools.filter(tool=>{const haystack=[tool.name,tool.description,tool.category].join(" ").toLowerCase();return !query||haystack.includes(query);});
-        if(!items.length)return ""; total+=items.length;
-        return `<section class="tools-category" data-category="${esc(category.slug)}"><div class="category-header"><div><h2>${esc(category.name)}</h2><span>${items.length} ferramenta${items.length===1?"":"s"}</span></div></div><div class="tools-grid">${items.map(tool=>`<article class="tool-card"><a class="tool-card-main" href="${esc(tool.toolPath)}" aria-label="Abrir ${esc(tool.name)}"><div class="tool-icon">${esc(tool.icon||"◈")}</div><div class="tool-info"><div class="tool-title-row"><h3>${esc(tool.name)}</h3><span class="tool-status">${esc(tool.status)}</span></div><p>${esc(tool.description||"")}</p><span class="tool-type">Abrir ferramenta →</span></div></a><button class="tool-info-button" type="button" title="Informações sobre ${esc(tool.name)}" aria-label="Informações sobre ${esc(tool.name)}" data-tool-info="${esc(tool.id)}">ℹ️</button></article>`).join("")}</div></section>`;
-      }).join("");
-      n.textContent=total; root.innerHTML=html||`<div class="empty"><h3>Nada encontrado</h3><p class="muted">Tente outro termo ou categoria.</p></div>`;
-      root.querySelectorAll("[data-tool-info]").forEach(button=>button.addEventListener("click",()=>{const tool=allCategories.flatMap(c=>c.tools).find(t=>t.id===button.dataset.toolInfo);if(tool)alert(`${tool.name}\n\n${tool.description}\n\nTipo: ${tool.category}\nVersão: ${tool.version||"—"}`);}));
+
+    const allCategories = getCategories();
+    const q = document.getElementById("q");
+    const cat = document.getElementById("cat");
+    const root = document.getElementById("categories");
+    const n = document.getElementById("n");
+    const dialog = document.getElementById("toolDialog");
+    const dialogClose = document.getElementById("dialogClose");
+    const dialogCancel = document.getElementById("dialogCancel");
+    const dialogOpen = document.getElementById("dialogOpen");
+    let lastTrigger = null;
+
+    for (const category of allCategories) {
+      const option = document.createElement("option");
+      option.value = category.slug;
+      option.textContent = category.name;
+      cat.appendChild(option);
     }
-    q.addEventListener("input",render); cat.addEventListener("change",()=>{const url=new URL(location.href);if(cat.value)url.searchParams.set("category",cat.value);else url.searchParams.delete("category");history.replaceState({},"",url);render();}); render();
+
+    const params = new URLSearchParams(location.search);
+    cat.value = params.get("category") || "";
+
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+    }
+
+    function allTools() { return allCategories.flatMap(category => category.tools); }
+
+    function render() {
+      const query = q.value.trim().toLowerCase();
+      const selected = cat.value;
+      let total = 0;
+      const html = allCategories.map(category => {
+        if (selected && category.slug !== selected) return "";
+        const items = category.tools.filter(tool => {
+          const haystack = [tool.name, tool.description, tool.category].join(" ").toLowerCase();
+          return !query || haystack.includes(query);
+        });
+        if (!items.length) return "";
+        total += items.length;
+        return `<section class="tools-category" data-category="${esc(category.slug)}"><div class="category-header"><div><h2>${esc(category.name)}</h2><span>${items.length} ferramenta${items.length === 1 ? "" : "s"}</span></div></div><div class="tools-grid">${items.map(tool => `<article class="tool-card"><div class="tool-card-main"><div class="tool-icon">${esc(tool.icon || "◈")}</div><div class="tool-info"><div class="tool-title-row"><h3>${esc(tool.name)}</h3><span class="tool-status">${esc(tool.status)}</span></div><p>${esc(tool.description || "")}</p><a class="tool-open" href="${esc(tool.toolPath)}">Abrir ferramenta →</a></div></div><button class="tool-info-button" type="button" title="Ver informações sobre ${esc(tool.name)}" aria-label="Ver informações sobre ${esc(tool.name)}" data-tool-info="${esc(tool.id)}">ℹ️</button></article>`).join("")}</div></section>`;
+      }).join("");
+      n.textContent = total;
+      root.innerHTML = html || `<div class="empty"><h3>Nada encontrado</h3><p class="muted">Tente outro termo ou categoria.</p></div>`;
+      root.querySelectorAll("[data-tool-info]").forEach(button => button.addEventListener("click", () => openToolInfo(button.dataset.toolInfo, button)));
+    }
+
+    function openToolInfo(id, trigger) {
+      const tool = allTools().find(item => item.id === id);
+      if (!tool) return;
+      lastTrigger = trigger;
+      const category = allCategories.find(item => item.slug === tool.category);
+      document.getElementById("dialogIcon").textContent = tool.icon || "◈";
+      document.getElementById("dialogCategory").textContent = category?.name || tool.category || "Ferramenta";
+      document.getElementById("dialogTitle").textContent = tool.name;
+      document.getElementById("dialogDescription").textContent = tool.description || "Ferramenta digital do Nexauren.";
+      document.getElementById("dialogStatus").textContent = tool.status || "—";
+      document.getElementById("dialogVersion").textContent = tool.version || "—";
+      document.getElementById("dialogId").textContent = tool.id || "—";
+      dialogOpen.href = tool.toolPath || "#";
+      document.body.classList.add("modal-open");
+      dialog.showModal();
+      dialogClose.focus();
+    }
+
+    function closeToolInfo() {
+      if (!dialog.open) return;
+      dialog.close();
+      document.body.classList.remove("modal-open");
+      lastTrigger?.focus();
+      lastTrigger = null;
+    }
+
+    dialogClose.addEventListener("click", closeToolInfo);
+    dialogCancel.addEventListener("click", closeToolInfo);
+    dialog.addEventListener("click", event => { if (event.target === dialog) closeToolInfo(); });
+    dialog.addEventListener("close", () => { document.body.classList.remove("modal-open"); });
+
+    q.addEventListener("input", render);
+    cat.addEventListener("change", () => {
+      const url = new URL(location.href);
+      if (cat.value) url.searchParams.set("category", cat.value); else url.searchParams.delete("category");
+      history.replaceState({}, "", url);
+      render();
+    });
+    render();
   </script>
 </body>
 </html>
