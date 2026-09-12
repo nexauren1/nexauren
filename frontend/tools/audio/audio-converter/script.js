@@ -1,7 +1,90 @@
-const fileInput=document.querySelector('#audioFile');const dropzone=document.querySelector('#dropzone');const filePanel=document.querySelector('#filePanel');const fileName=document.querySelector('#fileName');const fileSize=document.querySelector('#fileSize');const removeFile=document.querySelector('#removeFile');const settings=document.querySelector('#settings');const convertButton=document.querySelector('#convertButton');const message=document.querySelector('#message');const progress=document.querySelector('#progress');const progressBar=document.querySelector('#progressBar');const progressText=document.querySelector('#progressText');let selectedFile=null;
-function size(v){if(v<1024)return `${v} B`;if(v<1048576)return `${(v/1024).toFixed(1)} KB`;return `${(v/1048576).toFixed(2)} MB`}
-function setFile(file){if(!file||!file.type.startsWith('audio/')){message.textContent='Selecione um ficheiro de áudio válido.';return}selectedFile=file;fileName.textContent=file.name;fileSize.textContent=`${size(file.size)} · ${file.type.replace('audio/','').toUpperCase()}`;filePanel.hidden=false;settings.hidden=false;convertButton.disabled=false;message.textContent='';progress.hidden=true;dropzone.classList.remove('dragover')}
-fileInput.addEventListener('change',()=>setFile(fileInput.files?.[0]));
-['dragenter','dragover'].forEach(e=>dropzone.addEventListener(e,ev=>{ev.preventDefault();dropzone.classList.add('dragover')}));['dragleave','drop'].forEach(e=>dropzone.addEventListener(e,ev=>{ev.preventDefault();if(e==='dragleave'&&!dropzone.contains(ev.relatedTarget))dropzone.classList.remove('dragover');if(e==='drop')setFile(ev.dataTransfer.files?.[0])}));
-removeFile.addEventListener('click',()=>{selectedFile=null;fileInput.value='';filePanel.hidden=true;settings.hidden=true;convertButton.disabled=true;progress.hidden=true;message.textContent=''});
-convertButton.addEventListener('click',()=>{if(!selectedFile)return;progress.hidden=false;progressBar.style.width='0%';progressText.textContent='A preparar…';message.textContent='';let value=0;const timer=setInterval(()=>{value+=8;progressBar.style.width=`${Math.min(value,100)}%`;progressText.textContent=value<100?'A preparar a conversão…':'Pronto para ligar o motor de conversão.';if(value>=100){clearInterval(timer);message.textContent='A interface está pronta. A conversão real de formatos será ligada na próxima etapa.'}},90)});
+const fileInput = document.querySelector("#audioFile");
+const dropZone = document.querySelector("#dropZone");
+const filePanel = document.querySelector("#filePanel");
+const fileName = document.querySelector("#fileName");
+const fileSize = document.querySelector("#fileSize");
+const removeFile = document.querySelector("#removeFile");
+const settings = document.querySelector("#settings");
+const convertButton = document.querySelector("#convertButton");
+const processing = document.querySelector("#processing");
+const notice = document.querySelector("#notice");
+let selectedFile = null;
+
+function formatSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1048576).toFixed(2)} MB`;
+}
+
+function showNotice(text) {
+  notice.textContent = text;
+  notice.hidden = false;
+}
+
+function setFile(file) {
+  if (!file || !file.type.startsWith("audio/")) {
+    showNotice("Selecione um ficheiro de áudio válido.");
+    return;
+  }
+
+  selectedFile = file;
+  fileName.textContent = file.name;
+  fileSize.textContent = `${formatSize(file.size)} · ${file.type.replace("audio/", "").toUpperCase()}`;
+  filePanel.hidden = false;
+  settings.hidden = false;
+  convertButton.disabled = false;
+  processing.hidden = true;
+  notice.hidden = true;
+  dropZone.classList.remove("dragover");
+}
+
+fileInput.addEventListener("change", () => {
+  setFile(fileInput.files?.[0]);
+});
+
+["dragenter", "dragover"].forEach(eventName => {
+  dropZone.addEventListener(eventName, event => {
+    event.preventDefault();
+    dropZone.classList.add("dragover");
+  });
+});
+
+["dragleave", "drop"].forEach(eventName => {
+  dropZone.addEventListener(eventName, event => {
+    event.preventDefault();
+
+    if (eventName === "dragleave" && !dropZone.contains(event.relatedTarget)) {
+      dropZone.classList.remove("dragover");
+    }
+
+    if (eventName === "drop") {
+      setFile(event.dataTransfer.files?.[0]);
+    }
+  });
+});
+
+removeFile.addEventListener("click", () => {
+  selectedFile = null;
+  fileInput.value = "";
+  filePanel.hidden = true;
+  settings.hidden = true;
+  processing.hidden = true;
+  convertButton.disabled = true;
+  notice.hidden = true;
+});
+
+convertButton.addEventListener("click", () => {
+  if (!selectedFile) return;
+
+  processing.hidden = false;
+  notice.hidden = true;
+  convertButton.disabled = true;
+
+  window.setTimeout(() => {
+    processing.hidden = true;
+    convertButton.disabled = false;
+    showNotice(
+      "A interface está pronta. O motor de conversão real será ligado ao backend na próxima etapa."
+    );
+  }, 1400);
+});
