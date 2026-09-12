@@ -3,296 +3,161 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Nexauren — ferramentas digitais simples, rápidas e profissionais para o dia a dia.">
-  <title>Nexauren — Ferramentas digitais</title>
+  <meta name="description" content="Nexauren — uma plataforma moderna de ferramentas digitais rápidas, inteligentes e fáceis de usar.">
+  <meta name="theme-color" content="#f7faff">
+  <title>Nexauren — Digital tools, beautifully simple.</title>
   <style>
-    :root {
-      --bg:#f7f9fc;
-      --surface:#fff;
-      --text:#172033;
-      --muted:#64748b;
-      --line:#e5eaf2;
-      --primary:#3157e8;
-      --primary-2:#6947e8;
-      --accent:#12a8a0;
-      --shadow:0 18px 50px rgba(37,53,88,.09);
+    :root{
+      --bg:#f7faff;
+      --ink:#14213d;
+      --muted:#65738b;
+      --line:#dfe7f5;
+      --blue:#3157e8;
+      --violet:#7c3aed;
+      --cyan:#06b6d4;
     }
-
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
-    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:var(--bg)}
-    body.menu-open{overflow:hidden}
+    body{margin:0;color:var(--ink);background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
     a{color:inherit;text-decoration:none}
-    button{font:inherit}
-    .container{width:min(1120px,calc(100% - 32px));margin:auto}
+    .nx-home{position:relative;isolation:isolate}
+    .nx-home::before{content:"";position:absolute;z-index:-1;width:620px;height:620px;top:-230px;left:-240px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.16),transparent 68%);pointer-events:none}
+    .nx-home::after{content:"";position:absolute;z-index:-1;width:560px;height:560px;top:120px;right:-250px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.12),transparent 68%);pointer-events:none}
+    .nx-wrap{width:min(1180px,92vw);margin:auto}
+    .nx-hero{padding:74px 0 48px}
+    .nx-hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:70px;align-items:center}
+    .nx-kicker{display:inline-flex;align-items:center;gap:9px;padding:8px 12px;border:1px solid #dbe3ff;border-radius:999px;background:rgba(239,243,255,.82);color:#3654bb;font-size:11px;font-weight:900;letter-spacing:.13em}
+    .nx-kicker i{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--violet));box-shadow:0 0 0 5px rgba(6,182,212,.09)}
+    .nx-title{max-width:760px;margin:22px 0 20px;font-size:clamp(48px,7vw,82px);line-height:.94;letter-spacing:-.065em;font-weight:950}
+    .nx-title em{font-style:normal;background:linear-gradient(105deg,var(--blue),var(--violet) 55%,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .nx-lead{max-width:650px;margin:0;color:var(--muted);font-size:18px;line-height:1.75}
+    .nx-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+    .nx-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:50px;padding:0 20px;border-radius:14px;border:1px solid var(--line);background:#fff;font-weight:850;box-shadow:0 8px 25px rgba(41,58,100,.06);transition:transform .2s ease,box-shadow .2s ease}
+    .nx-btn:hover{transform:translateY(-3px);box-shadow:0 15px 35px rgba(41,58,100,.12)}
+    .nx-btn-primary{color:#fff;border:0;background:linear-gradient(135deg,#3157e8,#6d3ce9);box-shadow:0 14px 35px rgba(73,76,220,.25)}
+    .nx-btn-primary:hover{box-shadow:0 18px 42px rgba(73,76,220,.34)}
+    .nx-trust{display:flex;align-items:center;gap:12px;margin-top:28px;color:#8190a8;font-size:12px;font-weight:750}
+    .nx-dots{display:flex}
+    .nx-dots span{width:25px;height:25px;margin-right:-6px;border:2px solid var(--bg);border-radius:50%;background:linear-gradient(135deg,#3157e8,#7c3aed)}
+    .nx-dots span:nth-child(2){background:linear-gradient(135deg,#06b6d4,#2563eb)}
+    .nx-dots span:nth-child(3){background:linear-gradient(135deg,#8b5cf6,#ec4899)}
 
-    header{
-      position:sticky;
-      top:0;
-      z-index:50;
-      background:rgba(255,255,255,.92);
-      border-bottom:1px solid var(--line);
-      backdrop-filter:blur(14px)
+    .nx-showcase{position:relative;min-height:480px}
+    .nx-glow{position:absolute;inset:8% 4%;border-radius:50%;background:radial-gradient(circle,rgba(79,70,229,.2),rgba(6,182,212,.08) 38%,transparent 68%);filter:blur(12px)}
+    .nx-dashboard{position:absolute;inset:28px 0 24px 28px;border:1px solid rgba(255,255,255,.82);border-radius:30px;background:rgba(255,255,255,.68);box-shadow:0 35px 90px rgba(48,67,126,.17);backdrop-filter:blur(22px);transform:rotate(1deg)}
+    .nx-dashboard::before{content:"";position:absolute;inset:0;border-radius:30px;background:linear-gradient(135deg,rgba(255,255,255,.72),transparent 48%);pointer-events:none}
+    .nx-dash-top{height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid #e7edf7}
+    .nx-dash-brand{font-weight:950;letter-spacing:.08em}.nx-dash-brand span{color:var(--violet)}
+    .nx-dash-dots{display:flex;gap:6px}.nx-dash-dots i{width:7px;height:7px;border-radius:50%;background:#d8e0ee}
+    .nx-dash-body{padding:22px}
+    .nx-dash-label{font-size:11px;font-weight:900;color:#8995aa;letter-spacing:.12em;text-transform:uppercase}
+    .nx-dash-heading{margin:8px 0 20px;font-size:26px;font-weight:900;letter-spacing:-.04em}
+    .nx-tool-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .nx-tool{padding:16px;border:1px solid #e3e9f3;border-radius:17px;background:rgba(255,255,255,.86);box-shadow:0 8px 22px rgba(52,70,112,.05)}
+    .nx-tool-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;color:#fff;font-weight:900;margin-bottom:12px}
+    .nx-tool:nth-child(1) .nx-tool-icon{background:linear-gradient(135deg,#3157e8,#6d3ce9)}
+    .nx-tool:nth-child(2) .nx-tool-icon{background:linear-gradient(135deg,#06b6d4,#2563eb)}
+    .nx-tool:nth-child(3) .nx-tool-icon{background:linear-gradient(135deg,#8b5cf6,#ec4899)}
+    .nx-tool:nth-child(4) .nx-tool-icon{background:linear-gradient(135deg,#0ea5e9,#14b8a6)}
+    .nx-tool strong{display:block;font-size:13px}.nx-tool small{display:block;margin-top:4px;color:#8490a5;font-size:11px}
+    .nx-floating{position:absolute;right:-14px;bottom:2px;width:205px;padding:17px;border:1px solid rgba(255,255,255,.9);border-radius:20px;background:rgba(255,255,255,.82);box-shadow:0 24px 55px rgba(44,64,120,.18);backdrop-filter:blur(18px)}
+    .nx-floating-top{display:flex;align-items:center;justify-content:space-between;color:#7d8aa1;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+    .nx-score{margin-top:13px;font-size:27px;font-weight:950;letter-spacing:-.05em}.nx-score span{color:#06a77d;font-size:12px;letter-spacing:0}
+    .nx-bar{height:7px;margin-top:12px;border-radius:99px;background:#e8edf6;overflow:hidden}.nx-bar i{display:block;width:76%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#3157e8,#06b6d4)}
+
+    .nx-section{padding:70px 0}
+    .nx-section-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:28px}
+    .nx-section-head h2{margin:0;font-size:38px;letter-spacing:-.05em}.nx-section-head p{max-width:480px;margin:0;color:var(--muted);line-height:1.6}
+    .nx-category-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .nx-category{position:relative;overflow:hidden;min-height:170px;padding:22px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.72);box-shadow:0 14px 40px rgba(47,65,112,.07);transition:transform .22s ease,box-shadow .22s ease}
+    .nx-category:hover{transform:translateY(-6px);box-shadow:0 22px 50px rgba(47,65,112,.12)}
+    .nx-category::after{content:"";position:absolute;width:100px;height:100px;right:-35px;top:-35px;border-radius:50%;background:var(--orb);opacity:.16}
+    .nx-category:nth-child(1){--orb:#3157e8}.nx-category:nth-child(2){--orb:#06b6d4}.nx-category:nth-child(3){--orb:#8b5cf6}.nx-category:nth-child(4){--orb:#14b8a6}
+    .nx-cat-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:#f0f4ff;color:#3157e8;font-weight:950}.nx-category:nth-child(2) .nx-cat-icon{background:#e9fbff;color:#0891b2}.nx-category:nth-child(3) .nx-cat-icon{background:#f5efff;color:#7c3aed}.nx-category:nth-child(4) .nx-cat-icon{background:#eafbf7;color:#0f9f83}
+    .nx-category h3{margin:20px 0 7px;font-size:17px}.nx-category p{margin:0;color:#78869d;font-size:13px;line-height:1.55}
+
+    .nx-banner{position:relative;overflow:hidden;padding:46px;border-radius:30px;background:linear-gradient(115deg,#172b67,#3147a6 50%,#6b3ed0);color:#fff;box-shadow:0 30px 75px rgba(52,62,150,.25)}
+    .nx-banner::before{content:"";position:absolute;width:330px;height:330px;right:-100px;top:-170px;border-radius:50%;background:rgba(6,182,212,.28);filter:blur(2px)}
+    .nx-banner::after{content:"";position:absolute;width:220px;height:220px;left:44%;bottom:-160px;border-radius:50%;background:rgba(255,255,255,.09)}
+    .nx-banner-inner{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:30px}.nx-banner h2{margin:0 0 9px;font-size:34px;letter-spacing:-.04em}.nx-banner p{margin:0;color:#dce5ff;line-height:1.6}.nx-banner .nx-btn{background:#fff;border-color:#fff;color:#22356e;white-space:nowrap}
+
+    @media(max-width:900px){
+      .nx-hero{padding-top:52px}.nx-hero-grid{grid-template-columns:1fr;gap:30px}.nx-showcase{min-height:430px}.nx-category-grid{grid-template-columns:repeat(2,1fr)}.nx-section-head{display:block}.nx-section-head p{margin-top:10px}
     }
-
-    .nav{
-      min-height:72px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:20px
+    @media(max-width:600px){
+      .nx-title{font-size:48px}.nx-lead{font-size:16px}.nx-showcase{min-height:380px}.nx-dashboard{inset:16px 0 15px 0;border-radius:23px}.nx-dash-top{height:52px;padding:0 16px}.nx-dash-body{padding:16px}.nx-dash-heading{font-size:21px}.nx-tool-grid{gap:8px}.nx-tool{padding:12px}.nx-tool-icon{width:34px;height:34px}.nx-floating{right:-5px;width:170px;padding:13px}.nx-category-grid{grid-template-columns:1fr}.nx-section{padding:48px 0}.nx-banner{padding:30px 24px}.nx-banner-inner{display:block}.nx-banner .nx-btn{margin-top:22px}
     }
-
-    .brand{font-weight:900;font-size:23px;letter-spacing:-.7px}
-    .brand span{color:var(--primary)}
-
-    .links{
-      display:flex;
-      align-items:center;
-      gap:22px;
-      color:#526078;
-      font-size:14px;
-      font-weight:700
-    }
-
-    .links a:hover{color:var(--primary)}
-
-    .mobile-menu-button{
-      display:none;
-      width:44px;
-      height:44px;
-      border:1px solid var(--line);
-      border-radius:12px;
-      background:#fff;
-      color:var(--text);
-      cursor:pointer;
-      align-items:center;
-      justify-content:center;
-      font-size:22px
-    }
-
-    .mobile-menu-button:hover{background:#f5f7fb}
-
-    .mobile-menu{
-      display:none;
-      position:fixed;
-      inset:72px 0 0;
-      z-index:45;
-      background:rgba(15,23,42,.28);
-      backdrop-filter:blur(5px)
-    }
-
-    .mobile-menu-panel{
-      margin-left:auto;
-      width:min(360px,100%);
-      min-height:100%;
-      padding:22px 18px 30px;
-      background:#fff;
-      border-left:1px solid var(--line);
-      box-shadow:-18px 0 50px rgba(37,53,88,.12);
-      transform:translateX(100%);
-      transition:transform .22s ease
-    }
-
-    .mobile-menu.open{display:block}
-    .mobile-menu.open .mobile-menu-panel{transform:translateX(0)}
-    .mobile-menu-title{margin:0 0 14px;color:#64748b;font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
-
-    .mobile-links{display:grid;gap:8px}
-    .mobile-links a{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:14px;
-      border:1px solid var(--line);
-      border-radius:13px;
-      background:#fff;
-      color:#344054;
-      font-weight:750
-    }
-
-    .mobile-links a:hover{background:#f7f9fc;border-color:#d8deea}
-    .mobile-links .mobile-primary{color:#fff;border:0;background:linear-gradient(135deg,var(--primary),var(--primary-2))}
-
-    .hero{padding:92px 0 72px}
-    .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:54px;align-items:center}
-    .eyebrow{display:inline-flex;padding:7px 11px;border:1px solid #dce4ff;border-radius:999px;background:#eef2ff;color:#3157c9;font-size:12px;font-weight:800;letter-spacing:.3px}
-    h1{margin:18px 0;max-width:720px;font-size:clamp(42px,6vw,70px);line-height:.98;letter-spacing:-3px}
-    h1 span{color:var(--primary)}
-    .lead{max-width:650px;margin:0;color:var(--muted);font-size:18px;line-height:1.7}
-    .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border-radius:12px;border:1px solid var(--line);background:#fff;font-weight:800;transition:transform .2s ease,box-shadow .2s ease}
-    .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(40,55,90,.1)}
-    .btn.primary{color:#fff;border:0;background:linear-gradient(135deg,var(--primary),var(--primary-2))}
-
-    .hero-card{min-height:330px;padding:28px;border:1px solid var(--line);border-radius:26px;background:linear-gradient(145deg,#fff,#f2f6ff);box-shadow:var(--shadow)}
-    .hero-card h2{margin:0 0 10px;font-size:22px}
-    .hero-card p{color:var(--muted);line-height:1.6}
-    .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}
-    .mini{padding:18px;border:1px solid var(--line);border-radius:16px;background:#fff}
-    .mini strong{display:block;margin-bottom:5px}
-    .mini small{color:var(--muted)}
-    section{padding:70px 0}
-    .section-head{margin-bottom:28px}
-    .section-head h2{margin:0 0 8px;font-size:32px;letter-spacing:-1px}
-    .section-head p{margin:0;color:var(--muted)}
-    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    .card{padding:24px;border:1px solid var(--line);border-radius:20px;background:var(--surface);box-shadow:0 8px 30px rgba(37,53,88,.05)}
-    .icon{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;background:#eef2ff;color:var(--primary);font-size:20px}
-    .card h3{margin:18px 0 8px}
-    .card p{margin:0;color:var(--muted);line-height:1.6}
-    .cta{padding:42px;border-radius:28px;background:linear-gradient(135deg,#eef2ff,#f5f1ff);border:1px solid #e0e6ff}
-    .cta h2{margin:0 0 10px;font-size:32px}
-    .cta p{color:var(--muted);margin-bottom:24px}
-
-    @media(max-width:800px){
-      .links{display:none}
-      .mobile-menu-button{display:inline-flex}
-      .hero{padding-top:62px}
-      .hero-grid{grid-template-columns:1fr}
-      .cards{grid-template-columns:1fr}
-      h1{letter-spacing:-2px}
-      section{padding:52px 0}
-      .hero-card{min-height:0}
-    }
-
-    @media(min-width:801px){
-      .mobile-menu{display:none!important}
-    }
+    @media(prefers-reduced-motion:reduce){.nx-btn,.nx-category{transition:none}}
   </style>
 </head>
 <body>
-  <header>
-    <div class="container nav">
-      <a class="brand" href="/">Nexa<span>uren</span></a>
+  <div class="nx-home">
+    <main>
+      <section class="nx-hero">
+        <div class="nx-wrap nx-hero-grid">
+          <div class="nx-reveal">
+            <span class="nx-kicker"><i></i>NEXAUREN TOOLS</span>
+            <h1 class="nx-title">Tools that feel <em>ahead.</em></h1>
+            <p class="nx-lead">Uma nova geração de ferramentas digitais: rápidas, bonitas e pensadas para transformar tarefas complicadas em experiências simples.</p>
+            <div class="nx-actions">
+              <a class="nx-btn nx-btn-primary" href="/tools/">Explorar ferramentas <span>→</span></a>
+              <a class="nx-btn" href="/plans/">Ver planos</a>
+            </div>
+            <div class="nx-trust"><div class="nx-dots"><span></span><span></span><span></span></div><span>Uma plataforma. Muitas possibilidades.</span></div>
+          </div>
 
-      <nav class="links" aria-label="Navegação principal">
-        <a href="/tools/">Ferramentas</a>
-        <a href="/plans/">Planos</a>
-        <a href="/about/">Sobre</a>
-        <a href="/login/">Entrar</a>
-        <a class="btn primary" href="/register/">Criar conta</a>
-      </nav>
+          <div class="nx-showcase nx-float" aria-label="Pré-visualização da plataforma Nexauren">
+            <div class="nx-glow"></div>
+            <div class="nx-dashboard">
+              <div class="nx-dash-top"><div class="nx-dash-brand">NEXA<span>UREN</span></div><div class="nx-dash-dots"><i></i><i></i><i></i></div></div>
+              <div class="nx-dash-body">
+                <div class="nx-dash-label">Your workspace</div>
+                <div class="nx-dash-heading">Escolha o que precisa.</div>
+                <div class="nx-tool-grid">
+                  <div class="nx-tool"><div class="nx-tool-icon">♫</div><strong>Audio Studio</strong><small>Converter e preparar</small></div>
+                  <div class="nx-tool"><div class="nx-tool-icon">✦</div><strong>Image Lab</strong><small>Editar e melhorar</small></div>
+                  <div class="nx-tool"><div class="nx-tool-icon">PDF</div><strong>PDF Tools</strong><small>Organizar documentos</small></div>
+                  <div class="nx-tool"><div class="nx-tool-icon">Aa</div><strong>Text Tools</strong><small>Trabalhar com texto</small></div>
+                </div>
+              </div>
+            </div>
+            <div class="nx-floating">
+              <div class="nx-floating-top"><span>Performance</span><span>Live</span></div>
+              <div class="nx-score">Fast <span>+76%</span></div>
+              <div class="nx-bar"><i></i></div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <button
-        class="mobile-menu-button"
-        id="mobileMenuButton"
-        type="button"
-        aria-label="Abrir menu"
-        aria-expanded="false"
-        aria-controls="mobileMenu"
-      >☰</button>
-    </div>
-  </header>
+      <section class="nx-section">
+        <div class="nx-wrap">
+          <div class="nx-section-head">
+            <div><h2>Um ecossistema de ferramentas.</h2></div>
+            <p>Descubra ferramentas organizadas por áreas e encontre rapidamente o recurso certo para cada tarefa.</p>
+          </div>
+          <div class="nx-category-grid">
+            <a class="nx-category" href="/tools/audio/"><div class="nx-cat-icon">♫</div><h3>Audio</h3><p>Conversão e ferramentas para trabalhar com áudio.</p></a>
+            <a class="nx-category" href="/tools/image/"><div class="nx-cat-icon">✦</div><h3>Image</h3><p>Ferramentas para editar, melhorar e preparar imagens.</p></a>
+            <a class="nx-category" href="/tools/pdf/"><div class="nx-cat-icon">PDF</div><h3>PDF</h3><p>Organize e transforme documentos com menos esforço.</p></a>
+            <a class="nx-category" href="/tools/text/"><div class="nx-cat-icon">Aa</div><h3>Text</h3><p>Ferramentas inteligentes para tarefas com texto.</p></a>
+          </div>
+        </div>
+      </section>
 
-  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
-    <div class="mobile-menu-panel">
-      <p class="mobile-menu-title">Navegação</p>
-      <nav class="mobile-links" aria-label="Menu móvel">
-        <a href="/">Início <span>→</span></a>
-        <a href="/tools/">Ferramentas <span>→</span></a>
-        <a href="/plans/">Planos <span>→</span></a>
-        <a href="/about/">Sobre o Nexauren <span>→</span></a>
-        <a href="/login/">Entrar <span>→</span></a>
-        <a class="mobile-primary" href="/register/">Criar conta <span>→</span></a>
-      </nav>
-    </div>
+      <section class="nx-section">
+        <div class="nx-wrap">
+          <div class="nx-banner">
+            <div class="nx-banner-inner">
+              <div><h2>Built for your next idea.</h2><p>Comece gratuitamente e descubra o que o Nexauren pode fazer por si.</p></div>
+              <a class="nx-btn" href="/tools/">Começar agora <span>→</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
 
-  <main>
-    <section class="hero">
-      <div class="container hero-grid">
-        <div>
-          <span class="eyebrow">NEXAUREN TOOLS</span>
-          <h1>Ferramentas digitais <span>feitas para simplificar.</span></h1>
-          <p class="lead">Uma plataforma para encontrar ferramentas úteis, rápidas e fáceis de usar — tudo num só lugar.</p>
-          <div class="actions">
-            <a class="btn primary" href="/tools/">Explorar ferramentas</a>
-            <a class="btn" href="/plans/">Ver planos</a>
-          </div>
-        </div>
-
-        <div class="hero-card">
-          <h2>Um espaço para criar mais.</h2>
-          <p>Escolha uma ferramenta, faça o seu trabalho e continue. A Nexauren foi pensada para manter cada experiência simples e clara.</p>
-          <div class="mini-grid">
-            <div class="mini"><strong>Rápido</strong><small>Fluxos simples e diretos.</small></div>
-            <div class="mini"><strong>Organizado</strong><small>Ferramentas por categoria.</small></div>
-            <div class="mini"><strong>Flexível</strong><small>Recursos para diferentes necessidades.</small></div>
-            <div class="mini"><strong>Em evolução</strong><small>Novas ferramentas continuamente.</small></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="container">
-        <div class="section-head">
-          <h2>Feito para o seu fluxo</h2>
-          <p>Comece pelo que precisa e descubra outras ferramentas quando quiser.</p>
-        </div>
-
-        <div class="cards">
-          <article class="card"><div class="icon">⚡</div><h3>Simples</h3><p>Interfaces limpas para chegar ao resultado sem complicação.</p></article>
-          <article class="card"><div class="icon">◈</div><h3>Várias categorias</h3><p>Áudio, imagem, PDF, texto, produtividade e outras áreas.</p></article>
-          <article class="card"><div class="icon">✓</div><h3>Uma conta</h3><p>Tenha acesso à sua experiência e aos seus recursos num só lugar.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="container">
-        <div class="cta">
-          <h2>Pronto para experimentar?</h2>
-          <p>Explore as ferramentas disponíveis e encontre a que combina com a sua tarefa.</p>
-          <a class="btn primary" href="/tools/">Ver todas as ferramentas</a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer><div class="container">Nexauren</div></footer>
-
   <script src="/js/global-loader.js"></script>
-  <script>
-    const menuButton = document.getElementById("mobileMenuButton");
-    const mobileMenu = document.getElementById("mobileMenu");
-
-    function closeMenu() {
-      mobileMenu.classList.remove("open");
-      mobileMenu.setAttribute("aria-hidden", "true");
-      menuButton.setAttribute("aria-expanded", "false");
-      menuButton.setAttribute("aria-label", "Abrir menu");
-      menuButton.textContent = "☰";
-      document.body.classList.remove("menu-open");
-    }
-
-    function toggleMenu() {
-      const open = !mobileMenu.classList.contains("open");
-      if (open) {
-        mobileMenu.classList.add("open");
-        mobileMenu.setAttribute("aria-hidden", "false");
-        menuButton.setAttribute("aria-expanded", "true");
-        menuButton.setAttribute("aria-label", "Fechar menu");
-        menuButton.textContent = "×";
-        document.body.classList.add("menu-open");
-      } else {
-        closeMenu();
-      }
-    }
-
-    menuButton.addEventListener("click", toggleMenu);
-    mobileMenu.addEventListener("click", event => {
-      if (event.target === mobileMenu || event.target.closest("a")) closeMenu();
-    });
-
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape") closeMenu();
-    });
-
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 800) closeMenu();
-    });
-  </script>
 </body>
 </html>
