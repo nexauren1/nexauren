@@ -1,0 +1,17 @@
+{
+  "tools": [
+    {
+      "id": "aud-001",
+      "slug": "audio-converter",
+      "name": "Audio Converter",
+      "category": "audio",
+      "icon": "♫",
+      "status": "published",
+      "description": "Converta ficheiros de áudio entre formatos populares com uma experiência rápida e simples.",
+      "toolPath": "/tools/audio/audio-converter/",
+      "version": "1.0.0",
+      "featured": true,
+      "createdAt": "2026-09-12"
+    }
+  ]
+}
