@@ -1,0 +1,14 @@
+[
+  {
+    "id": "ai-001",
+    "slug": "ai-writer",
+    "name": "AI Writer",
+    "description": "Write, rewrite, improve and summarize text with Nexauren AI.",
+    "category": "ai",
+    "tool_path": "/tools/ai/ai-writer/",
+    "icon": "✦",
+    "version": "1.0.0",
+    "status": "published",
+    "published": true
+  }
+]
