@@ -1,34 +1,21 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audio Converter — Nexauren</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080b18"><title>Audio Converter — Nexauren</title><link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="tool-page">
-    <a class="back" href="/tools?category=audio">← Audio Tools</a>
-    <section class="hero">
-      <div class="icon">♫</div>
-      <div>
-        <p class="eyebrow">NEXAUREN AUDIO</p>
-        <h1>Audio Converter</h1>
-        <p>Convert your audio files between supported formats with a clean, fast workflow.</p>
-      </div>
-    </section>
-    <section class="converter-card">
-      <label class="dropzone" for="audioFile">
-        <span class="drop-icon">↑</span>
-        <strong>Select an audio file</strong>
-        <span>Choose a file from your device to begin.</span>
-        <input id="audioFile" type="file" accept="audio/*">
-      </label>
-      <div id="fileInfo" class="file-info" hidden></div>
-      <button id="convertButton" type="button" disabled>Convert Audio</button>
-      <p id="message" class="message" aria-live="polite"></p>
-    </section>
-  </main>
-  <script src="script.js"></script>
-</body>
-</html>
+<div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+<main class="tool-page">
+<nav class="topbar"><a class="back" href="/tools?category=audio"><span>←</span> Audio</a><span class="brand"><i>✦</i> NEXAUREN</span></nav>
+<section class="hero"><div class="hero-copy"><div class="badge"><span></span>NEXAUREN AUDIO</div><h1>Audio <em>Converter</em></h1><p>Converta os seus ficheiros de áudio com uma experiência limpa, rápida e profissional.</p></div><div class="hero-orb" aria-hidden="true"><div class="orb-ring"></div><div class="orb-core">♫</div></div></section>
+<section class="converter-shell">
+<div class="shell-head"><div><span class="mini-label">CONVERSOR</span><h2>Comece com o seu áudio</h2></div><span class="secure">● Processamento local</span></div>
+<label class="dropzone" for="audioFile" id="dropzone"><input id="audioFile" type="file" accept="audio/*"><div class="upload-icon"><span>↑</span></div><strong>Arraste o áudio para aqui</strong><p>ou <u>escolha um ficheiro</u> do seu dispositivo</p><small>MP3 · WAV · FLAC · M4A · OGG · AAC</small></label>
+<section class="file-panel" id="filePanel" hidden><div class="file-icon">♫</div><div class="file-meta"><strong id="fileName">—</strong><span id="fileSize">—</span></div><button id="removeFile" class="remove" type="button" aria-label="Remover ficheiro">×</button></section>
+<div class="settings" id="settings" hidden><div class="setting"><label for="format">Formato de saída</label><select id="format"><option value="mp3">MP3</option><option value="wav">WAV</option><option value="ogg">OGG</option><option value="m4a">M4A</option><option value="flac">FLAC</option></select></div><div class="setting"><label for="quality">Qualidade</label><select id="quality"><option>Alta · 320 kbps</option><option>Equilibrada · 256 kbps</option><option>Standard · 192 kbps</option></select></div></div>
+<button id="convertButton" class="convert" type="button" disabled><span>Converter áudio</span><b>→</b></button>
+<div id="progress" class="progress" hidden><div class="progress-track"><span id="progressBar"></span></div><span id="progressText">A preparar…</span></div><p id="message" class="message" aria-live="polite"></p>
+</section>
+<div class="tool-note"><span>✦</span><p><strong>Nexauren Audio Converter</strong><br>Interface premium para conversão de áudio. O motor de conversão será ligado na próxima etapa.</p></div>
+</main><script src="script.js"></script>
+</body></html>
