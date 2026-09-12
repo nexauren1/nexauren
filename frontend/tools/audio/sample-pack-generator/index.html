@@ -31,6 +31,11 @@
         </div>
 
         <div class="spg-settings">
+          <div class="spg-plan" id="planBox">
+            <strong id="planName">A verificar o seu plano…</strong>
+            <span id="planMeta">A carregar limites e créditos.</span>
+          </div>
+
           <label>Tipo de sample
             <select id="sampleType">
               <option>Kick</option>
@@ -50,12 +55,9 @@
             <input id="baseName" value="Kick" maxlength="40" placeholder="Ex.: Kick">
           </label>
 
-          <label>Quantidade
-            <select id="amount">
-              <option value="20">Free — até 20</option>
-              <option value="100">Pro — até 100</option>
-              <option value="500">Premium — até 500</option>
-            </select>
+          <label>Quantidade de samples
+            <input id="amount" type="number" value="20" min="1" max="500" inputmode="numeric">
+            <small id="amountHint">O limite será definido pelo seu plano.</small>
           </label>
 
           <div class="spg-range-row">
@@ -70,6 +72,7 @@
           </div>
 
           <button class="spg-btn primary" id="generateBtn" type="button">Gerar Sample Pack</button>
+          <p class="spg-credit-note">Cada sample gerado consome 1 crédito.</p>
         </div>
       </div>
     </section>
