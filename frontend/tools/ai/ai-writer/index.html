@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Write, rewrite and improve text with Nexauren AI Writer.">
+  <title>AI Writer — Nexauren</title>
+  <link rel="stylesheet" href="/css/nexauren-theme.css">
+  <link rel="stylesheet" href="/css/nexauren-pages.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="/js/global-loader.js" defer></script>
+</head>
+<body>
+  <main class="tool-page ai-writer-page">
+    <section class="tool-hero">
+      <div class="tool-icon">✦</div>
+      <div class="eyebrow">NEXAUREN • AI</div>
+      <h1>AI Writer</h1>
+      <p class="subtitle">
+        Create, rewrite and improve text with a fast AI writing assistant.
+      </p>
+    </section>
+
+    <section class="writer-card">
+      <div class="mode-row">
+        <button class="mode active" data-mode="write">Write</button>
+        <button class="mode" data-mode="rewrite">Rewrite</button>
+        <button class="mode" data-mode="improve">Improve</button>
+        <button class="mode" data-mode="summarize">Summarize</button>
+      </div>
+
+      <label class="field-label" for="prompt">What do you want to write?</label>
+      <textarea id="prompt" rows="8" maxlength="8000" placeholder="Example: Write a short product description for a modern productivity app."></textarea>
+
+      <div class="settings-grid">
+        <label>
+          Tone
+          <select id="tone">
+            <option value="professional">Professional</option>
+            <option value="friendly">Friendly</option>
+            <option value="creative">Creative</option>
+            <option value="simple">Simple</option>
+            <option value="persuasive">Persuasive</option>
+          </select>
+        </label>
+        <label>
+          Length
+          <select id="length">
+            <option value="short">Short</option>
+            <option value="medium" selected>Medium</option>
+            <option value="long">Long</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="usage-box">
+        <div>
+          <strong>Free usage</strong>
+          <span id="usageText">Checking your limit…</span>
+        </div>
+        <span id="usageBadge">FREE</span>
+      </div>
+
+      <div class="actions">
+        <button id="generateButton" class="primary-btn" type="button">Generate</button>
+        <button id="clearButton" class="secondary-btn" type="button">Clear</button>
+      </div>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+
+      <div id="resultPanel" class="result-panel hidden">
+        <div class="result-head">
+          <strong>Result</strong>
+          <button id="copyButton" class="secondary-btn" type="button">Copy</button>
+        </div>
+        <textarea id="result" rows="12" readonly></textarea>
+      </div>
+    </section>
+
+    <section class="info-section">
+      <h2>AI writing without unnecessary friction</h2>
+      <p>
+        Nexauren AI Writer includes free usage for normal writing tasks.
+        Credits can be introduced only when a user goes beyond the free limit.
+      </p>
+    </section>
+  </main>
+  <script src="script.js" defer></script>
+</body>
+</html>
