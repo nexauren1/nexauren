@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Converta ficheiros de áudio online com o Audio Converter da Nexauren.">
+  <meta name="description" content="Converta ficheiros de áudio para WAV diretamente no navegador com o Audio Converter da Nexauren.">
   <meta name="robots" content="index,follow">
   <meta name="theme-color" content="#eef7ff">
   <title>Audio Converter | Nexauren</title>
@@ -18,7 +18,7 @@
       <div>
         <span class="tool-kicker">♫ AUDIO STUDIO</span>
         <h1>Audio <span>Converter</span></h1>
-        <p>Prepare os seus ficheiros de áudio para diferentes formatos numa interface simples, rápida e clara.</p>
+        <p>Converta ficheiros de áudio para WAV diretamente no navegador, sem enviar o ficheiro para um servidor.</p>
       </div>
       <div class="wave-art" aria-hidden="true">
         <span></span><span></span><span></span><span></span><span></span>
@@ -32,7 +32,7 @@
           <span class="mini-label">NEXAUREN TOOL</span>
           <h2>Escolha um ficheiro</h2>
         </div>
-        <span class="format-badge">MP3 · WAV · OGG · M4A</span>
+        <span class="format-badge">MP3 · WAV · OGG · M4A → WAV</span>
       </div>
 
       <label class="drop-zone" id="dropZone" for="audioFile">
@@ -54,33 +54,39 @@
       <div class="settings" id="settings" hidden>
         <label>
           <span>Formato de saída</span>
-          <select id="format">
-            <option value="mp3">MP3</option>
-            <option value="wav">WAV</option>
-            <option value="ogg">OGG</option>
-            <option value="m4a">M4A</option>
+          <select id="format" aria-label="Formato de saída">
+            <option value="wav">WAV — PCM</option>
           </select>
         </label>
         <button class="convert-button" id="convertButton" type="button">
-          Converter áudio →
+          Converter para WAV →
         </button>
       </div>
 
       <div class="processing" id="processing" hidden aria-live="polite">
         <div class="spinner"></div>
         <div>
-          <strong>A preparar o processamento…</strong>
-          <p>Estamos a preparar a conversão deste ficheiro.</p>
+          <strong id="processingTitle">A converter o áudio…</strong>
+          <p id="processingText">O processamento acontece localmente no seu navegador.</p>
         </div>
+      </div>
+
+      <div class="result-panel" id="resultPanel" hidden>
+        <div class="file-icon">✓</div>
+        <div class="file-copy">
+          <strong id="resultName">audio.wav</strong>
+          <span id="resultSize">—</span>
+        </div>
+        <a class="download-button" id="downloadButton" href="#" download>Baixar WAV</a>
       </div>
 
       <div class="notice" id="notice" hidden role="status"></div>
     </section>
 
     <section class="info-grid">
-      <article><span>01</span><h3>Escolha</h3><p>Selecione o áudio que pretende preparar.</p></article>
-      <article><span>02</span><h3>Formato</h3><p>Escolha o formato de saída disponível.</p></article>
-      <article><span>03</span><h3>Resultado</h3><p>O motor de conversão será ligado ao backend da ferramenta.</p></article>
+      <article><span>01</span><h3>Escolha</h3><p>Selecione um ficheiro de áudio compatível com o navegador.</p></article>
+      <article><span>02</span><h3>Converta</h3><p>O áudio é descodificado e transformado em WAV PCM.</p></article>
+      <article><span>03</span><h3>Resultado</h3><p>Baixe o novo ficheiro diretamente para o seu dispositivo.</p></article>
     </section>
   </main>
   <script src="script.js"></script>
