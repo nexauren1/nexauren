@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Generate images from text with Nexauren AI Image Generator.">
+  <meta name="description" content="Generate and edit images with Nexauren AI Image Generator.">
   <title>AI Image Generator — Nexauren</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -12,12 +12,30 @@
     <header class="hero">
       <span class="badge">NEXAUREN AI</span>
       <h1>AI Image Generator</h1>
-      <p>Turn your ideas into images with a fast, simple creative workflow.</p>
+      <p>Create new images or upload an image and describe how you want to transform it.</p>
     </header>
 
     <section class="card">
+      <div class="mode-tabs">
+        <button class="mode active" type="button" data-mode="generate">Generate</button>
+        <button class="mode" type="button" data-mode="edit">Edit image <span class="pro-tag">PRO</span></button>
+      </div>
+
       <label for="prompt">Describe your image</label>
       <textarea id="prompt" maxlength="2000" placeholder="Example: A futuristic African city at sunset, cinematic lighting, detailed architecture"></textarea>
+
+      <div id="uploadBox" class="upload-box hidden">
+        <label for="imageInput" class="upload-label">
+          <strong>Upload an image</strong>
+          <span>PNG, JPG or WebP · max 10 MB</span>
+          <span class="upload-button">Choose image</span>
+        </label>
+        <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+        <div id="previewWrap" class="preview hidden">
+          <img id="preview" alt="Selected image preview">
+          <button id="removeImage" type="button">Remove</button>
+        </div>
+      </div>
 
       <div class="options">
         <label>
@@ -38,6 +56,30 @@
             <option value="landscape">Landscape</option>
           </select>
         </label>
+      </div>
+
+      <div class="advanced">
+        <div class="advanced-head">
+          <div>
+            <h2>Advanced controls</h2>
+            <p>Unlock more creative control with Pro and Premium.</p>
+          </div>
+          <a href="/plans/">View plans</a>
+        </div>
+        <div class="feature-grid">
+          <button class="feature locked" data-feature="image-editing" type="button">
+            <span>✦</span><b>AI Image Editing</b><small>Pro · Upload and transform</small>
+          </button>
+          <button class="feature locked" data-feature="variations" type="button">
+            <span>◈</span><b>Multiple Variations</b><small>Pro · Create variations</small>
+          </button>
+          <button class="feature locked" data-feature="multi-reference" type="button">
+            <span>◇</span><b>Multi-Reference</b><small>Premium · Up to 4 images</small>
+          </button>
+          <button class="feature locked" data-feature="creative-control" type="button">
+            <span>✧</span><b>Creative Control</b><small>Premium · Advanced guidance</small>
+          </button>
+        </div>
       </div>
 
       <button id="generate" type="button">Generate Image</button>
