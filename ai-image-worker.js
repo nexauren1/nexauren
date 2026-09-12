@@ -49,6 +49,56 @@ function featureRows(plan) {
   }));
 }
 
+function dataImageToBlob(value) {
+  const match = String(value || "").match(
+    /^data:image\/(png|jpeg|jpg|webp);base64,(.+)$/
+  );
+  if (!match) throw new Error("Invalid image format.");
+  const binary = Uint8Array.from(
+    atob(match[2]),
+    (char) => char.charCodeAt(0)
+  );
+  if (binary.byteLength > 5 * 1024 * 1024) {
+    throw new Error("Uploaded image is too large.");
+  }
+  return new Blob([binary], {
+    type: match[1] === "jpg"
+      ? "image/jpeg"
+      : `image/${match[1]}`
+  });
+}
+
+async function runModel(env, prompt, width, height, images, guidance) {
+  const form = new FormData();
+  form.append("prompt", prompt);
+  form.append("width", String(width));
+  form.append("height", String(height));
+  form.append(
+    "seed",
+    String(Math.floor(Math.random() * 2147483647))
+  );
+
+  images.forEach((image, index) => {
+    form.append("input_image_" + index, image, `reference-${index}.jpg`);
+  });
+
+  if (guidance) form.append("guidance", String(guidance));
+
+  const formResponse = new Response(form);
+  const response = await env.AI.run(MODEL, {
+    multipart: {
+      body: formResponse.body,
+      contentType: formResponse.headers.get("content-type")
+    }
+  });
+
+  if (!response?.image) {
+    throw new Error("The image model returned no image.");
+  }
+
+  return response.image;
+}
+
 export async function handleAIImage(req, env) {
   const path = new URL(req.url).pathname;
   if (!path.startsWith("/api/ai/image")) return null;
@@ -92,9 +142,19 @@ export async function handleAIImage(req, env) {
   const mode = String(body?.mode || "generate");
   const feature = String(body?.feature || "");
   const inputImage = String(body?.input_image || "");
+  const referenceImages = Array.isArray(body?.reference_images)
+    ? body.reference_images.map(String).filter(Boolean)
+    : [];
+  const variationCount = Math.min(
+    4,
+    Math.max(1, Number(body?.variation_count || 1))
+  );
 
   if (!prompt) {
-    return json({ ok: false, error: "Describe the image you want to create or edit." }, 400);
+    return json({
+      ok: false,
+      error: "Describe the image you want to create or edit."
+    }, 400);
   }
   if (prompt.length > 2000) {
     return json({ ok: false, error: "Prompt is too long." }, 400);
@@ -126,6 +186,29 @@ export async function handleAIImage(req, env) {
     }, 403);
   }
 
+  if (feature === "variations" && variationCount < 2) {
+    return json({
+      ok: false,
+      error: "Choose at least 2 variations."
+    }, 400);
+  }
+
+  if (feature === "multi-reference") {
+    if (referenceImages.length < 2 || referenceImages.length > 4) {
+      return json({
+        ok: false,
+        error: "Multi-Reference requires 2 to 4 images."
+      }, 400);
+    }
+  }
+
+  if (referenceImages.length > 4) {
+    return json({
+      ok: false,
+      error: "A maximum of 4 reference images is supported."
+    }, 400);
+  }
+
   const styles = {
     photorealistic: "photorealistic",
     cinematic: "cinematic photography",
@@ -152,55 +235,53 @@ export async function handleAIImage(req, env) {
     "high quality, strong composition, coherent details"
   ].join(", ");
 
-  let imageBytes = null;
-  if (inputImage) {
-    try {
-      const match = inputImage.match(/^data:image\/(png|jpeg|jpg|webp);base64,(.+)$/);
-      if (!match) throw new Error("Invalid image format.");
-      const binary = Uint8Array.from(atob(match[2]), (char) => char.charCodeAt(0));
-      if (binary.byteLength > 5 * 1024 * 1024) {
-        return json({ ok: false, error: "Uploaded image is too large." }, 400);
-      }
-      imageBytes = new Blob([binary], {
-        type: match[1] === "jpg" ? "image/jpeg" : `image/${match[1]}`
-      });
-    } catch (_) {
-      return json({ ok: false, error: "Could not read the uploaded image." }, 400);
-    }
-  }
+  let editImage = null;
+  let references = [];
 
   try {
-    const form = new FormData();
-    form.append("prompt", imageBytes
-      ? `Edit the reference image according to this instruction: ${enhancedPrompt}`
-      : enhancedPrompt);
-    form.append("width", String(width));
-    form.append("height", String(height));
-    form.append("seed", String(Math.floor(Math.random() * 2147483647)));
+    if (inputImage) editImage = dataImageToBlob(inputImage);
+    references = referenceImages.map(dataImageToBlob);
+  } catch (error) {
+    return json({
+      ok: false,
+      error: String(error?.message || "Could not read uploaded images.")
+    }, 400);
+  }
 
-    if (imageBytes) form.append("input_image_0", imageBytes, "reference.jpg");
+  const images = editImage
+    ? [editImage]
+    : references;
 
-    if (feature === "creative-control") {
-      form.append("guidance", "5.5");
-    }
+  try {
+    const total = feature === "variations" ? variationCount : 1;
+    const imagesOut = [];
+    const guidance = feature === "creative-control" ? 5.5 : null;
 
-    const formResponse = new Response(form);
-    const response = await env.AI.run(MODEL, {
-      multipart: {
-        body: formResponse.body,
-        contentType: formResponse.headers.get("content-type")
-      }
-    });
+    for (let index = 0; index < total; index += 1) {
+      const requestPrompt = editImage
+        ? `Edit the reference image according to this instruction: ${enhancedPrompt}`
+        : feature === "multi-reference"
+          ? `Use all reference images together as visual guidance. ${enhancedPrompt}`
+          : enhancedPrompt;
 
-    if (!response?.image) {
-      return json({ ok: false, error: "The image model returned no image." }, 502);
+      const image = await runModel(
+        env,
+        requestPrompt,
+        width,
+        height,
+        images,
+        guidance
+      );
+      imagesOut.push(image);
     }
 
     return json({
       ok: true,
-      image: response.image,
+      image: imagesOut[0],
+      images: imagesOut,
       model: "flux-2-klein-9b",
       mode,
+      feature: feature || null,
       plan
     });
   } catch (error) {
