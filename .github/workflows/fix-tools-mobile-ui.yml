@@ -1,0 +1,61 @@
+name: Fix tools mobile UI
+
+on:
+  push:
+    paths:
+      - .github/workflows/fix-tools-mobile-ui.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Improve mobile tool cards
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('frontend/tools/index.html')
+          text = p.read_text()
+          marker = '@media(max-width:680px){'
+          start = text.find(marker)
+          end = text.find('\n  </style>', start)
+          if start < 0 or end < 0:
+              raise SystemExit('Mobile CSS block not found')
+          new_media = '''@media(max-width:680px){
+          .nav-links{display:none}
+          .wrap{width:92vw;padding-top:32px}
+          .hero h1{font-size:44px}
+          .toolbar{position:static}
+          .tools-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+          .tool-card{min-height:0;padding:12px;border-radius:16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+          .tool-card-main{display:contents}
+          .tool-icon{grid-column:1;grid-row:1;width:40px;height:40px;border-radius:11px;font-size:16px}
+          .tool-info{grid-column:1 / -1;grid-row:2;min-width:0}
+          .tool-title-row{gap:6px;align-items:center}
+          .tool-info h3{font-size:15px;line-height:1.25}
+          .tool-info p{font-size:12px;line-height:1.5;display:block;overflow:visible;margin-top:9px}
+          .tool-status{font-size:8px;padding:4px 6px}
+          .tool-info-button{grid-column:2;grid-row:1;width:30px;height:30px;font-size:14px}
+          .tool-open{display:flex;width:100%;justify-content:center;font-size:10px;padding:9px 8px;margin-top:11px;white-space:normal;text-align:center}
+          .category-header{align-items:flex-start;gap:8px;flex-direction:column}
+          .dialog-head{padding:20px 18px 16px}
+          .dialog-body{padding:20px 18px}
+          .dialog-actions{padding:0 18px 18px;flex-direction:column}
+          .dialog-meta{gap:8px}
+          .dialog-title{font-size:20px}
+          .dialog-description{font-size:14px}
+          }'''
+          text = text[:start] + new_media + text[end:]
+          p.write_text(text)
+          PY
+      - name: Commit UI fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add frontend/tools/index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Improve tools mobile cards [skip ci]"
+          git push
