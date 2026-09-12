@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Gere variações únicas de kicks, claps, snares e outros samples e descarregue um sample pack ZIP.">
+  <title>Sample Pack Generator — Nexauren</title>
+  <link rel="stylesheet" href="/css/nexauren-theme.css">
+  <link rel="stylesheet" href="/css/nexauren-pages.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="/js/global-loader.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+</head>
+<body>
+  <main class="spg-page">
+    <section class="spg-hero">
+      <div class="spg-badge">NEXAUREN AUDIO LAB</div>
+      <h1>Sample Pack Generator</h1>
+      <p>Envie um sample, escolha o tipo e gere variações diferentes prontas para usar nos seus projetos.</p>
+    </section>
+
+    <section class="spg-card">
+      <div class="spg-grid">
+        <div class="spg-upload" id="dropZone">
+          <input id="sampleFile" type="file" accept="audio/*" hidden>
+          <div class="spg-upload-icon">♫</div>
+          <h2>Envie o seu sample</h2>
+          <p id="fileText">Arraste um ficheiro de áudio para aqui ou escolha um ficheiro.</p>
+          <button class="spg-btn secondary" id="chooseBtn" type="button">Escolher sample</button>
+          <audio id="preview" controls hidden></audio>
+        </div>
+
+        <div class="spg-settings">
+          <label>Tipo de sample
+            <select id="sampleType">
+              <option>Kick</option>
+              <option>Clap</option>
+              <option>Snare</option>
+              <option>Hi-Hat</option>
+              <option>Percussion</option>
+              <option>808</option>
+              <option>Bass</option>
+              <option>Vocal</option>
+              <option>FX</option>
+              <option>Other</option>
+            </select>
+          </label>
+
+          <label>Nome base
+            <input id="baseName" value="Kick" maxlength="40" placeholder="Ex.: Kick">
+          </label>
+
+          <label>Quantidade
+            <select id="amount">
+              <option value="20">Free — até 20</option>
+              <option value="100">Pro — até 100</option>
+              <option value="500">Premium — até 500</option>
+            </select>
+          </label>
+
+          <div class="spg-range-row">
+            <label for="variation">Intensidade das variações</label>
+            <output id="variationValue">50%</output>
+          </div>
+          <input id="variation" type="range" min="10" max="100" value="50">
+
+          <div class="spg-options">
+            <label class="check"><input id="includeReadme" type="checkbox" checked> Incluir README no ZIP</label>
+            <label class="check"><input id="includeInfo" type="checkbox" checked> Incluir informações do pack</label>
+          </div>
+
+          <button class="spg-btn primary" id="generateBtn" type="button">Gerar Sample Pack</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="spg-progress" id="progressBox" hidden>
+      <div class="spg-spinner"></div>
+      <div class="progress-copy">
+        <strong id="progressTitle">A processar…</strong>
+        <span id="progressText">Preparando o áudio</span>
+      </div>
+      <div class="progress-track"><div id="progressBar"></div></div>
+    </section>
+
+    <section class="spg-result" id="resultBox" hidden>
+      <div>
+        <span class="result-label">PACK PRONTO</span>
+        <h2 id="resultTitle">O seu sample pack está pronto.</h2>
+        <p id="resultMeta"></p>
+      </div>
+      <button class="spg-btn primary" id="downloadBtn" type="button">Baixar ZIP</button>
+    </section>
+
+    <section class="spg-info">
+      <article>
+        <span>01</span>
+        <h3>Variações reais</h3>
+        <p>Cada ficheiro recebe combinações diferentes de pitch, ganho, filtros, drive, envelope e pequenos movimentos de efeito.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>Nomes organizados</h3>
+        <p>Exemplo: <b>Kick-F#-Deep-07.wav</b>. O nome base pode ser personalizado antes da geração.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <h3>Pack completo</h3>
+        <p>O ZIP inclui os samples e um README Nexauren com informações úteis, licença e convite para voltar à plataforma.</p>
+      </article>
+    </section>
+
+    <section class="spg-license">
+      <h2>Sobre os direitos</h2>
+      <p>O Nexauren não reivindica propriedade sobre o áudio que o utilizador envia nem sobre as variações geradas. O utilizador deve ter os direitos necessários sobre o sample de origem. As variações geradas não transformam automaticamente um sample de terceiros em material livre de direitos.</p>
+    </section>
+  </main>
+  <script src="script.js" defer></script>
+</body>
+</html>
