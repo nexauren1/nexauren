@@ -1,4 +1,6 @@
 const COOKIE = "nexauren_session";
+const TOOL_SLUG = "sample-pack-generator";
+const ABSOLUTE_MAX = 500;
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -13,9 +15,12 @@ async function getToolLimit(env, planSlug) {
   const row = await env.TOOLS_DB.prepare(
     "SELECT max_usage FROM tool_plan_limits " +
     "WHERE tool_slug=? AND plan_slug=? LIMIT 1"
-  ).bind("sample-pack-generator", planSlug).first();
+  ).bind(TOOL_SLUG, planSlug).first();
 
-  return Math.max(0, Number(row?.max_usage || 20));
+  return Math.min(
+    ABSOLUTE_MAX,
+    Math.max(0, Number(row?.max_usage ?? 20))
+  );
 }
 
 async function samplePackUser(req, env) {
@@ -46,6 +51,26 @@ async function getPlanData(userId, env) {
   ).bind(userId).first();
 }
 
+function balanceData(row) {
+  const plan = Math.max(
+    0,
+    Number(row?.plan_credits || 0) -
+    Number(row?.plan_credits_used || 0)
+  );
+
+  const purchased = Math.max(
+    0,
+    Number(row?.purchased_credits || 0) -
+    Number(row?.purchased_credits_used || 0)
+  );
+
+  return {
+    plan,
+    purchased,
+    total: plan + purchased
+  };
+}
+
 async function samplePackLimits(req, env) {
   const user = await samplePackUser(req, env);
   if (!user) {
@@ -57,28 +82,18 @@ async function samplePackLimits(req, env) {
 
   const row = await getPlanData(user.id, env);
   const plan = String(row?.slug || "free");
-  const maxSamples = await getToolLimit(env, plan);
-
-  const planCredits = Math.max(
-    0,
-    Number(row?.plan_credits || 0) -
-    Number(row?.plan_credits_used || 0)
-  );
-
-  const purchasedCredits = Math.max(
-    0,
-    Number(row?.purchased_credits || 0) -
-    Number(row?.purchased_credits_used || 0)
-  );
+  const includedSamples = await getToolLimit(env, plan);
+  const balances = balanceData(row);
 
   return json({
     ok: true,
     plan,
     plan_name: row?.name || "Free",
-    max_samples: maxSamples,
-    available_credits: planCredits + purchasedCredits,
-    plan_credits: planCredits,
-    purchased_credits: purchasedCredits
+    max_samples: ABSOLUTE_MAX,
+    included_samples: includedSamples,
+    available_credits: balances.total,
+    plan_credits: balances.plan,
+    purchased_credits: balances.purchased
   });
 }
 
@@ -95,80 +110,148 @@ async function consumeSamplePack(req, env) {
   try {
     body = await req.json();
   } catch (_) {
-    return json({ error: "Pedido inválido" }, 400);
+    return json({
+      ok: false,
+      error: "Pedido inválido"
+    }, 400);
   }
 
   const count = Number(body?.count);
+  const creditSource = String(
+    body?.credit_source || ""
+  );
+
   if (!Number.isInteger(count) || count < 1) {
-    return json({ error: "Quantidade inválida" }, 400);
+    return json({
+      ok: false,
+      error: "Quantidade inválida"
+    }, 400);
+  }
+
+  if (count > ABSOLUTE_MAX) {
+    return json({
+      ok: false,
+      code: "MAX_SAMPLES",
+      error: `O máximo absoluto é ${ABSOLUTE_MAX} samples por geração.`,
+      max_samples: ABSOLUTE_MAX
+    }, 400);
   }
 
   const row = await getPlanData(user.id, env);
   const plan = String(row?.slug || "free");
-  const max = await getToolLimit(env, plan);
+  const includedSamples = await getToolLimit(env, plan);
+  const extraSamples = Math.max(
+    0,
+    count - includedSamples
+  );
+  const balances = balanceData(row);
 
-  if (count > max) {
+  if (extraSamples === 0) {
+    const now = Date.now();
+
+    try {
+      await env.TOOLS_DB.prepare(
+        "INSERT INTO tool_usage(" +
+        "id,user_id,tool_slug,action,amount,plan_slug," +
+        "credits_used,metadata,created_at) " +
+        "VALUES(?,?,?,?,?,?,?,?,?)"
+      ).bind(
+        crypto.randomUUID(),
+        user.id,
+        TOOL_SLUG,
+        "generate",
+        count,
+        plan,
+        0,
+        JSON.stringify({
+          included_samples: includedSamples,
+          extra_samples: 0,
+          credit_source: null
+        }),
+        now
+      ).run();
+    } catch (_) {
+      // Usage logging must not block an otherwise free generation.
+    }
+
     return json({
-      ok: false,
-      code: "PLAN_LIMIT",
-      error: `O plano ${row?.name || plan} permite até ${max} samples por geração.`,
+      ok: true,
+      consumed: 0,
+      consumed_credits: 0,
+      remaining_credits: balances.total,
+      plan_credits: balances.plan,
+      purchased_credits: balances.purchased,
       plan,
-      max_samples: max
-    }, 403);
+      max_samples: ABSOLUTE_MAX,
+      included_samples: includedSamples,
+      extra_samples: 0,
+      credit_source: null
+    });
   }
 
-  const planAvailable = Math.max(
-    0,
-    Number(row?.plan_credits || 0) -
-    Number(row?.plan_credits_used || 0)
-  );
+  if (creditSource !== "plan" &&
+      creditSource !== "purchased") {
+    return json({
+      ok: false,
+      code: "CREDIT_SOURCE_REQUIRED",
+      error: "Escolha créditos do plano ou créditos comprados.",
+      extra_samples: extraSamples,
+      required_credits: extraSamples,
+      plan_credits: balances.plan,
+      purchased_credits: balances.purchased
+    }, 400);
+  }
 
-  const purchasedAvailable = Math.max(
-    0,
-    Number(row?.purchased_credits || 0) -
-    Number(row?.purchased_credits_used || 0)
-  );
+  const available = creditSource === "plan"
+    ? balances.plan
+    : balances.purchased;
 
-  if (planAvailable + purchasedAvailable < count) {
+  if (available < extraSamples) {
     return json({
       ok: false,
       code: "INSUFFICIENT_CREDITS",
-      error: "Créditos insuficientes para gerar este pack.",
-      available_credits: planAvailable + purchasedAvailable,
-      required_credits: count
+      error: creditSource === "plan"
+        ? "Os créditos do plano não são suficientes para os samples extra."
+        : "Os créditos comprados não são suficientes para os samples extra.",
+      available_credits: available,
+      required_credits: extraSamples,
+      extra_samples: extraSamples,
+      credit_source: creditSource,
+      plan_credits: balances.plan,
+      purchased_credits: balances.purchased
     }, 402);
   }
 
-  const usePlan = Math.min(planAvailable, count);
-  const usePurchased = count - usePlan;
   const now = Date.now();
-  const statements = [];
+  let update;
 
-  if (usePlan > 0) {
-    statements.push(env.DB.prepare(
+  if (creditSource === "plan") {
+    update = await env.DB.prepare(
       "UPDATE credit_balances SET " +
       "plan_credits_used=plan_credits_used+?," +
       "updated_at=? WHERE user_id=? " +
       "AND plan_credits-plan_credits_used>=?"
-    ).bind(usePlan, now, user.id, usePlan));
-  }
-
-  if (usePurchased > 0) {
-    statements.push(env.DB.prepare(
+    ).bind(
+      extraSamples,
+      now,
+      user.id,
+      extraSamples
+    ).run();
+  } else {
+    update = await env.DB.prepare(
       "UPDATE credit_balances SET " +
       "purchased_credits_used=purchased_credits_used+?," +
       "updated_at=? WHERE user_id=? " +
       "AND purchased_credits-purchased_credits_used>=?"
-    ).bind(usePurchased, now, user.id, usePurchased));
+    ).bind(
+      extraSamples,
+      now,
+      user.id,
+      extraSamples
+    ).run();
   }
 
-  const results = await env.DB.batch(statements);
-  const changed = results.reduce(
-    (sum, result) => sum + Number(result?.meta?.changes || 0),
-    0
-  );
-
-  if (changed !== statements.length) {
+  if (Number(update?.meta?.changes || 0) !== 1) {
     return json({
       ok: false,
       code: "BALANCE_CHANGED",
@@ -182,56 +265,66 @@ async function consumeSamplePack(req, env) {
     "FROM credit_balances WHERE user_id=? LIMIT 1"
   ).bind(user.id).first();
 
-  const remaining = Math.max(
-    0,
-    Number(balance?.plan_credits || 0) -
-    Number(balance?.plan_credits_used || 0) +
-    Number(balance?.purchased_credits || 0) -
-    Number(balance?.purchased_credits_used || 0)
-  );
+  const finalBalances = balanceData(balance);
 
-  await env.DB.prepare(
-    "INSERT INTO credit_transactions(" +
-    "id,user_id,type,source,amount,balance_after," +
-    "description,paypal_order_id,created_at) " +
-    "VALUES(?,?,?,?,?,?,?,?,?)"
-  ).bind(
-    crypto.randomUUID(),
-    user.id,
-    "usage",
-    "sample-pack-generator",
-    -count,
-    remaining,
-    `Sample Pack Generator: ${count} samples`,
-    null,
-    now
-  ).run();
+  try {
+    await env.DB.prepare(
+      "INSERT INTO credit_transactions(" +
+      "id,user_id,type,source,amount,balance_after," +
+      "description,paypal_order_id,created_at) " +
+      "VALUES(?,?,?,?,?,?,?,?,?)"
+    ).bind(
+      crypto.randomUUID(),
+      user.id,
+      "usage",
+      `${TOOL_SLUG}:${creditSource}`,
+      -extraSamples,
+      finalBalances.total,
+      `Sample Pack Generator: ${count} samples (${extraSamples} extra)`,
+      null,
+      now
+    ).run();
+  } catch (_) {
+    // The credit deduction is already protected by the conditional update.
+  }
 
-  await env.TOOLS_DB.prepare(
-    "INSERT INTO tool_usage(" +
-    "id,user_id,tool_slug,action,amount,plan_slug," +
-    "credits_used,metadata,created_at) " +
-    "VALUES(?,?,?,?,?,?,?,?,?)"
-  ).bind(
-    crypto.randomUUID(),
-    user.id,
-    "sample-pack-generator",
-    "generate",
-    count,
-    plan,
-    count,
-    JSON.stringify({
-      source: "sample-pack-generator"
-    }),
-    now
-  ).run();
+  try {
+    await env.TOOLS_DB.prepare(
+      "INSERT INTO tool_usage(" +
+      "id,user_id,tool_slug,action,amount,plan_slug," +
+      "credits_used,metadata,created_at) " +
+      "VALUES(?,?,?,?,?,?,?,?,?)"
+    ).bind(
+      crypto.randomUUID(),
+      user.id,
+      TOOL_SLUG,
+      "generate",
+      count,
+      plan,
+      extraSamples,
+      JSON.stringify({
+        included_samples: includedSamples,
+        extra_samples: extraSamples,
+        credit_source: creditSource
+      }),
+      now
+    ).run();
+  } catch (_) {
+    // Usage analytics should not block the generation after a valid charge.
+  }
 
   return json({
     ok: true,
-    consumed: count,
-    remaining_credits: remaining,
+    consumed: extraSamples,
+    consumed_credits: extraSamples,
+    remaining_credits: finalBalances.total,
+    plan_credits: finalBalances.plan,
+    purchased_credits: finalBalances.purchased,
     plan,
-    max_samples: max
+    max_samples: ABSOLUTE_MAX,
+    included_samples: includedSamples,
+    extra_samples: extraSamples,
+    credit_source: creditSource
   });
 }
 
