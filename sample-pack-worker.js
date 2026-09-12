@@ -45,7 +45,7 @@ async function getPlanData(userId, env) {
     "JOIN credit_balances b ON b.user_id=s.user_id " +
     "WHERE s.user_id=? AND s.status='active' " +
     "ORDER BY s.created_at DESC LIMIT 1"
-  ).bind(userId, env).first();
+  ).bind(userId).first();
 }
 
 function balanceData(row) {
