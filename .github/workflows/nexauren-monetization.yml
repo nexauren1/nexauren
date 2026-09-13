@@ -12,11 +12,17 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: nexauren-monetization-main
+  cancel-in-progress: false
+
 jobs:
   inject:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Inject analytics everywhere and ads into individual tools
         run: |
@@ -33,7 +39,11 @@ jobs:
               original = text
 
               if analytics not in text and "</head>" in text:
-                  text = text.replace("</head>", f"  {analytics}\n</head>", 1)
+                  text = text.replace(
+                      "</head>",
+                      f"  {analytics}\n</head>",
+                      1
+                  )
 
               is_individual_tool = (
                   path.as_posix().startswith("frontend/tools/")
@@ -42,7 +52,11 @@ jobs:
               )
 
               if is_individual_tool and ads not in text and "</head>" in text:
-                  text = text.replace("</head>", f"  {ads}\n</head>", 1)
+                  text = text.replace(
+                      "</head>",
+                      f"  {ads}\n</head>",
+                      1
+                  )
 
               if text != original:
                   path.write_text(text, encoding="utf-8")
@@ -53,11 +67,17 @@ jobs:
               print(item)
           PY
 
-      - name: Commit injected tags
+      - name: Commit and push without race failures
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add frontend
-          git diff --cached --quiet && exit 0
-          git commit -m "Add analytics and Free tool ads [skip ci]"
-          git push
+
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+
+          git commit -m "Install Nexauren analytics and Free tool ads [skip ci]"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
