@@ -22,6 +22,221 @@ async function responseUser(req, env, response) {
   ).bind(match[1], Date.now()).first();
 }
 
+async function paypalToken(env) {
+  if (!env.PAYPAL_CLIENT_ID || !env.PAYPAL_CLIENT_SECRET) {
+    return null;
+  }
+
+  const base = env.PAYPAL_BASE_URL || "https://api-m.paypal.com";
+  const auth = btoa(
+    `${env.PAYPAL_CLIENT_ID}:${env.PAYPAL_CLIENT_SECRET}`
+  );
+
+  const response = await fetch(`${base}/v1/oauth2/token`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: "grant_type=client_credentials"
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(
+      `PayPal OAuth failed: ${detail.slice(0, 300)}`
+    );
+  }
+
+  const data = await response.json();
+  if (!data?.access_token) {
+    throw new Error("PayPal access token was not returned");
+  }
+
+  return data.access_token;
+}
+
+async function paypalSubscriptionApi(req, env) {
+  if (req.method !== "POST") return null;
+
+  const user = await activityUser(req, env);
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: "Login required" }),
+      {
+        status: 401,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
+        }
+      }
+    );
+  }
+
+  let body;
+  try {
+    body = await req.json();
+  } catch (_) {
+    return new Response(
+      JSON.stringify({ error: "Invalid request" }),
+      {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
+        }
+      }
+    );
+  }
+
+  const plan = String(body?.plan || "");
+  if (!["pro", "premium"].includes(plan)) {
+    return new Response(
+      JSON.stringify({ error: "Invalid plan" }),
+      {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
+        }
+      }
+    );
+  }
+
+  try {
+    const adminPlan = await env.DB.prepare(
+      "SELECT paypal_price_id " +
+      "FROM nexauren_admin_products " +
+      "WHERE slug=? AND active=1 LIMIT 1"
+    ).bind(plan).first();
+
+    const paypalPlanId = String(
+      adminPlan?.paypal_price_id || ""
+    ).trim();
+
+    if (!paypalPlanId) {
+      return new Response(
+        JSON.stringify({
+          error: "PayPal plan is not configured"
+        }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": "no-store"
+          }
+        }
+      );
+    }
+
+    const access = await paypalToken(env);
+    if (!access) {
+      return new Response(
+        JSON.stringify({
+          error: "PayPal credentials are not configured"
+        }),
+        {
+          status: 503,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": "no-store"
+          }
+        }
+      );
+    }
+
+    const base = env.PAYPAL_BASE_URL || "https://api-m.paypal.com";
+    const origin = new URL(req.url).origin;
+
+    const response = await fetch(
+      `${base}/v1/billing/subscriptions`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${access}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          plan_id: paypalPlanId,
+          custom_id: user.id,
+          application_context: {
+            brand_name: "Nexauren",
+            user_action: "SUBSCRIBE_NOW",
+            return_url:
+              `${origin}/dashboard/?subscription=success`,
+            cancel_url: `${origin}/plans/`
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const detail = await response.text();
+      return new Response(
+        JSON.stringify({
+          error: "Unable to create PayPal subscription",
+          detail: detail.slice(0, 500)
+        }),
+        {
+          status: 502,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": "no-store"
+          }
+        }
+      );
+    }
+
+    const data = await response.json();
+    const approve = data?.links?.find(
+      link => link.rel === "approve"
+    )?.href;
+
+    if (!approve || !data?.id) {
+      return new Response(
+        JSON.stringify({
+          error: "PayPal approval link was not returned"
+        }),
+        {
+          status: 502,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": "no-store"
+          }
+        }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({
+        url: approve,
+        subscription_id: data.id
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
+        }
+      }
+    );
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        error: "PayPal subscription failed",
+        detail: String(error?.message || error).slice(0, 500)
+      }),
+      {
+        status: 502,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
+        }
+      }
+    );
+  }
+}
+
 async function logRequestActivity(req, env, response) {
   const url = new URL(req.url);
   const path = url.pathname;
@@ -305,6 +520,15 @@ export default {
       req.method === "GET"
     ) {
       return activityApi(req, env);
+    }
+
+    const paypalPath = new URL(req.url).pathname;
+    if (paypalPath === "/api/paypal/subscription") {
+      const paypalResponse = await paypalSubscriptionApi(req, env);
+      if (paypalResponse) {
+        ctx.waitUntil(logRequestActivity(req, env, paypalResponse));
+        return paypalResponse;
+      }
     }
 
     const pdfResponse = await handlePdfSummarizer(req, env);
