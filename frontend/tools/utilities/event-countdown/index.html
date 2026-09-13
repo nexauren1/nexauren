@@ -11,29 +11,14 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="Nexauren">
 <meta name="twitter:image" content="https://nexaurenstory.com/favicon.png?v=2">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Create shareable event countdowns and embed them on any website with Nexauren.">
 <title>Event Countdown | Nexauren</title>
 <link rel="stylesheet" href="/tools/utilities/event-countdown/style.css">
 <script src="/js/nexauren-tool-workflow.js" defer></script>
-  <script src="/js/nexauren-ads.js" defer></script>
-  <script src="/js/G4A.js" defer></script>
+<script src="/js/nexauren-ads.js" defer></script>
+<script src="/js/G4A.js" defer></script>
 </head>
 <body>
 <header class="topbar"><a class="brand" href="/tools"><span class="logo">N</span>NEXAUREN</a><a class="back" href="/tools">All Tools →</a></header>
@@ -41,10 +26,10 @@
 <section class="hero"><span class="eyebrow">UTILITY · EVENT</span><h1>Create an <span>Event Countdown</span></h1><p>Create a countdown, share it with a link, or embed it directly on your website.</p></section>
 <section class="workspace">
 <div class="card form-card"><div class="card-head"><div><span class="step">01</span><div><h2>Create your event</h2><p>Set the details your audience will see.</p></div></div><a class="manage" href="dashboard.html">My Events →</a></div>
-<form id="eventForm"><label>Event name<input id="name" maxlength="100" required placeholder="My special event"></label><label>Description <small>optional</small><textarea id="description" maxlength="500" rows="3" placeholder="Tell your audience what is happening..."></textarea></label><div class="two"><label>Date and time<input id="eventDate" type="datetime-local" required></label><label>Timezone<select id="timezone"></select></label></div><div class="two"><label>Theme<select id="theme"><option value="default">Nexauren</option><option value="ocean">Ocean</option><option value="sunset">Sunset</option><option value="mint">Mint</option></select></label><label>Image URL <small>optional</small><input id="imageUrl" type="url" placeholder="https://..."></label></div><button class="primary" type="submit">Create Countdown <b>→</b></button><p id="formMessage" class="message"></p></form></div>
+<form id="eventForm"><label>Event name<input id="name" maxlength="100" required placeholder="My special event"></label><label>Description <small>optional</small><textarea id="description" maxlength="500" rows="3" placeholder="Tell your audience what is happening..."></textarea></label><div class="two"><label>Date and time<input id="eventDate" type="datetime-local" required></label><label>Timezone<select id="timezone"></select></label></div><div class="two"><label>Theme<select id="theme"><option value="default">Nexauren</option><option value="ocean">Ocean</option><option value="sunset">Sunset</option><option value="mint">Mint</option></select></label><label>Image URL <small>optional</small><input id="imageUrl" type="url" placeholder="https://..."></label></div><label>Event link <small>optional</small><input id="linkUrl" type="url" placeholder="https://yourwebsite.com/event"><small class="field-help">Your audience can open this link from the public countdown.</small></label><button class="primary" type="submit">Create Countdown <b>→</b></button><p id="formMessage" class="message"></p></form></div>
 <aside class="card preview-card"><div class="preview-label">LIVE PREVIEW</div><div id="preview" class="preview theme-default"><div id="previewImage" class="preview-image"></div><div class="preview-content"><span class="preview-badge">UPCOMING EVENT</span><h2 id="previewName">Your event</h2><p id="previewDescription">Your event description will appear here.</p><div class="countdown"><div><strong id="d">00</strong><small>DAYS</small></div><i>:</i><div><strong id="h">00</strong><small>HOURS</small></div><i>:</i><div><strong id="m">00</strong><small>MIN</small></div><i>:</i><div><strong id="s">00</strong><small>SEC</small></div></div></div></div></aside>
 </section>
 <section class="result card" id="result" hidden><div class="result-icon">✓</div><div><span class="preview-label">EVENT CREATED</span><h2>Your countdown is ready</h2><p>Share the link or place it on your website.</p></div><div class="result-grid"><label>Share link<div class="copy-row"><input id="shareLink" readonly><button data-copy="shareLink">Copy</button></div></label><label>Embed code<div class="copy-row"><input id="embedCode" readonly><button data-copy="embedCode">Copy</button></div></label></div><div class="result-actions"><a id="openEvent" class="secondary" target="_blank" rel="noopener">Open public event →</a><a class="secondary" href="dashboard.html">Manage my events</a></div></section>
-<section class="info-grid"><div><b>Share anywhere</b><p>Give your audience one public link.</p></div><div><b>Embed on your site</b><p>Use the generated iframe code.</p></div><div><b>Manage your events</b><p>Edit, preview, share or delete your events.</p></div></section>
+<section class="info-grid"><div><b>Share anywhere</b><p>Give your audience one public link.</p></div><div><b>Add an event link</b><p>Send visitors to your website, registration page, ticket page, or any other destination.</p></div><div><b>Manage your events</b><p>Edit, preview, share or delete your events.</p></div></section>
 </main><script src="/tools/utilities/event-countdown/script.js" defer></script>
 </body></html>
