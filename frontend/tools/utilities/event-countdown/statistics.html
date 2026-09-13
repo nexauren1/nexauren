@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Event Statistics | Nexauren</title>
+<link rel="icon" type="image/png" href="/favicon.png?v=2">
+<link rel="stylesheet" href="statistics.css">
+</head><body>
+<header class="topbar"><a class="brand" href="dashboard.html"><span class="logo">N</span>NEXAUREN</a><a class="back" href="dashboard.html">← My Events</a></header>
+<main class="shell">
+<section class="hero"><div><span class="eyebrow">EVENT COUNTDOWN · ANALYTICS</span><h1>Event <span>Statistics</span></h1><p>Understand your audience, measure your event link, and compare performance.</p></div></section>
+<section class="event-picker"><label>Event<select id="eventSelect"></select></label><div class="range"><button data-range="7">7 days</button><button class="active" data-range="30">30 days</button><button data-range="90">90 days</button></div></section>
+<div id="message" class="message"></div>
+<section class="stats-grid">
+<article class="metric"><span>Views</span><strong id="views">0</strong><small id="viewsChange">Public page views</small></article>
+<article class="metric"><span>Link clicks</span><strong id="clicks">0</strong><small id="clicksChange">Event link clicks</small></article>
+<article class="metric"><span>Click rate</span><strong id="ctr">0%</strong><small>Clicks ÷ views</small></article>
+<article class="metric"><span>Best day</span><strong id="bestDay">—</strong><small id="bestDayValue">No activity yet</small></article>
+</section>
+<section class="chart-card"><div class="section-head"><div><span class="eyebrow">TRAFFIC</span><h2>Views over time</h2></div><span id="chartTotal">0 views</span></div><div class="chart-wrap"><svg id="chart" viewBox="0 0 900 300" role="img" aria-label="Views over time chart"></svg></div></section>
+<section class="lower-grid">
+<article class="panel"><div class="section-head"><div><span class="eyebrow">CONVERSION</span><h2>Views vs clicks</h2></div></div><div class="bars"><div><span>Views</span><div class="bar"><i id="viewBar"></i></div><b id="viewBarValue">0</b></div><div><span>Clicks</span><div class="bar"><i id="clickBar"></i></div><b id="clickBarValue">0</b></div></div><div class="insight" id="insight">Create and share your event to start collecting insights.</div></article>
+<article class="panel"><div class="section-head"><div><span class="eyebrow">DAILY DATA</span><h2>Activity</h2></div></div><div class="table-scroll"><table><thead><tr><th>Date</th><th>Views</th><th>Clicks</th><th>CTR</th></tr></thead><tbody id="rows"></tbody></table></div></article>
+</section>
+<section class="comparison panel"><div class="section-head"><div><span class="eyebrow">COMPARISON</span><h2>Your top events</h2></div><span>All-time</span></div><div id="topEvents"></div></section>
+</main><script src="statistics.js" defer></script></body></html>
