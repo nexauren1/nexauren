@@ -31,6 +31,18 @@ function esc(value) {
     }[char]));
 }
 
+function safeUrl(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return "";
+  try {
+    const url = new URL(text);
+    if (!["http:", "https:"].includes(url.protocol)) return "";
+    return url.href;
+  } catch (_) {
+    return "";
+  }
+}
+
 async function user(req, env) {
   const cookie = req.headers.get("Cookie") || "";
   const match = cookie.match(
@@ -57,57 +69,14 @@ function eventSlug() {
 }
 
 function eventHtml(event) {
-  const themes = {
-    default: {
-      accent: "#8db4ff",
-      accentSoft: "#17223a",
-      bg: "#05070b",
-      bgGlow: "#172554",
-      card: "#0d111a",
-      border: "#273149",
-      text: "#f5f7fb",
-      muted: "#9aa4b2"
-    },
-    ocean: {
-      accent: "#67e8f9",
-      accentSoft: "#083344",
-      bg: "#020b10",
-      bgGlow: "#083344",
-      card: "#061b27",
-      border: "#155e75",
-      text: "#ecfeff",
-      muted: "#8caeb8"
-    },
-    sunset: {
-      accent: "#fdba74",
-      accentSoft: "#431407",
-      bg: "#0d0709",
-      bgGlow: "#431407",
-      card: "#1b1014",
-      border: "#7c2d12",
-      text: "#fff7ed",
-      muted: "#b9a19a"
-    },
-    mint: {
-      accent: "#86efac",
-      accentSoft: "#052e16",
-      bg: "#030b07",
-      bgGlow: "#064e3b",
-      card: "#0a1b13",
-      border: "#166534",
-      text: "#f0fdf4",
-      muted: "#91b6a0"
-    }
-  };
-
-  const selected = themes[event.theme] || themes.default;
   const data = JSON.stringify({
     name: event.name,
     description: event.description || "",
     event_date: event.event_date,
     timezone: event.timezone || "UTC",
     image_url: event.image_url || "",
-    theme: event.theme || "default"
+    theme: event.theme || "default",
+    link_url: event.link_url || ""
   }).replace(/</g, "\\u003c");
 
   const image = event.image_url
@@ -120,135 +89,27 @@ function eventHtml(event) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="${esc(event.description || event.name)}">
-<meta name="theme-color" content="${selected.bg}">
+<meta name="theme-color" content="#000000">
 <title>${esc(event.name)} | Nexauren Event Countdown</title>
 <link rel="icon" type="image/png" href="/favicon.png?v=2">
 <style>
-:root{
-  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
-  --accent:${selected.accent};
-  --accent-soft:${selected.accentSoft};
-  --bg:${selected.bg};
-  --bg-glow:${selected.bgGlow};
-  --card:${selected.card};
-  --border:${selected.border};
-  --text:${selected.text};
-  --muted:${selected.muted};
-}
+:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}
-body{
-  margin:0;
-  min-height:100vh;
-  display:grid;
-  place-items:center;
-  padding:20px;
-  background:
-    radial-gradient(circle at 8% 0,var(--bg-glow),transparent 34%),
-    radial-gradient(circle at 95% 10%,var(--accent-soft),transparent 30%),
-    var(--bg);
-  color:var(--text);
-}
-.box{
-  width:min(900px,100%);
-  min-height:390px;
-  display:grid;
-  place-items:center;
-  text-align:center;
-  padding:48px 22px;
-  border:1px solid var(--border);
-  border-radius:28px;
-  background:color-mix(in srgb,var(--card) 94%,transparent);
-  box-shadow:0 24px 80px #00000066;
-  position:relative;
-  overflow:hidden;
-}
-.box::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  border-radius:inherit;
-  box-shadow:inset 0 1px 0 #ffffff0d;
-}
-.cover{
-  position:absolute;
-  inset:0;
-  background-size:cover;
-  background-position:center;
-  opacity:.13;
-}
-.content{
-  position:relative;
-  width:100%;
-  max-width:760px;
-}
-.brand{
-  font-size:11px;
-  letter-spacing:.18em;
-  font-weight:900;
-  color:var(--accent);
-}
-.badge{
-  display:inline-block;
-  margin:13px 0;
-  padding:7px 11px;
-  border-radius:999px;
-  background:var(--accent-soft);
-  color:var(--accent);
-  border:1px solid var(--border);
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:.1em;
-}
-h1{
-  font-size:clamp(34px,7vw,64px);
-  line-height:1.02;
-  letter-spacing:-.055em;
-  margin:12px 0;
-}
-.desc{
-  color:var(--muted);
-  font-size:16px;
-  line-height:1.6;
-  max-width:650px;
-  margin:0 auto;
-}
-.count{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  margin-top:30px;
-}
-.unit{
-  padding:16px 8px;
-  border:1px solid var(--border);
-  border-radius:16px;
-  background:var(--card);
-  box-shadow:0 10px 30px #0000001f;
-}
-.unit strong{
-  display:block;
-  font-size:clamp(25px,5vw,42px);
-  letter-spacing:-.04em;
-}
-.unit small{
-  font-size:9px;
-  color:var(--muted);
-  font-weight:900;
-  letter-spacing:.1em;
-}
-.done{
-  margin-top:28px;
-  color:var(--accent);
-  font-weight:850;
-}
-@media(max-width:520px){
-  .box{padding:34px 12px}
-  .count{gap:5px}
-  .unit{padding:13px 4px}
-  .unit strong{font-size:22px}
-  .unit small{font-size:8px}
-}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:#030406;color:#f8fafc}
+.box{width:min(900px,100%);min-height:390px;display:grid;place-items:center;text-align:center;padding:48px 22px;border:1px solid #30384a;border-radius:28px;background:#0b0e14;box-shadow:0 24px 80px #000;position:relative;overflow:hidden}
+.cover{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.16}
+.content{position:relative;width:100%;max-width:760px}
+.brand{font-size:11px;letter-spacing:.16em;font-weight:900;color:#8db4ff}
+.badge{display:inline-block;margin:13px 0;padding:7px 11px;border-radius:999px;background:#111827;color:#8db4ff;font-size:10px;font-weight:900;letter-spacing:.1em}
+h1{font-size:clamp(34px,7vw,64px);line-height:1.02;letter-spacing:-.055em;margin:12px 0}
+.desc{color:#a8b1c2;font-size:16px;line-height:1.6;max-width:650px;margin:0 auto}
+.count{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:30px}
+.unit{padding:16px 8px;border:1px solid #30384a;border-radius:16px;background:#151923}
+.unit strong{display:block;font-size:clamp(25px,5vw,42px);letter-spacing:-.04em}
+.unit small{font-size:9px;color:#7f8aa0;font-weight:900;letter-spacing:.1em}
+.done{margin-top:28px;color:#8db4ff;font-weight:850}
+.event-link{display:inline-flex;align-items:center;justify-content:center;margin-top:26px;padding:12px 18px;border-radius:12px;background:#8db4ff;color:#05070b;text-decoration:none;font-size:13px;font-weight:900;box-shadow:0 12px 30px #8db4ff22}
+@media(max-width:520px){.box{padding:34px 12px}.count{gap:5px}.unit{padding:13px 4px}.unit strong{font-size:22px}.unit small{font-size:8px}}
 </style>
 </head>
 <body>
@@ -265,6 +126,7 @@ ${image}
 <div class="unit"><strong id="m">00</strong><small>MINUTES</small></div>
 <div class="unit"><strong id="s">00</strong><small>SECONDS</small></div>
 </div>
+<a id="eventLink" class="event-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Open event link →</a>
 <div id="done" class="done" hidden>Event time reached.</div>
 </section>
 </main>
@@ -280,6 +142,8 @@ function tick(){
   document.getElementById("s").textContent=pad(x%60);
   document.getElementById("done").hidden=diff>0;
 }
+const link=document.getElementById("eventLink");
+if(E.link_url){link.href=E.link_url;link.hidden=false;}
 tick();
 setInterval(tick,1000);
 </script>
@@ -303,7 +167,7 @@ async function eventsApi(req, env, url) {
 
   if (req.method === "GET" && idOrSlug) {
     const event = await db.prepare(
-      "SELECT id,name,description,event_date,timezone,image_url,theme,status,event_slug,created_at,updated_at " +
+      "SELECT id,name,description,event_date,timezone,image_url,theme,status,event_slug,link_url,created_at,updated_at " +
       "FROM tool_events WHERE event_slug=? AND status='active' LIMIT 1"
     ).bind(decodeURIComponent(idOrSlug)).first();
 
@@ -319,7 +183,7 @@ async function eventsApi(req, env, url) {
 
   if (req.method === "GET") {
     const rows = await db.prepare(
-      "SELECT id,name,description,event_date,timezone,image_url,theme,status,event_slug,created_at,updated_at " +
+      "SELECT id,name,description,event_date,timezone,image_url,theme,status,event_slug,link_url,created_at,updated_at " +
       "FROM tool_events WHERE user_id=? AND tool_slug='event-countdown' " +
       "ORDER BY created_at DESC"
     ).bind(currentUser.id).all();
@@ -340,6 +204,7 @@ async function eventsApi(req, env, url) {
     const eventDate = String(body?.event_date || "").trim();
     const timezone = String(body?.timezone || "UTC").trim();
     const imageUrl = String(body?.image_url || "").trim();
+    const linkUrl = safeUrl(body?.link_url);
     const themes = ["default", "ocean", "sunset", "mint"];
     const theme = themes.includes(body?.theme) ? body.theme : "default";
 
@@ -359,6 +224,9 @@ async function eventsApi(req, env, url) {
     if (imageUrl.length > 1000) {
       return json({ error: "Image URL is too long." }, 400);
     }
+    if (String(body?.link_url || "").trim() && !linkUrl) {
+      return json({ error: "Please enter a valid http or https link." }, 400);
+    }
 
     for (let attempt = 0; attempt < 5; attempt++) {
       const id = token();
@@ -369,8 +237,8 @@ async function eventsApi(req, env, url) {
         await db.prepare(
           "INSERT INTO tool_events(" +
           "id,user_id,tool_slug,event_slug,name,description,event_date,timezone," +
-          "image_url,theme,status,created_at,updated_at" +
-          ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)"
+          "image_url,theme,status,link_url,created_at,updated_at" +
+          ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
         ).bind(
           id,
           currentUser.id,
@@ -383,6 +251,7 @@ async function eventsApi(req, env, url) {
           imageUrl,
           theme,
           "active",
+          linkUrl,
           now,
           now
         ).run();
@@ -430,6 +299,7 @@ async function eventsApi(req, env, url) {
     const eventDate = String(body?.event_date || "").trim();
     const timezone = String(body?.timezone || "UTC").trim();
     const imageUrl = String(body?.image_url || "").trim();
+    const linkUrl = safeUrl(body?.link_url);
     const themes = ["default", "ocean", "sunset", "mint"];
     const theme = themes.includes(body?.theme) ? body.theme : "default";
     const status = body?.status === "paused" ? "paused" : "active";
@@ -445,10 +315,14 @@ async function eventsApi(req, env, url) {
     if (imageUrl.length > 1000) {
       return json({ error: "Image URL is too long." }, 400);
     }
+    if (String(body?.link_url || "").trim() && !linkUrl) {
+      return json({ error: "Please enter a valid http or https link." }, 400);
+    }
 
     await db.prepare(
       "UPDATE tool_events SET name=?,description=?,event_date=?,timezone=?," +
-      "image_url=?,theme=?,status=?,updated_at=? WHERE id=? AND user_id=?"
+      "image_url=?,theme=?,status=?,link_url=?,updated_at=? " +
+      "WHERE id=? AND user_id=?"
     ).bind(
       name,
       description,
@@ -457,6 +331,7 @@ async function eventsApi(req, env, url) {
       imageUrl,
       theme,
       status,
+      linkUrl,
       Date.now(),
       eventId,
       currentUser.id
@@ -484,7 +359,7 @@ export default {
       }
 
       const event = await db.prepare(
-        "SELECT id,name,description,event_date,timezone,image_url,theme,status,event_slug " +
+        "SELECT id,name,description,event_date,timezone,image_url,theme,status,event_slug,link_url " +
         "FROM tool_events WHERE event_slug=? AND status='active' LIMIT 1"
       ).bind(slug).first();
 
