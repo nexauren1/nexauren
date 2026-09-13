@@ -6,6 +6,11 @@
     "https://nap5k.com/tag.min.js"
   ];
 
+  const isIndividualTool = () => {
+    const path = window.location.pathname.replace(/\/+$/, "");
+    return path.startsWith("/tools/") && path !== "/tools";
+  };
+
   const isPaidPlan = plan => {
     const value = String(plan || "free").trim().toLowerCase();
     return value === "pro" || value === "premium";
@@ -24,7 +29,9 @@
   };
 
   const loadAdsForFree = async () => {
-    if (window.__nexaurenAdsLoaded) return;
+    if (!isIndividualTool() || window.__nexaurenAdsLoaded) {
+      return;
+    }
 
     let plan = "free";
 
@@ -37,7 +44,11 @@
 
       if (response.ok) {
         const data = await response.json();
-        plan = data?.plan || "free";
+        plan =
+          data?.plan ||
+          data?.subscription?.plan_name ||
+          data?.subscription?.plan ||
+          "free";
       } else if (response.status !== 401) {
         return;
       }
@@ -45,7 +56,9 @@
       return;
     }
 
-    if (isPaidPlan(plan)) return;
+    if (isPaidPlan(plan)) {
+      return;
+    }
 
     window.__nexaurenAdsLoaded = true;
 
