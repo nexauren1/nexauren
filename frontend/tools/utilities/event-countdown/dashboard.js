@@ -8,32 +8,23 @@ let events = [];
 let editingId = null;
 
 const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  "\"": "&quot;",
-  "'": "&#39;"
+  "&": "&amp;", "<": "&lt;", ">": "&gt;",
+  "\"": "&quot;", "'": "&#39;"
 }[char]));
 
 const fmt = value => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short"
+    dateStyle: "medium", timeStyle: "short"
   });
 };
 
 const zones = () => [...new Set([
-  "UTC",
-  Intl.DateTimeFormat().resolvedOptions().timeZone,
-  "Europe/Lisbon",
-  "Africa/Maputo",
-  "Europe/Paris",
-  "America/New_York",
-  "America/Los_Angeles",
-  "Asia/Dubai",
-  "Asia/Tokyo"
+  "UTC", Intl.DateTimeFormat().resolvedOptions().timeZone,
+  "Europe/Lisbon", "Africa/Maputo", "Europe/Paris",
+  "America/New_York", "America/Los_Angeles",
+  "Asia/Dubai", "Asia/Tokyo"
 ].filter(Boolean))];
 
 function fillZones() {
@@ -69,6 +60,7 @@ function render() {
   root.innerHTML = events.map(event => {
     const url = `${location.origin}/event/${encodeURIComponent(event.event_slug)}`;
     const paused = event.status !== "active";
+    const link = event.link_url || "";
     return `
       <article class="event ${paused ? "is-paused" : ""}">
         <div class="event-top">
@@ -87,6 +79,9 @@ function render() {
           <strong>${esc(fmt(event.event_date))}</strong>
           <small>${esc(event.timezone || "UTC")}</small>
         </div>
+        ${link
+          ? `<a class="event-link-preview" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Event link ↗</a>`
+          : `<div class="event-link-empty">No event link added</div>`}
         <div class="actions">
           <a href="${url}" target="_blank" rel="noopener">Preview</a>
           <button data-copy="${esc(url)}">Copy Link</button>
@@ -105,22 +100,15 @@ async function load() {
   try {
     const response = await fetch(
       "/api/tools/event-countdown/events",
-      {
-        credentials: "same-origin",
-        headers: { Accept: "application/json" }
-      }
+      { credentials: "same-origin", headers: { Accept: "application/json" } }
     );
     const data = await response.json().catch(() => ({}));
 
     if (response.status === 401) {
-      location.href =
-        "/login?next=/tools/utilities/event-countdown/dashboard.html";
+      location.href = "/login?next=/tools/utilities/event-countdown/dashboard.html";
       return;
     }
-
-    if (!response.ok) {
-      throw Error(data.error || "Unable to load events.");
-    }
+    if (!response.ok) throw Error(data.error || "Unable to load events.");
 
     events = data.events || [];
     render();
@@ -152,6 +140,7 @@ function openEdit(event) {
   document.querySelector("#editTimezone").value = event.timezone || "UTC";
   document.querySelector("#editTheme").value = event.theme || "default";
   document.querySelector("#editImage").value = event.image_url || "";
+  document.querySelector("#editLink").value = event.link_url || "";
   editMessage.textContent = "";
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
@@ -184,11 +173,11 @@ async function saveEdit(event) {
           event_date: document.querySelector("#editDate").value,
           timezone: document.querySelector("#editTimezone").value,
           theme: document.querySelector("#editTheme").value,
-          image_url: document.querySelector("#editImage").value.trim()
+          image_url: document.querySelector("#editImage").value.trim(),
+          link_url: document.querySelector("#editLink").value.trim()
         })
       }
     );
-
     closeEdit();
     await load();
   } catch (error) {
@@ -247,6 +236,7 @@ document.addEventListener("click", async event => {
             timezone: item.timezone || "UTC",
             theme: item.theme || "default",
             image_url: item.image_url || "",
+            link_url: item.link_url || "",
             status: item.status === "active" ? "paused" : "active"
           })
         }
