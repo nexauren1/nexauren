@@ -57,6 +57,50 @@ function eventSlug() {
 }
 
 function eventHtml(event) {
+  const themes = {
+    default: {
+      accent: "#8db4ff",
+      accentSoft: "#17223a",
+      bg: "#05070b",
+      bgGlow: "#172554",
+      card: "#0d111a",
+      border: "#273149",
+      text: "#f5f7fb",
+      muted: "#9aa4b2"
+    },
+    ocean: {
+      accent: "#67e8f9",
+      accentSoft: "#083344",
+      bg: "#020b10",
+      bgGlow: "#083344",
+      card: "#061b27",
+      border: "#155e75",
+      text: "#ecfeff",
+      muted: "#8caeb8"
+    },
+    sunset: {
+      accent: "#fdba74",
+      accentSoft: "#431407",
+      bg: "#0d0709",
+      bgGlow: "#431407",
+      card: "#1b1014",
+      border: "#7c2d12",
+      text: "#fff7ed",
+      muted: "#b9a19a"
+    },
+    mint: {
+      accent: "#86efac",
+      accentSoft: "#052e16",
+      bg: "#030b07",
+      bgGlow: "#064e3b",
+      card: "#0a1b13",
+      border: "#166534",
+      text: "#f0fdf4",
+      muted: "#91b6a0"
+    }
+  };
+
+  const selected = themes[event.theme] || themes.default;
   const data = JSON.stringify({
     name: event.name,
     description: event.description || "",
@@ -76,26 +120,135 @@ function eventHtml(event) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="${esc(event.description || event.name)}">
-<meta name="theme-color" content="#2563eb">
+<meta name="theme-color" content="${selected.bg}">
 <title>${esc(event.name)} | Nexauren Event Countdown</title>
 <link rel="icon" type="image/png" href="/favicon.png?v=2">
 <style>
-:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+:root{
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --accent:${selected.accent};
+  --accent-soft:${selected.accentSoft};
+  --bg:${selected.bg};
+  --bg-glow:${selected.bgGlow};
+  --card:${selected.card};
+  --border:${selected.border};
+  --text:${selected.text};
+  --muted:${selected.muted};
+}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 8% 0,#dbeafe,transparent 30%),radial-gradient(circle at 95% 10%,#f3e8ff,transparent 30%),#fff;color:#101828}
-.box{width:min(900px,100%);min-height:390px;display:grid;place-items:center;text-align:center;padding:48px 22px;border:1px solid #e7ebf3;border-radius:28px;background:#ffffffed;box-shadow:0 24px 80px #1d4ed817;position:relative;overflow:hidden}
-.cover{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.12}
-.content{position:relative;width:100%;max-width:760px}
-.brand{font-size:11px;letter-spacing:.16em;font-weight:900;color:#2563eb}
-.badge{display:inline-block;margin:13px 0;padding:7px 11px;border-radius:999px;background:#eff6ff;color:#2563eb;font-size:10px;font-weight:900;letter-spacing:.1em}
-h1{font-size:clamp(34px,7vw,64px);line-height:1.02;letter-spacing:-.055em;margin:12px 0}
-.desc{color:#667085;font-size:16px;line-height:1.6;max-width:650px;margin:0 auto}
-.count{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:30px}
-.unit{padding:16px 8px;border:1px solid #e4e8f0;border-radius:16px;background:#fff}
-.unit strong{display:block;font-size:clamp(25px,5vw,42px);letter-spacing:-.04em}
-.unit small{font-size:9px;color:#98a2b3;font-weight:900;letter-spacing:.1em}
-.done{margin-top:28px;color:#2563eb;font-weight:850}
-@media(max-width:520px){.box{padding:34px 12px}.count{gap:5px}.unit{padding:13px 4px}.unit strong{font-size:22px}.unit small{font-size:8px}}
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at 8% 0,var(--bg-glow),transparent 34%),
+    radial-gradient(circle at 95% 10%,var(--accent-soft),transparent 30%),
+    var(--bg);
+  color:var(--text);
+}
+.box{
+  width:min(900px,100%);
+  min-height:390px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:48px 22px;
+  border:1px solid var(--border);
+  border-radius:28px;
+  background:color-mix(in srgb,var(--card) 94%,transparent);
+  box-shadow:0 24px 80px #00000066;
+  position:relative;
+  overflow:hidden;
+}
+.box::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  border-radius:inherit;
+  box-shadow:inset 0 1px 0 #ffffff0d;
+}
+.cover{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  opacity:.13;
+}
+.content{
+  position:relative;
+  width:100%;
+  max-width:760px;
+}
+.brand{
+  font-size:11px;
+  letter-spacing:.18em;
+  font-weight:900;
+  color:var(--accent);
+}
+.badge{
+  display:inline-block;
+  margin:13px 0;
+  padding:7px 11px;
+  border-radius:999px;
+  background:var(--accent-soft);
+  color:var(--accent);
+  border:1px solid var(--border);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+h1{
+  font-size:clamp(34px,7vw,64px);
+  line-height:1.02;
+  letter-spacing:-.055em;
+  margin:12px 0;
+}
+.desc{
+  color:var(--muted);
+  font-size:16px;
+  line-height:1.6;
+  max-width:650px;
+  margin:0 auto;
+}
+.count{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:30px;
+}
+.unit{
+  padding:16px 8px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--card);
+  box-shadow:0 10px 30px #0000001f;
+}
+.unit strong{
+  display:block;
+  font-size:clamp(25px,5vw,42px);
+  letter-spacing:-.04em;
+}
+.unit small{
+  font-size:9px;
+  color:var(--muted);
+  font-weight:900;
+  letter-spacing:.1em;
+}
+.done{
+  margin-top:28px;
+  color:var(--accent);
+  font-weight:850;
+}
+@media(max-width:520px){
+  .box{padding:34px 12px}
+  .count{gap:5px}
+  .unit{padding:13px 4px}
+  .unit strong{font-size:22px}
+  .unit small{font-size:8px}
+}
 </style>
 </head>
 <body>
