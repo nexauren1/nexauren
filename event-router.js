@@ -85,7 +85,7 @@ async function eventStats(req, env, eventId) {
 
   const daily = await env.TOOLS_DB.prepare(
     "SELECT day,views,link_clicks FROM event_stats WHERE event_id=? " +
-    "ORDER BY day DESC LIMIT 30"
+    "ORDER BY day DESC LIMIT 90"
   ).bind(eventId).all();
 
   return json({
@@ -200,49 +200,45 @@ function tick(){
   document.getElementById("h").textContent=pad(Math.floor(x%86400/3600));
   document.getElementById("m").textContent=pad(Math.floor(x%3600/60));
   document.getElementById("s").textContent=pad(x%60);
-  document.getElementById("done").hidden=diff>0;
+  if(diff<=0) document.getElementById("done").hidden=false;
 }
-fetch(`/api/tools/event-countdown/events/${encodeURIComponent(E.slug)}/view`,{method:"POST",keepalive:true}).catch(()=>{});
-const link=document.getElementById("eventLink");
 if(E.link_url){
-  link.href=E.link_url;
-  link.hidden=false;
-  link.addEventListener("click",()=>fetch(`/api/tools/event-countdown/events/${encodeURIComponent(E.slug)}/click`,{method:"POST",keepalive:true}).catch(()=>{}));
+  const a=document.getElementById("eventLink");
+  a.href=E.link_url;
+  a.hidden=false;
+  a.addEventListener("click",()=>fetch("/api/tools/event-countdown/events/"+encodeURIComponent(E.id)+"/stats/click",{method:"POST",keepalive:true}).catch(()=>{}));
 }
+fetch("/api/tools/event-countdown/events/"+encodeURIComponent(E.id)+"/stats/view",{method:"POST",keepalive:true}).catch(()=>{});
 tick();setInterval(tick,1000);
 </script>
-</body></html>`, {
-    headers: {
-      "Content-Type": "text/html; charset=UTF-8",
-      "Cache-Control": "public, max-age=60"
-    }
-  });
+</body></html>`, { headers:{ "Content-Type":"text/html; charset=UTF-8", "Cache-Control":"public, max-age=60" } });
 }
 
 async function eventsApi(req, env, url) {
-  const db = env.TOOLS_DB;
-  if (!db) return json({ error: "Tools database is not configured." }, 500);
-
   const parts = url.pathname.split("/").filter(Boolean);
-  const idOrSlug = parts[4] || "";
-  const action = parts[5] || "";
+  const idOrSlug = parts[parts.length - 1] || "";
+  const isStats = parts.includes("stats");
+  const action = isStats ? parts[parts.length - 1] : "";
+  const statsEventId = isStats ? parts[parts.length - 2] : "";
+  const db = env.TOOLS_DB;
+  if (!db) return json({ error:"Tools database is unavailable." }, 500);
 
-  if (action === "view" || action === "click") {
-    if (req.method !== "POST") return json({ error: "Method not allowed." }, 405);
-    const event = await db.prepare(
-      "SELECT id FROM tool_events WHERE event_slug=? AND status='active' LIMIT 1"
-    ).bind(decodeURIComponent(idOrSlug)).first();
-    if (!event) return json({ error: "Event not found." }, 404);
-    try {
-      await trackEvent(env, event.id, action === "view" ? "views" : "link_clicks");
-    } catch (error) {
-      console.error("Event tracking failed:", error);
-    }
-    return json({ ok: true });
+  if (isStats && action === "view" && req.method === "POST") {
+    const event = await db.prepare("SELECT id FROM tool_events WHERE id=? AND status='active' LIMIT 1").bind(statsEventId).first();
+    if (!event) return json({ error:"Event not found." }, 404);
+    try { await trackEvent(env, event.id, "views"); } catch (_) {}
+    return json({ ok:true });
   }
 
-  if (action === "stats" && req.method === "GET") {
-    return eventStats(req, env, idOrSlug);
+  if (isStats && action === "click" && req.method === "POST") {
+    const event = await db.prepare("SELECT id FROM tool_events WHERE id=? AND status='active' LIMIT 1").bind(statsEventId).first();
+    if (!event) return json({ error:"Event not found." }, 404);
+    try { await trackEvent(env, event.id, "link_clicks"); } catch (_) {}
+    return json({ ok:true });
+  }
+
+  if (isStats && action === "stats" && req.method === "GET") {
+    return eventStats(req, env, statsEventId);
   }
 
   if (req.method === "GET" && idOrSlug) {
