@@ -430,6 +430,8 @@ function adminShell(body, title) {
 .field input,.field select{padding:12px 13px;border:1px solid #d7dce5;border-radius:11px;font:inherit;background:#fff}.btn{display:inline-flex;border:0;border-radius:11px;padding:12px 16px;font:inherit;font-weight:850;cursor:pointer}.primary{background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff}.gold{background:#f5b942;color:#3b2a00}
 .tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{text-align:left;padding:12px;border-bottom:1px solid #edf0f5;white-space:nowrap}.pill{display:inline-flex;padding:5px 9px;border-radius:999px;background:#eff6ff;color:var(--blue);font-size:12px;font-weight:850}
 .notice{padding:13px 15px;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;color:#92400e;margin-bottom:18px}.success{background:#ecfdf3;border-color:#abefc6;color:#067647}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.check{display:flex;align-items:flex-start;gap:10px;padding:13px 14px;background:#f8fafc;border:1px solid var(--line);border-radius:11px}
+.check input{width:18px;height:18px;margin-top:2px}.check strong{display:block}.check span{display:block;color:var(--muted);font-size:13px;margin-top:3px}
 @media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}}@media(max-width:560px){.grid{grid-template-columns:1fr}.wrap{padding-top:20px}.topnav a{display:none}}
 </style>
 </head>
@@ -616,6 +618,8 @@ async function plansPage(req, env) {
     const price = Number(f.get("price") || 0);
     const monthly = Number(f.get("monthly_credits") || 0);
     const productId = String(f.get("paypal_product_id") || "").trim();
+    const replaceExisting =
+      String(f.get("replace_existing") || "") === "1";
 
     if (
       !slug ||
@@ -631,12 +635,31 @@ async function plansPage(req, env) {
 
     if (action === "create_paypal_plan") {
       try {
-        const existing = await env.DB.prepare(
-          "SELECT paypal_plan_id FROM nexauren_admin_plans WHERE slug=? LIMIT 1"
-        ).bind(slug).first();
+        const existing = await env.DB.prepare(`
+          SELECT id,paypal_plan_id,paypal_product_id
+          FROM nexauren_admin_plans
+          WHERE slug=?
+          LIMIT 1
+        `).bind(slug).first();
 
-        if (existing?.paypal_plan_id) {
-          return ARE("/admin/plans?error=Este+plano+já+tem+PayPal+Plan+ID");
+        if (existing?.paypal_plan_id && !replaceExisting) {
+          return ARE(
+            "/admin/plans?error=Este+plano+já+tem+PayPal+Plan+ID.+Marque+Substituir+PayPal+Plan+ID+existente+para+criar+um+novo."
+          );
+        }
+
+        const paypalProduct = await env.DB.prepare(`
+          SELECT paypal_product_id
+          FROM nexauren_admin_products
+          WHERE paypal_product_id=?
+            AND active=1
+          LIMIT 1
+        `).bind(productId).first();
+
+        if (!paypalProduct?.paypal_product_id) {
+          return ARE(
+            "/admin/plans?error=O+Product+ID+selecionado+não+está+cadastrado+como+produto+ativo+no+Admin."
+          );
         }
 
         const plan = await paypalCreatePlan(env, {
@@ -662,7 +685,7 @@ async function plansPage(req, env) {
             active=1,
             updated_at=excluded.updated_at
         `).bind(
-          id,
+          existing?.id || id,
           slug,
           name,
           price,
@@ -695,7 +718,9 @@ async function plansPage(req, env) {
 
         return ARE(
           `/admin/plans?success=${encodeURIComponent(
-            `Plano criado no PayPal: ${plan.id}`
+            replaceExisting
+              ? `Plano ${name} substituído no PayPal: ${plan.id}`
+              : `Plano criado no PayPal: ${plan.id}`
           )}`
         );
       } catch (e) {
@@ -738,6 +763,15 @@ ${error ? `<div class="notice">${AESC(error)}</div>` : ""}
 <option value="">Selecione o produto</option>
 ${products.results.map(p => `<option value="${AESC(p.paypal_product_id)}">${AESC(p.name)} — ${AESC(p.paypal_product_id)}</option>`).join("")}
 </select>
+</div>
+<div class="field full">
+<label class="check">
+<input type="checkbox" name="replace_existing" value="1">
+<span>
+<strong>Substituir PayPal Plan ID existente</strong>
+<span>Use isto quando o plano atual pertence ao Sandbox e precisa ser recriado no PayPal Live. O plano Nexauren será mantido e apenas o Product ID/Plan ID PayPal será atualizado.</span>
+</span>
+</label>
 </div>
 <div class="field full">
 <button class="btn primary" name="action" value="create_paypal_plan" type="submit">Criar plano no PayPal</button>
