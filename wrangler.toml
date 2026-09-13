@@ -1,5 +1,5 @@
 name = "nexauren"
-main = "event-router.js"
+main = "stats-router.js"
 compatibility_date = "2026-09-01"
 
 [assets]
