@@ -154,7 +154,13 @@ processBtn.addEventListener("click", async () => {
       body: form
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error || "Could not process the PDF.");
+
+    if (!response.ok) {
+      const message = data.detail
+        ? `${data.error || "Não foi possível processar o PDF."}\n\n${data.detail}`
+        : (data.error || "Não foi possível processar o PDF.");
+      throw new Error(message);
+    }
 
     setStatus("Result ready.", false);
     renderResult(data);
