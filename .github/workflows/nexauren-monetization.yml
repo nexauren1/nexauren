@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "frontend/**/*.html"
-      - "frontend/js/nexauren-analytics.js"
+      - "frontend/js/G4A.js"
       - "frontend/js/nexauren-ads.js"
       - ".github/workflows/nexauren-monetization.yml"
 
@@ -24,24 +24,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Inject analytics everywhere and ads into individual tools
+      - name: Inject G4A everywhere and ads into individual tools
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
 
           root = Path("frontend")
-          analytics = '<script src="/js/nexauren-analytics.js" defer></script>'
+          g4a = '<script src="/js/G4A.js" defer></script>'
+          old_analytics = '<script src="/js/nexauren-analytics.js" defer></script>'
           ads = '<script src="/js/nexauren-ads.js" defer></script>'
           changed = []
 
-          for path in root.rglob("*.html"):
+          for path in sorted(root.rglob("*.html")):
               text = path.read_text(encoding="utf-8")
               original = text
 
-              if analytics not in text and "</head>" in text:
+              text = text.replace(old_analytics, "")
+
+              if g4a not in text and "</head>" in text:
                   text = text.replace(
                       "</head>",
-                      f"  {analytics}\n</head>",
+                      f"  {g4a}\n</head>",
                       1
                   )
 
@@ -62,7 +66,7 @@ jobs:
                   path.write_text(text, encoding="utf-8")
                   changed.append(str(path))
 
-          print("Updated:")
+          print(f"Updated {len(changed)} HTML pages")
           for item in changed:
               print(item)
           PY
@@ -77,7 +81,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Install Nexauren analytics and Free tool ads [skip ci]"
+          git commit -m "Install Nexauren G4A analytics and Free tool ads [skip ci]"
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
