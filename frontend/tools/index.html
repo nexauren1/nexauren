@@ -49,5 +49,5 @@ function loadCached(){try{const cached=normalize(JSON.parse(localStorage.getItem
 search.oninput=render;clear.onclick=()=>{search.value='';render();search.focus()};$('menu').onclick=()=>{$('mobile').classList.toggle('open')};document.addEventListener('click',e=>{if(!e.target.closest('.nav'))$('mobile').classList.remove('open')});
 loadCached();renderChips();render();loadRegistry().then(ok=>{if(!ok){notice.textContent='Using the latest available tool library. We will sync the registry when it becomes available.';notice.classList.add('show')}});
 </script>
-</body>
+<script src="/js/app.js" defer></script></body>
 </html>
