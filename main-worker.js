@@ -229,11 +229,15 @@ async function enhanceHtmlResponse(req, response) {
   const safeUrl = escapeHtml(canonical);
   const tags = [];
 
-  if (!/<link[^>]+rel=[\"']icon[\"']/i.test(html)) {
+  if (!/<link[^>]+href=[\"']\/favicon\.png[\"']/i.test(html)) {
     tags.push(
-      '<link rel="icon" type="image/x-portable-pixmap" href="/favicon.ppm">',
-      '<link rel="icon" type="image/svg+xml" href="/favicon.svg">'
+      '<link rel="icon" type="image/png" href="/favicon.png">',
+      '<link rel="apple-touch-icon" href="/favicon.png">'
     );
+  }
+
+  if (!/<script[^>]+src=[\"']\/js\/app\.js[\"']/i.test(html)) {
+    tags.push('<script src="/js/app.js" defer></script>');
   }
 
   if (!/<link[^>]+rel=[\"']manifest[\"']/i.test(html)) {
