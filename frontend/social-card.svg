@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#f7f9fc"/>
+    <stop offset="1" stop-color="#eef0ff"/>
+  </linearGradient>
+  <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#594cf0"/>
+    <stop offset="1" stop-color="#8b5cf6"/>
+  </linearGradient>
+</defs>
+<rect width="1200" height="630" fill="url(#bg)"/>
+<circle cx="1060" cy="80" r="220" fill="#8b5cf6" opacity=".08"/>
+<circle cx="80" cy="570" r="190" fill="#594cf0" opacity=".06"/>
+<rect x="80" y="105" width="110" height="110" rx="28" fill="url(#brand)"/>
+<path d="M105 190V130h16l32 39v-39h16v60h-16l-32-39v39z" fill="white"/>
+<text x="220" y="175" font-family="Arial,Helvetica,sans-serif" font-size="58" font-weight="700" fill="#151827">NEXAUREN</text>
+<text x="84" y="315" font-family="Arial,Helvetica,sans-serif" font-size="56" font-weight="700" fill="#151827">Simple tools. Real results.</text>
+<text x="86" y="370" font-family="Arial,Helvetica,sans-serif" font-size="27" fill="#5b6072">Fast, simple and professional digital tools for audio, images, PDFs, text and AI.</text>
+<g font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="600">
+  <rect x="85" y="440" width="190" height="58" rx="29" fill="white" stroke="#dfe2ef"/>
+  <text x="135" y="478" fill="#594cf0">Audio</text>
+  <rect x="295" y="440" width="190" height="58" rx="29" fill="white" stroke="#dfe2ef"/>
+  <text x="345" y="478" fill="#594cf0">Image</text>
+  <rect x="505" y="440" width="190" height="58" rx="29" fill="white" stroke="#dfe2ef"/>
+  <text x="567" y="478" fill="#594cf0">PDF</text>
+  <rect x="715" y="440" width="230" height="58" rx="29" fill="white" stroke="#dfe2ef"/>
+  <text x="765" y="478" fill="#594cf0">Text &amp; AI</text>
+</g>
+</svg>
