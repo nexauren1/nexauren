@@ -191,13 +191,17 @@ async function eventsApi(req, env, url) {
     const theme = themes.includes(body?.theme) ? body.theme : "default";
 
     if (!name || name.length > 100) {
-      return json({ error: "Event name is required and must be 100 characters or fewer." }, 400);
+      return json({
+        error: "Event name is required and must be 100 characters or fewer."
+      }, 400);
     }
     if (!eventDate || eventDate.length > 80) {
       return json({ error: "A valid event date is required." }, 400);
     }
     if (description.length > 500) {
-      return json({ error: "Description must be 500 characters or fewer." }, 400);
+      return json({
+        error: "Description must be 500 characters or fewer."
+      }, 400);
     }
     if (imageUrl.length > 1000) {
       return json({ error: "Image URL is too long." }, 400);
@@ -275,14 +279,23 @@ async function eventsApi(req, env, url) {
     const imageUrl = String(body?.image_url || "").trim();
     const themes = ["default", "ocean", "sunset", "mint"];
     const theme = themes.includes(body?.theme) ? body.theme : "default";
+    const status = body?.status === "paused" ? "paused" : "active";
 
-    if (!name || !eventDate) {
+    if (!name || name.length > 100 || !eventDate) {
       return json({ error: "Event name and date are required." }, 400);
+    }
+    if (description.length > 500) {
+      return json({
+        error: "Description must be 500 characters or fewer."
+      }, 400);
+    }
+    if (imageUrl.length > 1000) {
+      return json({ error: "Image URL is too long." }, 400);
     }
 
     await db.prepare(
-      "UPDATE tool_events SET name=?,description=?,event_date=?,timezone=?,image_url=?,theme=?,updated_at=? " +
-      "WHERE id=? AND user_id=?"
+      "UPDATE tool_events SET name=?,description=?,event_date=?,timezone=?," +
+      "image_url=?,theme=?,status=?,updated_at=? WHERE id=? AND user_id=?"
     ).bind(
       name,
       description,
@@ -290,12 +303,13 @@ async function eventsApi(req, env, url) {
       timezone,
       imageUrl,
       theme,
+      status,
       Date.now(),
       eventId,
       currentUser.id
     ).run();
 
-    return json({ ok: true });
+    return json({ ok: true, status });
   }
 
   return json({ error: "Method not allowed." }, 405);
@@ -312,7 +326,9 @@ export default {
     if (url.pathname.startsWith("/event/")) {
       const slug = decodeURIComponent(url.pathname.slice("/event/".length));
       const db = env.TOOLS_DB;
-      if (!db || !slug) return new Response("Event not found", { status: 404 });
+      if (!db || !slug) {
+        return new Response("Event not found", { status: 404 });
+      }
 
       const event = await db.prepare(
         "SELECT id,name,description,event_date,timezone,image_url,theme,status,event_slug " +
@@ -323,7 +339,9 @@ export default {
         ? eventHtml(event)
         : new Response("Event not found", {
             status: 404,
-            headers: { "Content-Type": "text/plain; charset=UTF-8" }
+            headers: {
+              "Content-Type": "text/plain; charset=UTF-8"
+            }
           });
     }
 
