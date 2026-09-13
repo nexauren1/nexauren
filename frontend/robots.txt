@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /account/
+Disallow: /login/
+Disallow: /register/
+Disallow: /api/
+
+Sitemap: https://nexaurenstory.com/sitemap.xml
