@@ -23,38 +23,43 @@ jobs:
         run: |
           from pathlib import Path
           from xml.sax.saxutils import escape
-          import re
 
           root = Path("frontend")
           base = "https://nexaurenstory.com"
+          excluded = {
+              "admin",
+              "account",
+              "dashboard",
+              "login",
+              "register"
+          }
           urls = set()
 
           for path in root.rglob("index.html"):
-              rel = path.relative_to(root).as_posix()
+              rel = path.relative_to(root)
+              parts = rel.parts
 
-              if rel == "index.html":
+              if any(part.startswith(".") for part in parts):
+                  continue
+
+              if len(parts) == 1:
                   url = base + "/"
               else:
-                  url = base + "/" + rel[:-10].rstrip("/") + "/"
-
-              if any(part.startswith(".") for part in path.relative_to(root).parts):
-                  continue
-
-              if "/admin/" in url or "/account/" in url or "/login/" in url:
-                  continue
+                  section = parts[:-1]
+                  if section[0].lower() in excluded:
+                      continue
+                  if section[0].lower() == "pages":
+                      continue
+                  url = base + "/" + "/".join(section) + "/"
 
               urls.add(url)
 
-          # Include root-level public HTML pages that are not index.html.
           for path in root.glob("*.html"):
               name = path.stem.lower()
-              if name in {"index", "404"}:
-                  continue
-              if name.startswith("admin"):
+              if name in {"index", "404"} or name in excluded:
                   continue
               urls.add(f"{base}/{name}/")
 
-          # Only publish canonical public pages and tools.
           urls = sorted(urls)
 
           lines = [
@@ -76,6 +81,7 @@ jobs:
               "Allow: /\n"
               "Disallow: /admin/\n"
               "Disallow: /account/\n"
+              "Disallow: /dashboard/\n"
               "Disallow: /login/\n"
               "Disallow: /register/\n"
               "Disallow: /api/\n"
@@ -85,8 +91,6 @@ jobs:
           )
 
           print(f"Generated {len(urls)} public sitemap URLs")
-          print("Generated frontend/sitemap.xml")
-          print("Generated frontend/robots.txt")
 
       - name: Commit SEO files
         run: |
