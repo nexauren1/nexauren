@@ -191,13 +191,253 @@ function getToolFromPath(path, method) {
   return null;
 }
 
+async function paypalToken(env) {
+  if (!env.PAYPAL_CLIENT_ID || !env.PAYPAL_CLIENT_SECRET) {
+    throw new Error("PayPal live credentials are not configured");
+  }
+
+  const base = env.PAYPAL_BASE_URL || "https://api-m.paypal.com";
+  const auth = btoa(
+    `${env.PAYPAL_CLIENT_ID}:${env.PAYPAL_CLIENT_SECRET}`
+  );
+
+  const response = await fetch(`${base}/v1/oauth2/token`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: "grant_type=client_credentials"
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(
+      `PayPal OAuth failed: ${detail.slice(0, 400)}`
+    );
+  }
+
+  const data = await response.json();
+  if (!data.access_token) {
+    throw new Error("PayPal did not return an access token");
+  }
+
+  return data.access_token;
+}
+
+async function paypalSubscriptionApi(req, env, ctx) {
+  if (req.method !== "POST") return null;
+
+  const user = await activityUser(req, env);
+  if (!user) {
+    return new Response(
+      JSON.stringify({ error: "Login required" }),
+      {
+        status: 401,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
+        }
+      }
+    );
+  }
+
+  let body;
+  try {
+    body = await req.json();
+  } catch (_) {
+    return new Response(
+      JSON.stringify({ error: "Invalid request" }),
+      {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8"
+        }
+      }
+    );
+  }
+
+  const plan = String(body?.plan || "").toLowerCase();
+  if (!["pro", "premium"].includes(plan)) {
+    return new Response(
+      JSON.stringify({ error: "Invalid plan" }),
+      {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8"
+        }
+      }
+    );
+  }
+
+  let paypalPlanId = null;
+
+  try {
+    const product = await env.DB.prepare(
+      "SELECT paypal_price_id " +
+      "FROM nexauren_admin_products " +
+      "WHERE slug=? AND active=1 LIMIT 1"
+    ).bind(plan).first();
+
+    paypalPlanId = product?.paypal_price_id || null;
+  } catch (_) {
+    paypalPlanId = null;
+  }
+
+  if (!paypalPlanId) {
+    try {
+      const adminPlan = await env.DB.prepare(
+        "SELECT paypal_plan_id " +
+        "FROM nexauren_admin_plans " +
+        "WHERE slug=? AND active=1 LIMIT 1"
+      ).bind(plan).first();
+
+      paypalPlanId = adminPlan?.paypal_plan_id || null;
+    } catch (_) {
+      paypalPlanId = null;
+    }
+  }
+
+  if (!paypalPlanId) {
+    return new Response(
+      JSON.stringify({
+        error: "PayPal plan is not configured"
+      }),
+      {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
+        }
+      }
+    );
+  }
+
+  try {
+    const access = await paypalToken(env);
+    const base = env.PAYPAL_BASE_URL ||
+      "https://api-m.paypal.com";
+    const origin = new URL(req.url).origin;
+
+    const response = await fetch(
+      `${base}/v1/billing/subscriptions`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${access}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          plan_id: paypalPlanId,
+          custom_id: user.id,
+          application_context: {
+            brand_name: "Nexauren",
+            user_action: "SUBSCRIBE_NOW",
+            return_url:
+              `${origin}/dashboard/?subscription=success`,
+            cancel_url: `${origin}/plans/`
+          }
+        })
+      }
+    );
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      return new Response(
+        JSON.stringify({
+          error: "Unable to create PayPal subscription",
+          detail: JSON.stringify(data).slice(0, 500)
+        }),
+        {
+          status: 502,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": "no-store"
+          }
+        }
+      );
+    }
+
+    const approve = data.links?.find(
+      link => link.rel === "approve"
+    )?.href;
+
+    if (!approve || !data.id) {
+      return new Response(
+        JSON.stringify({
+          error: "PayPal approval link was not returned"
+        }),
+        {
+          status: 502,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8"
+          }
+        }
+      );
+    }
+
+    ctx.waitUntil(
+      logActivity(
+        env,
+        user.id,
+        "plan",
+        "subscription_started",
+        `Started ${plan} subscription`,
+        {
+          provider: "paypal",
+          plan,
+          paypal_subscription_id: data.id
+        }
+      )
+    );
+
+    return new Response(
+      JSON.stringify({
+        url: approve,
+        subscription_id: data.id
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
+        }
+      }
+    );
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        error: "Unable to start PayPal subscription",
+        detail: String(error?.message || error).slice(0, 500)
+      }),
+      {
+        status: 502,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store"
+        }
+      }
+    );
+  }
+}
+
 export default {
   async fetch(req, env, ctx) {
+    const pathname = new URL(req.url).pathname;
+
     if (
-      new URL(req.url).pathname === "/api/activity" &&
+      pathname === "/api/activity" &&
       req.method === "GET"
     ) {
       return activityApi(req, env);
+    }
+
+    if (
+      pathname === "/api/paypal/subscription" &&
+      req.method === "POST"
+    ) {
+      return paypalSubscriptionApi(req, env, ctx);
     }
 
     const pdfResponse = await handlePdfSummarizer(req, env);
