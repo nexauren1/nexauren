@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="description" content="Compress images online for free with Nexauren. Reduce image file size while keeping quality under your control.">
+  <meta name="theme-color" content="#f7f9ff">
+  <link rel="icon" type="image/png" href="/favicon.png?v=2">
+  <title>Image Compressor — Nexauren</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark"></span><span>NEXAUREN</span></a>
+    <nav>
+      <a href="/tools/">Tools</a>
+      <a href="/about/">About</a>
+      <a href="/faq/">FAQ</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <span class="eyebrow">IMAGE · FREE</span>
+      <h1>Image <span>Compressor</span></h1>
+      <p>Make images smaller without unnecessary complexity. Choose the quality, format and maximum width, then download the optimized image.</p>
+      <div class="trust"><span>✓ Free to use</span><span>✓ No credits</span><span>✓ No upload required</span></div>
+    </section>
+
+    <section class="tool-card" aria-label="Image compressor">
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose an image">
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/avif">
+        <div class="upload-icon">↑</div>
+        <h2>Drop an image here</h2>
+        <p>or <strong>choose a file</strong> from your device</p>
+        <small>JPG, PNG, WebP, GIF, BMP or AVIF</small>
+      </div>
+
+      <div class="editor" id="editor" hidden>
+        <div class="file-row">
+          <div class="file-info">
+            <div class="file-icon">IMG</div>
+            <div><strong id="fileName">image.jpg</strong><span id="fileMeta">0 KB · 0 × 0</span></div>
+          </div>
+          <button class="ghost" id="changeFile" type="button">Change image</button>
+        </div>
+
+        <div class="preview-wrap">
+          <div class="preview-card">
+            <span>Original</span>
+            <div class="preview"><img id="originalPreview" alt="Original image preview"></div>
+            <strong id="originalSize">0 KB</strong>
+          </div>
+          <div class="arrow">→</div>
+          <div class="preview-card result-preview">
+            <span>Compressed</span>
+            <div class="preview"><img id="resultPreview" alt="Compressed image preview"></div>
+            <strong id="resultSize">Ready</strong>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="control">
+            <div class="control-head"><label for="quality">Quality</label><output id="qualityValue">80%</output></div>
+            <input id="quality" type="range" min="20" max="100" value="80">
+            <div class="range-labels"><span>Smaller</span><span>Higher quality</span></div>
+          </div>
+          <div class="control">
+            <div class="control-head"><label for="maxWidth">Maximum width</label><output id="widthValue">Original</output></div>
+            <select id="maxWidth">
+              <option value="0">Original</option>
+              <option value="2400">2400 px</option>
+              <option value="1920">1920 px</option>
+              <option value="1600">1600 px</option>
+              <option value="1280">1280 px</option>
+              <option value="1080">1080 px</option>
+              <option value="800">800 px</option>
+            </select>
+          </div>
+          <div class="control">
+            <div class="control-head"><label for="format">Output format</label></div>
+            <select id="format">
+              <option value="auto">Auto — keep format</option>
+              <option value="webp">WebP — smaller files</option>
+              <option value="jpeg">JPEG — broad compatibility</option>
+              <option value="png">PNG — lossless</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="status" id="status" aria-live="polite"><span class="dot"></span><span id="statusText">Adjust the settings to compress.</span></div>
+        <div class="actions">
+          <button class="secondary" id="reset" type="button">Reset</button>
+          <button class="primary" id="compress" type="button"><span>Compress image</span><span>→</span></button>
+        </div>
+        <a class="download" id="download" hidden>Download compressed image</a>
+      </div>
+    </section>
+
+    <section class="info-grid">
+      <article><span>01</span><h3>Choose your image</h3><p>Your image stays in your browser during compression. There is no required upload to a server.</p></article>
+      <article><span>02</span><h3>Control the result</h3><p>Adjust quality, maximum width and output format until the result fits your needs.</p></article>
+      <article><span>03</span><h3>Download</h3><p>Compare the original and compressed sizes, then download the optimized file.</p></article>
+    </section>
+
+    <section class="faq">
+      <h2>Image Compressor FAQ</h2>
+      <details><summary>Is this tool really free?</summary><p>Yes. Nexauren Image Compressor is free and does not use credits or require a plan.</p></details>
+      <details><summary>Are my images uploaded?</summary><p>No upload is required for the compression itself. Processing is performed locally in your browser.</p></details>
+      <details><summary>Which format should I use?</summary><p>WebP is usually a good choice for smaller files. JPEG is useful for broad compatibility. PNG is best when you need lossless output or transparency.</p></details>
+    </section>
+  </main>
+
+  <footer><div><strong>NEXAUREN</strong><span>Practical tools for everyday digital work.</span></div><a href="/tools/">Back to tools →</a></footer>
+  <script src="script.js"></script>
+</body>
+</html>
