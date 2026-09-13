@@ -1,5 +1,5 @@
 name = "nexauren"
-main = "main-worker.js"
+main = "event-router.js"
 compatibility_date = "2026-09-01"
 
 [assets]
@@ -16,7 +16,7 @@ database_id = "ce127360-0a01-4c84-a099-5c21c10a00c2"
 
 [[d1_databases]]
 binding = "TOOLS_DB"
-database_name = "nexauren-tools-db"
+database_name = "nexauren-tools-db'
 database_id = "9319a2ad-ffb4-4587-b6f2-dcd9bce60014"
 
 routes = [
