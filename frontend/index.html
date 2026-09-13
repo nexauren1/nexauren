@@ -1,200 +1,591 @@
 <!doctype html>
 <html lang="en">
 <head>
-<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png?v=2">
-<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2">
-<link rel="apple-touch-icon" href="/favicon.png?v=2">
-<meta property="og:site_name" content="Nexauren">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://nexaurenstory.com/favicon.png?v=2">
-<meta property="og:image:type" content="image/png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="Nexauren">
-<meta name="twitter:image" content="https://nexaurenstory.com/favicon.png?v=2">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Nexauren — Digital tools in one place</title>
+  <meta name="description" content="Nexauren is a practical digital toolkit for audio, images, PDFs, text and AI. Find the right tool and get to work quickly.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#f7f9fc">
+  <link rel="canonical" href="https://nexaurenstory.com/">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png?v=2">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2">
+  <link rel="apple-touch-icon" href="/favicon.png?v=2">
+  <meta property="og:site_name" content="Nexauren">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nexaurenstory.com/">
+  <meta property="og:title" content="Nexauren — Digital tools in one place">
+  <meta property="og:description" content="A practical digital toolkit for audio, images, PDFs, text and AI.">
+  <meta property="og:image" content="https://nexaurenstory.com/favicon.png?v=2">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:alt" content="Nexauren">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nexauren — Digital tools in one place">
+  <meta name="twitter:description" content="A practical digital toolkit for audio, images, PDFs, text and AI.">
+  <meta name="twitter:image" content="https://nexaurenstory.com/favicon.png?v=2">
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {"@type":"Organization","name":"Nexauren","url":"https://nexaurenstory.com/","logo":"https://nexaurenstory.com/favicon.png"},
+      {"@type":"WebSite","name":"Nexauren","url":"https://nexaurenstory.com/","description":"Practical digital tools for audio, images, PDFs, text and AI.","inLanguage":"en"}
+    ]
+  }
+  </script>
+  <style>
+    :root{
+      --bg:#f7f9fc;
+      --surface:#fff;
+      --text:#172033;
+      --muted:#667085;
+      --line:#e5e9f0;
+      --green:#16a34a;
+      --red:#ef4444;
+      --yellow:#d49b08;
+      --blue:#2563eb;
+      --violet:#7c3aed;
+      --shadow:0 14px 38px rgba(23,32,51,.07);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+      line-height:1.55;
+    }
+    a{text-decoration:none;color:inherit}
+    .wrap{width:min(1120px,calc(100% - 32px));margin:auto}
 
+    header{
+      position:sticky;
+      top:0;
+      z-index:20;
+      background:rgba(247,249,252,.94);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--line);
+    }
+    .nav{
+      min-height:68px;
+      display:flex;
+      align-items:center;
+      gap:22px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      font-size:20px;
+      font-weight:900;
+      letter-spacing:-.04em;
+      white-space:nowrap;
+    }
+    .brand img{
+      width:36px;
+      height:36px;
+      border-radius:10px;
+      object-fit:cover;
+    }
+    .navlinks{
+      display:flex;
+      gap:5px;
+      margin-left:auto;
+    }
+    .navlinks a{
+      padding:9px 11px;
+      color:var(--muted);
+      border-radius:9px;
+      font-size:13px;
+      font-weight:750;
+    }
+    .navlinks a:hover{background:#fff;color:var(--text)}
+    .nav-actions{display:flex;gap:8px}
+    .btn{
+      min-height:42px;
+      padding:0 15px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid var(--line);
+      border-radius:11px;
+      background:#fff;
+      font-size:13px;
+      font-weight:850;
+      transition:transform .18s ease,box-shadow .18s ease;
+    }
+    .btn:hover{transform:translateY(-1px);box-shadow:0 7px 18px rgba(23,32,51,.07)}
+    .btn.primary{background:var(--text);border-color:var(--text);color:#fff}
+    .menu{
+      display:none;
+      margin-left:auto;
+      width:42px;
+      height:42px;
+      border:1px solid var(--line);
+      border-radius:11px;
+      background:#fff;
+      color:var(--text);
+      font-size:21px;
+      cursor:pointer;
+    }
+    .mobile-menu{
+      display:none;
+      padding:8px 0 14px;
+      border-top:1px solid var(--line);
+    }
+    .mobile-menu.open{display:grid;gap:3px}
+    .mobile-menu a{
+      padding:11px 10px;
+      border-radius:9px;
+      color:var(--muted);
+      font-weight:750;
+    }
+    .mobile-menu a:hover{background:#fff;color:var(--text)}
 
+    .hero{padding:54px 0 38px}
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:42px;
+      align-items:center;
+    }
+    .eyebrow{
+      display:inline-flex;
+      padding:6px 10px;
+      border:1px solid #dbe5f5;
+      border-radius:999px;
+      background:#f0f5ff;
+      color:#3157c9;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    h1{
+      max-width:650px;
+      margin:14px 0 13px;
+      font-size:clamp(40px,6vw,64px);
+      line-height:1;
+      letter-spacing:-.065em;
+    }
+    .gradient{
+      background:linear-gradient(90deg,var(--green),var(--blue),var(--violet));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    .hero-copy{
+      max-width:590px;
+      margin:0;
+      color:var(--muted);
+      font-size:16px;
+    }
+    .hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
 
+    .showcase{
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:21px;
+      background:var(--surface);
+      box-shadow:var(--shadow);
+    }
+    .showcase-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding-bottom:14px;
+      border-bottom:1px solid var(--line);
+    }
+    .showcase-label{
+      font-size:10px;
+      color:var(--muted);
+      font-weight:900;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    .status{
+      color:#16834a;
+      font-size:10px;
+      font-weight:800;
+    }
+    .status:before{
+      content:"";
+      display:inline-block;
+      width:6px;
+      height:6px;
+      margin-right:6px;
+      border-radius:50%;
+      background:#22a85e;
+    }
+    .showcase h2{
+      margin:15px 0 12px;
+      font-size:20px;
+      letter-spacing:-.035em;
+    }
+    .tool-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .tool{
+      min-width:0;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fbfcfe;
+      font-size:12px;
+      font-weight:800;
+    }
+    .tool span{
+      display:inline-block;
+      width:8px;
+      height:8px;
+      margin-right:7px;
+      border-radius:50%;
+    }
+    .audio span{background:var(--green)}
+    .image span{background:var(--red)}
+    .pdf span{background:var(--yellow)}
+    .text span{background:var(--blue)}
+    .ai span{background:var(--violet)}
 
+    section{padding:34px 0}
+    .section-head{max-width:690px;margin-bottom:18px}
+    .kicker{
+      margin:0 0 5px;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    .section-head h2{
+      margin:0;
+      font-size:clamp(28px,4vw,38px);
+      line-height:1.08;
+      letter-spacing:-.055em;
+    }
+    .section-head p{margin:7px 0 0;color:var(--muted);font-size:14px}
+    .categories{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+    .category{
+      position:relative;
+      min-height:145px;
+      padding:16px;
+      border:1px solid var(--line);
+      border-top:3px solid var(--blue);
+      border-radius:16px;
+      background:#fff;
+      transition:transform .18s ease,box-shadow .18s ease;
+    }
+    .category:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+    .category:nth-child(1){border-top-color:var(--green)}
+    .category:nth-child(2){border-top-color:var(--red)}
+    .category:nth-child(3){border-top-color:var(--yellow)}
+    .category:nth-child(4){border-top-color:var(--blue)}
+    .category:nth-child(5){border-top-color:var(--violet)}
+    .icon{
+      width:34px;
+      height:34px;
+      display:grid;
+      place-items:center;
+      margin-bottom:14px;
+      border-radius:9px;
+      font-size:11px;
+      font-weight:900;
+    }
+    .category:nth-child(1) .icon{background:#ecfdf3;color:#15803d}
+    .category:nth-child(2) .icon{background:#fef2f2;color:#dc2626}
+    .category:nth-child(3) .icon{background:#fefce8;color:#a16207}
+    .category:nth-child(4) .icon{background:#eff6ff;color:#1d4ed8}
+    .category:nth-child(5) .icon{background:#f5f3ff;color:#6d28d9}
+    .category h3{margin:0 0 3px;font-size:15px}
+    .category p{margin:0;color:var(--muted);font-size:12px}
+    .arrow{position:absolute;right:13px;bottom:11px;color:var(--muted);font-weight:900}
 
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .step{
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+    }
+    .number{color:var(--blue);font-size:10px;font-weight:900;letter-spacing:.12em}
+    .step h3{margin:6px 0 3px;font-size:16px}
+    .step p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
 
+    .cta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      padding:24px;
+      border:1px solid var(--line);
+      border-radius:19px;
+      background:#fff;
+      box-shadow:var(--shadow);
+    }
+    .cta h2{margin:0 0 3px;font-size:23px;letter-spacing:-.04em}
+    .cta p{margin:0;color:var(--muted);font-size:13px}
 
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nexauren — Digital tools for everyday work</title>
-<meta name="description" content="Nexauren brings practical digital tools for audio, images, PDFs, text and AI into one simple workspace.">
-<meta name="robots" content="index,follow">
-<meta name="theme-color" content="#f7f9fc">
-<link rel="canonical" href="https://nexaurenstory.com/">
-<meta property="og:url" content="https://nexaurenstory.com/">
-<meta property="og:title" content="Nexauren — Digital tools for everyday work">
-<meta property="og:description" content="Practical digital tools for audio, images, PDFs, text and AI in one simple workspace.">
-<meta property="og:image:alt" content="Nexauren">
-<meta name="twitter:title" content="Nexauren — Digital tools for everyday work">
-<meta name="twitter:description" content="Practical digital tools for audio, images, PDFs, text and AI in one simple workspace.">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"Nexauren","url":"https://nexaurenstory.com/","logo":"https://nexaurenstory.com/favicon.png"},{"@type":"WebSite","name":"Nexauren","url":"https://nexaurenstory.com/","description":"Practical digital tools for audio, images, PDFs, text and AI.","inLanguage":"en"}]}</script>
-<style>
-:root{--bg:#f7f9fc;--card:#fff;--text:#172033;--muted:#667085;--line:#e5e9f0;--green:#16a34a;--red:#ef4444;--yellow:#d49b08;--blue:#2563eb;--violet:#7c3aed}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}a{text-decoration:none;color:inherit}.wrap{width:min(1120px,calc(100% - 32px));margin:auto}
-header{position:sticky;top:0;z-index:50;background:rgba(247,249,252,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.nav{min-height:70px;display:flex;align-items:center;gap:18px}.brand{display:flex;align-items:center;gap:9px;font-size:21px;font-weight:900;letter-spacing:-.04em}.brand img{width:38px;height:38px;border-radius:10px;object-fit:cover}.links{display:flex;gap:4px;margin-left:auto}.links a{padding:9px 10px;color:var(--muted);font-size:14px;font-weight:750;border-radius:9px}.links a:hover{background:#fff;color:var(--text)}.actions{display:flex;gap:8px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 15px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:14px;font-weight:800}.btn.primary{background:var(--text);border-color:var(--text);color:#fff}.menu{display:none;margin-left:auto;width:42px;height:42px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:23px;cursor:pointer}.mobile-menu{display:none;padding:8px 0 14px;border-top:1px solid var(--line)}.mobile-menu.open{display:grid;gap:3px}.mobile-menu a{padding:11px 10px;border-radius:9px;font-weight:750;color:var(--muted)}.mobile-menu a:hover{background:#fff;color:var(--text)}
-.hero{padding:52px 0 34px}.hero-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:38px;align-items:center}.eyebrow{display:inline-flex;padding:6px 10px;border:1px solid #dbe5f5;border-radius:999px;background:#f0f5ff;color:#3157c9;font-size:11px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}h1{margin:13px 0 12px;max-width:620px;font-size:clamp(38px,5vw,56px);line-height:1.03;letter-spacing:-.06em}.gradient{background:linear-gradient(90deg,var(--green),var(--blue),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}.hero-copy{max-width:590px;margin:0;color:var(--muted);font-size:16px}.hero-actions{display:flex;gap:9px;margin-top:20px;flex-wrap:wrap}.finder{padding:18px;border:1px solid var(--line);border-top:3px solid var(--violet);border-radius:20px;background:#fff;box-shadow:0 12px 34px rgba(23,32,51,.07)}.finder-label{font-size:11px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.finder h2{margin:5px 0 13px;font-size:21px;letter-spacing:-.035em}.tool-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tool{padding:11px;border:1px solid var(--line);border-radius:11px;background:#fbfcfe;font-size:13px;font-weight:800}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}.g{background:var(--green)}.r{background:var(--red)}.y{background:var(--yellow)}.b{background:var(--blue)}.v{background:var(--violet)}
-section{padding:36px 0}.section-head{margin-bottom:18px;max-width:650px}.kicker{margin:0 0 5px;font-size:11px;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.section-head h2{margin:0;font-size:clamp(27px,4vw,36px);line-height:1.08;letter-spacing:-.05em}.section-head p{margin:6px 0 0;color:var(--muted);font-size:14px}.categories{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.category{position:relative;min-height:138px;padding:16px;border:1px solid var(--line);border-top:3px solid var(--blue);border-radius:16px;background:#fff;transition:.18s ease}.category:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(23,32,51,.07)}.category:nth-child(1){border-top-color:var(--green)}.category:nth-child(2){border-top-color:var(--red)}.category:nth-child(3){border-top-color:var(--yellow)}.category:nth-child(4){border-top-color:var(--blue)}.category:nth-child(5){border-top-color:var(--violet)}.icon{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;margin-bottom:16px;font-size:12px;font-weight:900}.category:nth-child(1) .icon{background:#ecfdf3;color:#15803d}.category:nth-child(2) .icon{background:#fef2f2;color:#dc2626}.category:nth-child(3) .icon{background:#fefce8;color:#a16207}.category:nth-child(4) .icon{background:#eff6ff;color:#1d4ed8}.category:nth-child(5) .icon{background:#f5f3ff;color:#6d28d9}.category h3{margin:0 0 3px;font-size:16px}.category p{margin:0;color:var(--muted);font-size:12px}.arrow{position:absolute;right:14px;bottom:12px;color:var(--muted);font-weight:900}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.step{padding:18px;border:1px solid var(--line);border-radius:16px;background:#fff}.num{font-size:11px;color:var(--blue);font-weight:900;letter-spacing:.1em}.step h3{margin:6px 0 3px;font-size:17px}.step p{margin:0;color:var(--muted);font-size:13px}.cta{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px;border:1px solid var(--line);border-radius:19px;background:#fff}.cta h2{margin:0 0 3px;font-size:23px;letter-spacing:-.04em}.cta p{margin:0;color:var(--muted);font-size:13px}
-footer{margin-top:14px;background:#fff;border-top:1px solid var(--line)}.footer{padding:34px 0 17px}.footer-grid{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:25px;padding-bottom:23px}.footer-brand{font-size:19px;font-weight:900}.footer-copy{max-width:290px;margin:6px 0 0;color:var(--muted);font-size:12px}.footer-title{margin-bottom:8px;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.footer-links{display:grid;gap:5px;color:var(--muted);font-size:13px}.footer-links a:hover{color:var(--text)}.footer-bottom{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
-@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:24px}.categories{grid-template-columns:repeat(2,1fr)}.links{display:none}.actions{margin-left:auto}.actions .btn:first-child{display:none}.menu{display:block}.footer-grid{grid-template-columns:1.4fr 1fr 1fr}}@media(max-width:600px){.wrap{width:calc(100% - 24px)}.nav{min-height:64px}.brand{font-size:19px}.brand img{width:35px;height:35px}.hero{padding:36px 0 25px}h1{font-size:37px}.hero-copy{font-size:15px}.hero-actions{display:grid;grid-template-columns:1fr}.hero-actions .btn{width:100%}.finder{padding:16px}.tool-list{grid-template-columns:1fr 1fr}section{padding:30px 0}.categories,.steps{grid-template-columns:1fr}.category{min-height:118px}.icon{margin-bottom:12px}.cta{display:block;padding:21px}.cta .btn{width:100%;margin-top:15px}.footer-grid{grid-template-columns:1fr 1fr}.footer-grid>div:first-child{grid-column:1/-1}}@media(max-width:380px){.tool-list,.footer-grid{grid-template-columns:1fr}}
-</style>
-<!-- NEXAUREN-HOME-DESIGN-START -->
+    footer{margin-top:18px;background:#fff;border-top:1px solid var(--line)}
+    .footer{padding:32px 0 17px}
+    .footer-grid{
+      display:grid;
+      grid-template-columns:1.6fr repeat(3,1fr);
+      gap:24px;
+      padding-bottom:22px;
+    }
+    .footer-brand{font-size:18px;font-weight:900}
+    .footer-copy{max-width:300px;margin:6px 0 0;color:var(--muted);font-size:12px}
+    .footer-title{
+      margin-bottom:8px;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    .footer-links{display:grid;gap:5px;color:var(--muted);font-size:12px}
+    .footer-links a:hover{color:var(--text)}
+    .footer-bottom{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      padding-top:14px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:11px;
+    }
 
-<style>
-/* NEXAUREN HOME — COLOR SYSTEM */
-:root{
-  --nx-green:#16a34a;
-  --nx-red:#ef4444;
-  --nx-yellow:#eab308;
-  --nx-blue:#2563eb;
-  --nx-violet:#7c3aed;
-}
-
-.hero:after{
-  content:"";
-  position:absolute;
-  left:-180px;
-  bottom:-220px;
-  width:520px;
-  height:520px;
-  background:radial-gradient(circle,rgba(124,58,237,.10),transparent 68%);
-  pointer-events:none;
-}
-
-.eyebrow{
-  background:linear-gradient(90deg,#effdf4,#eff6ff,#f5f3ff);
-  border-color:#dbe5f5;
-}
-
-.hero h1 .gradient{
-  background:linear-gradient(
-    90deg,
-    var(--nx-green) 0%,
-    var(--nx-blue) 35%,
-    var(--nx-violet) 68%,
-    var(--nx-red) 100%
-  );
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-}
-
-.finder{
-  border-top:3px solid var(--nx-blue);
-}
-
-.tool-grid .tool{
-  position:relative;
-  overflow:hidden;
-}
-
-.tool-grid .tool:before{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  top:0;
-  height:4px;
-  background:var(--nx-blue);
-}
-
-.tool-grid .tool:nth-child(5n+1):before{background:var(--nx-green)}
-.tool-grid .tool:nth-child(5n+2):before{background:var(--nx-red)}
-.tool-grid .tool:nth-child(5n+3):before{background:var(--nx-yellow)}
-.tool-grid .tool:nth-child(5n+4):before{background:var(--nx-blue)}
-.tool-grid .tool:nth-child(5n):before{background:var(--nx-violet)}
-
-.tool-grid .tool:nth-child(5n+1) .tool-icon{
-  background:#ecfdf3;color:#15803d;border-color:#bbf7d0;
-}
-.tool-grid .tool:nth-child(5n+2) .tool-icon{
-  background:#fef2f2;color:#dc2626;border-color:#fecaca;
-}
-.tool-grid .tool:nth-child(5n+3) .tool-icon{
-  background:#fefce8;color:#a16207;border-color:#fde68a;
-}
-.tool-grid .tool:nth-child(5n+4) .tool-icon{
-  background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;
-}
-.tool-grid .tool:nth-child(5n) .tool-icon{
-  background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe;
-}
-
-.tool-grid .tool:nth-child(5n+1) .tool-link{color:var(--nx-green)}
-.tool-grid .tool:nth-child(5n+2) .tool-link{color:var(--nx-red)}
-.tool-grid .tool:nth-child(5n+3) .tool-link{color:#a16207}
-.tool-grid .tool:nth-child(5n+4) .tool-link{color:var(--nx-blue)}
-.tool-grid .tool:nth-child(5n) .tool-link{color:var(--nx-violet)}
-
-.categories .category{
-  position:relative;
-  overflow:hidden;
-  border-top:3px solid #dbe2ee;
-}
-
-.categories .category:nth-child(1){border-top-color:var(--nx-green)}
-.categories .category:nth-child(2){border-top-color:var(--nx-red)}
-.categories .category:nth-child(3){border-top-color:var(--nx-yellow)}
-.categories .category:nth-child(4){border-top-color:var(--nx-blue)}
-.categories .category:nth-child(5){border-top-color:var(--nx-violet)}
-
-.categories .category:nth-child(1) .category-icon{
-  background:#ecfdf3;color:#15803d;
-}
-.categories .category:nth-child(2) .category-icon{
-  background:#fef2f2;color:#dc2626;
-}
-.categories .category:nth-child(3) .category-icon{
-  background:#fefce8;color:#a16207;
-}
-.categories .category:nth-child(4) .category-icon{
-  background:#eff6ff;color:#1d4ed8;
-}
-.categories .category:nth-child(5) .category-icon{
-  background:#f5f3ff;color:#6d28d9;
-}
-
-.categories .category:nth-child(1) strong{color:#15803d}
-.categories .category:nth-child(2) strong{color:#dc2626}
-.categories .category:nth-child(3) strong{color:#a16207}
-.categories .category:nth-child(4) strong{color:#1d4ed8}
-.categories .category:nth-child(5) strong{color:#6d28d9}
-
-.value-grid .value{
-  border-left:4px solid #dbe2ee;
-}
-.value-grid .value:nth-child(1){border-left-color:var(--nx-green)}
-.value-grid .value:nth-child(2){border-left-color:var(--nx-blue)}
-.value-grid .value:nth-child(3){border-left-color:var(--nx-violet)}
-
-.cta{
-  background:
-    radial-gradient(circle at 90% 20%,rgba(124,58,237,.34),transparent 30%),
-    radial-gradient(circle at 10% 100%,rgba(22,163,74,.22),transparent 30%),
-    linear-gradient(120deg,#172554,#263f91 52%,#5b21b6);
-}
-
-@media(max-width:700px){
-  .tool-grid .tool{border-radius:17px}
-  .categories .category{border-top-width:3px}
-}
-</style>
-
-<!-- NEXAUREN-HOME-DESIGN-END -->
+    @media(max-width:900px){
+      .hero-grid{grid-template-columns:1fr;gap:25px}
+      .categories{grid-template-columns:repeat(2,1fr)}
+      .navlinks{display:none}
+      .nav-actions .btn:first-child{display:none}
+      .menu{display:block}
+      .footer-grid{grid-template-columns:1.4fr 1fr 1fr}
+    }
+    @media(max-width:600px){
+      .wrap{width:calc(100% - 24px)}
+      .hero{padding:36px 0 24px}
+      h1{font-size:38px}
+      .hero-copy{font-size:15px}
+      .hero-actions{display:grid;grid-template-columns:1fr}
+      .hero-actions .btn{width:100%}
+      .tool-list{grid-template-columns:1fr 1fr}
+      section{padding:29px 0}
+      .categories{grid-template-columns:1fr 1fr}
+      .category{min-height:125px;padding:14px}
+      .icon{margin-bottom:10px}
+      .category h3{font-size:14px}
+      .category p{font-size:11px}
+      .steps{grid-template-columns:1fr}
+      .cta{display:block;padding:21px}
+      .cta .btn{width:100%;margin-top:15px}
+      .footer-grid{grid-template-columns:1fr 1fr}
+      .footer-grid>div:first-child{grid-column:1/-1}
+    }
+    @media(max-width:380px){
+      .tool-list{grid-template-columns:1fr}
+      .footer-grid{grid-template-columns:1fr}
+    }
+    @media(prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}
+      .btn,.category{transition:none}
+    }
+  </style>
 </head>
 <body>
-<header><div class="wrap nav"><a class="brand" href="/"><img src="/favicon.png?v=2" alt="Nexauren">Nexauren</a><nav class="links" aria-label="Main navigation"><a href="/tools/">Tools</a><a href="/categories/">Categories</a><a href="/plans/">Plans</a><a href="/about/">About</a><a href="/faq/">FAQ</a></nav><div class="actions"><a class="btn" href="/login/">Sign in</a><a class="btn primary" href="/tools/">Explore tools</a></div><button class="menu" id="menu" type="button" aria-label="Open menu" aria-expanded="false">☰</button></div><nav class="wrap mobile-menu" id="mobileMenu" aria-label="Mobile navigation"><a href="/">Home</a><a href="/tools/">Tools</a><a href="/categories/">Categories</a><a href="/plans/">Plans</a><a href="/about/">About</a><a href="/faq/">FAQ</a><a href="/login/">Sign in</a></nav></header>
-<main>
-<section class="hero"><div class="wrap hero-grid"><div><span class="eyebrow">Nexauren toolkit</span><h1>Useful tools.<br><span class="gradient">One simple place.</span></h1><p class="hero-copy">Work with audio, images, PDFs, text and AI from one growing collection of practical digital tools.</p><div class="hero-actions"><a class="btn primary" href="/tools/">Explore all tools →</a><a class="btn" href="/plans/">See plans</a></div></div><div class="finder"><div class="finder-label">Explore by category</div><h2>Find a tool for your task.</h2><div class="tool-list"><a class="tool" href="/tools/?category=audio"><span class="dot g"></span>Audio</a><a class="tool" href="/tools/?category=image"><span class="dot r"></span>Image</a><a class="tool" href="/tools/?category=pdf"><span class="dot y"></span>PDF</a><a class="tool" href="/tools/?category=text"><span class="dot b"></span>Text</a><a class="tool" href="/tools/?category=ai"><span class="dot v"></span>AI</a></div></div></div></section>
-<section><div class="wrap"><div class="section-head"><p class="kicker">Explore by category</p><h2>Start with what you need.</h2><p>Choose a category and open the tools available for it.</p></div><div class="categories"><a class="category" href="/tools/?category=audio"><div class="icon">♫</div><h3>Audio</h3><p>Work with audio and sound.</p><span class="arrow">→</span></a><a class="category" href="/tools/?category=image"><div class="icon">◆</div><h3>Image</h3><p>Create and improve images.</p><span class="arrow">→</span></a><a class="category" href="/tools/?category=pdf"><div class="icon">PDF</div><h3>PDF</h3><p>Work with PDF documents.</p><span class="arrow">→</span></a><a class="category" href="/tools/?category=text"><div class="icon">Aa</div><h3>Text</h3><p>Create and organize text.</p><span class="arrow">→</span></a><a class="category" href="/tools/?category=ai"><div class="icon">✦</div><h3>AI</h3><p>Use practical AI-powered tools.</p><span class="arrow">→</span></a></div></div></section>
-<section><div class="wrap"><div class="section-head"><p class="kicker">Simple workflow</p><h2>From task to result.</h2></div><div class="steps"><div class="step"><div class="num">01</div><h3>Choose a tool</h3><p>Open the category or tool that matches your task.</p></div><div class="step"><div class="num">02</div><h3>Do the work</h3><p>Use a focused interface built around the task.</p></div><div class="step"><div class="num">03</div><h3>Get your result</h3><p>Complete the process and use the result you need.</p></div></div></div></section>
-<section><div class="wrap cta"><div><h2>Ready to explore?</h2><p>Browse the Nexauren tools directory and choose what you need.</p></div><a class="btn primary" href="/tools/">Open tools →</a></div></section>
-</main>
-<footer><div class="wrap footer"><div class="footer-grid"><div><div class="footer-brand">Nexauren</div><p class="footer-copy">A practical digital toolkit for audio, images, PDFs, text and AI.</p></div><div><div class="footer-title">Explore</div><div class="footer-links"><a href="/tools/">All tools</a><a href="/categories/">Categories</a><a href="/plans/">Plans</a></div></div><div><div class="footer-title">Company</div><div class="footer-links"><a href="/about/">About</a><a href="/faq/">FAQ</a><a href="/login/">Sign in</a></div></div><div><div class="footer-title">Information</div><div class="footer-links"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/cookies/">Cookies</a></div></div></div><div class="footer-bottom"><span>© 2026 Nexauren</span><span>Simple tools. Clear experiences.</span></div></div></footer>
-<script>const menu=document.getElementById('menu'),mobile=document.getElementById('mobileMenu');menu.addEventListener('click',()=>{const open=mobile.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));menu.setAttribute('aria-label',open?'Close menu':'Open menu');menu.textContent=open?'×':'☰'});</script>
-<script src="/js/global-loader.js"></script>
-</body></html>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="/" aria-label="Nexauren home">
+        <img src="/favicon.png?v=2" alt="Nexauren">
+        <span>Nexauren</span>
+      </a>
+      <nav class="navlinks" aria-label="Main navigation">
+        <a href="/tools/">Tools</a>
+        <a href="/plans/">Plans</a>
+        <a href="/about/">About</a>
+        <a href="/faq/">FAQ</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="btn" href="/pages/login/">Sign in</a>
+        <a class="btn primary" href="/tools/">Explore tools</a>
+      </div>
+      <button class="menu" id="menu" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+    </div>
+    <div class="wrap mobile-menu" id="mobileMenu">
+      <a href="/tools/">Tools</a>
+      <a href="/plans/">Plans</a>
+      <a href="/about/">About</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/pages/login/">Sign in</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <span class="eyebrow">Nexauren toolkit</span>
+          <h1>Digital tools <span class="gradient">in one place.</span></h1>
+          <p class="hero-copy">
+            Practical tools for audio, images, PDFs, text and AI — organized in one clear workspace so you can find what you need and get started quickly.
+          </p>
+          <div class="hero-actions">
+            <a class="btn primary" href="/tools/">Explore all tools →</a>
+            <a class="btn" href="/plans/">View plans</a>
+          </div>
+        </div>
+
+        <div class="showcase" aria-label="Nexauren tool categories">
+          <div class="showcase-top">
+            <span class="showcase-label">Tool categories</span>
+            <span class="status">Ready to explore</span>
+          </div>
+          <h2>Choose what you need.</h2>
+          <div class="tool-list">
+            <div class="tool audio"><span></span>Audio</div>
+            <div class="tool image"><span></span>Image</div>
+            <div class="tool pdf"><span></span>PDF</div>
+            <div class="tool text"><span></span>Text</div>
+            <div class="tool ai"><span></span>AI</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">Explore</p>
+          <h2>Find the right tool for the job.</h2>
+          <p>Browse Nexauren by category and open the tool that matches what you want to create, edit or process.</p>
+        </div>
+        <div class="categories">
+          <a class="category" href="/tools/">
+            <div class="icon">●</div>
+            <h3>Audio</h3>
+            <p>Convert and prepare audio.</p>
+            <span class="arrow">→</span>
+          </a>
+          <a class="category" href="/tools/">
+            <div class="icon">◆</div>
+            <h3>Image</h3>
+            <p>Edit, resize and improve images.</p>
+            <span class="arrow">→</span>
+          </a>
+          <a class="category" href="/tools/">
+            <div class="icon">▣</div>
+            <h3>PDF</h3>
+            <p>Work with PDF documents.</p>
+            <span class="arrow">→</span>
+          </a>
+          <a class="category" href="/tools/">
+            <div class="icon">Aa</div>
+            <h3>Text</h3>
+            <p>Format and organize text.</p>
+            <span class="arrow">→</span>
+          </a>
+          <a class="category" href="/tools/">
+            <div class="icon">✦</div>
+            <h3>AI</h3>
+            <p>Use practical AI-powered tools.</p>
+            <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">Simple workflow</p>
+          <h2>From task to result in a few steps.</h2>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <div class="number">01</div>
+            <h3>Choose a tool</h3>
+            <p>Open the Tools directory and select the tool that fits your task.</p>
+          </article>
+          <article class="step">
+            <div class="number">02</div>
+            <h3>Work with your input</h3>
+            <p>Upload a supported file, enter your content or configure the available options.</p>
+          </article>
+          <article class="step">
+            <div class="number">03</div>
+            <h3>Get your result</h3>
+            <p>Use the result provided by the tool and continue with your work.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="cta">
+          <div>
+            <h2>Ready to find your tool?</h2>
+            <p>Explore the complete Nexauren toolkit and choose what you need.</p>
+          </div>
+          <a class="btn primary" href="/tools/">Browse tools →</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Nexauren</div>
+          <p class="footer-copy">A practical digital toolkit for audio, images, PDFs, text and AI.</p>
+        </div>
+        <div>
+          <div class="footer-title">Product</div>
+          <div class="footer-links">
+            <a href="/tools/">Tools</a>
+            <a href="/plans/">Plans</a>
+            <a href="/faq/">FAQ</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-title">Nexauren</div>
+          <div class="footer-links">
+            <a href="/about/">About</a>
+            <a href="/pages/login/">Sign in</a>
+            <a href="/account/">Account</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-title">Legal</div>
+          <div class="footer-links">
+            <a href="/privacy/">Privacy</a>
+            <a href="/terms/">Terms</a>
+            <a href="/cookies/">Cookies</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Nexauren. All rights reserved.</span>
+        <span>Digital tools, clearly organized.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const menu = document.getElementById('menu');
+    const mobileMenu = document.getElementById('mobileMenu');
+    menu.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('open');
+      menu.setAttribute('aria-expanded', String(open));
+      menu.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    });
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        menu.setAttribute('aria-expanded', 'false');
+      });
+    });
+  </script>
+</body>
+</html>
