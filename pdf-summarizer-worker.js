@@ -43,16 +43,23 @@ function chunkText(text) {
 function extractModelText(result) {
   if (!result) return "";
   if (typeof result === "string") return result;
-  if (Array.isArray(result)) return result.map(extractModelText).filter(Boolean).join("\n");
+  if (Array.isArray(result)) {
+    return result.map(extractModelText).filter(Boolean).join("\n");
+  }
   if (typeof result === "object") {
     if (typeof result.response === "string") return result.response;
     if (typeof result.content === "string") return result.content;
     if (typeof result.text === "string") return result.text;
     if (Array.isArray(result.choices)) {
       return result.choices.map(choice => {
-        if (typeof choice?.message?.content === "string") return choice.message.content;
+        if (typeof choice?.message?.content === "string") {
+          return choice.message.content;
+        }
         return typeof choice?.text === "string" ? choice.text : "";
       }).filter(Boolean).join("\n");
+    }
+    if (typeof result.error === "string") {
+      throw new Error(result.error);
     }
   }
   return "";
@@ -92,7 +99,8 @@ async function summarizeText(env, text, mode) {
   const partials = [];
 
   for (const chunk of chunks) {
-    const partial = await runTextModel(env,
+    const partial = await runTextModel(
+      env,
       `${instruction}\n\nConteúdo do PDF:\n---\n${chunk}\n---\nSe o conteúdo for apenas uma parte do documento, preserve os fatos essenciais para uma síntese posterior.`
     );
     if (partial) partials.push(partial);
@@ -101,7 +109,8 @@ async function summarizeText(env, text, mode) {
   if (!partials.length) return "";
   if (partials.length === 1) return partials[0];
 
-  return runTextModel(env,
+  return runTextModel(
+    env,
     `${instruction}\n\nConsolide os seguintes resultados parciais do mesmo PDF em uma única resposta coerente. Remova repetições e não adicione informações que não estejam nos resultados.\n\n${partials.map((p, i) => `PARTE ${i + 1}:\n${p}`).join("\n\n")}`
   );
 }
@@ -117,40 +126,61 @@ async function convertPdf(env, file) {
     blob: new Blob([bytes], { type: "application/pdf" })
   };
 
-  const result = await env.AI.toMarkdown(input, {
-    conversionOptions: {
-      output: { format: "text" },
-      pdf: { metadata: false }
+  let result;
+  let firstError = "";
+
+  try {
+    result = await env.AI.toMarkdown(input, {
+      conversionOptions: {
+        output: { format: "text" },
+        pdf: { metadata: false }
+      }
+    });
+  } catch (error) {
+    firstError = error?.message || String(error);
+  }
+
+  let conversion = Array.isArray(result) ? result[0] : result;
+
+  if (conversion?.format === "error") {
+    firstError = conversion.error || "Falha na conversão do PDF.";
+    conversion = null;
+  }
+
+  if (conversion?.data) {
+    return String(conversion.data);
+  }
+
+  if (conversion?.text) {
+    return String(conversion.text);
+  }
+
+  // Fallback: use the default Markdown output if plain-text conversion fails.
+  // This is useful for PDFs produced by office converters where the text
+  // conversion path can fail even though the document itself is readable.
+  try {
+    result = await env.AI.toMarkdown(input);
+    conversion = Array.isArray(result) ? result[0] : result;
+
+    if (conversion?.format === "error") {
+      throw new Error(conversion.error || "Falha na conversão do PDF.");
     }
-  });
 
-  const conversion = Array.isArray(result) ? result[0] : result;
-
-  if (!conversion) {
-    throw new Error("O serviço de conversão não retornou resultado.");
+    if (typeof conversion?.data === "string") {
+      return conversion.data;
+    }
+  } catch (error) {
+    const fallbackError = error?.message || String(error);
+    throw new Error(
+      firstError
+        ? `Falha na leitura do PDF: ${firstError}. Fallback também falhou: ${fallbackError}`
+        : `Falha na leitura do PDF: ${fallbackError}`
+    );
   }
 
-  if (typeof conversion === "string") {
-    return conversion;
-  }
-
-  if (conversion.format === "error") {
-    throw new Error(`Falha na conversão do PDF: ${conversion.error || "erro desconhecido"}`);
-  }
-
-  if (typeof conversion.data === "string") {
-    return conversion.data;
-  }
-
-  if (typeof conversion.text === "string") {
-    return conversion.text;
-  }
-
-  if (conversion.data && typeof conversion.data.text === "string") {
-    return conversion.data.text;
-  }
-
-  throw new Error("A conversão do PDF não retornou texto.");
+  throw new Error(
+    firstError || "A conversão do PDF não retornou texto."
+  );
 }
 
 export async function handlePdfSummarizer(req, env) {
@@ -167,45 +197,113 @@ export async function handlePdfSummarizer(req, env) {
     });
   }
 
-  if (req.method !== "POST") return json({ error: "Método não permitido." }, 405);
-  if (!env.AI) return json({ error: "Workers AI não está configurado neste ambiente." }, 503);
+  if (req.method !== "POST") {
+    return json({ error: "Método não permitido." }, 405);
+  }
+
+  if (!env.AI) {
+    return json({
+      error: "Workers AI não está configurado neste ambiente."
+    }, 503);
+  }
 
   try {
     const form = await req.formData();
     const file = form.get("file");
     const mode = String(form.get("mode") || "summary");
 
-    if (!file || typeof file.arrayBuffer !== "function") return json({ error: "Envie um arquivo PDF." }, 400);
+    if (!file || typeof file.arrayBuffer !== "function") {
+      return json({ error: "Envie um arquivo PDF." }, 400);
+    }
 
     const fileName = String(file.name || "document.pdf");
     const fileType = String(file.type || "").toLowerCase();
     const fileSize = Number(file.size || 0);
 
-    if (fileType !== "application/pdf" && !fileName.toLowerCase().endsWith(".pdf")) {
+    if (
+      fileType !== "application/pdf" &&
+      !fileName.toLowerCase().endsWith(".pdf")
+    ) {
       return json({ error: "O arquivo precisa ser um PDF válido." }, 400);
     }
-    if (fileSize > MAX_FILE_BYTES) return json({ error: "O PDF excede o limite de 10 MB nesta versão." }, 413);
-    if (!MODE_PROMPTS[mode]) return json({ error: "Modo de resposta inválido." }, 400);
 
-    const text = cleanText(await convertPdf(env, file));
+    if (fileSize > MAX_FILE_BYTES) {
+      return json({
+        error: "O PDF excede o limite de 10 MB nesta versão."
+      }, 413);
+    }
+
+    if (!MODE_PROMPTS[mode]) {
+      return json({ error: "Modo de resposta inválido." }, 400);
+    }
+
+    let text;
+
+    try {
+      text = cleanText(await convertPdf(env, file));
+    } catch (error) {
+      console.error("PDF conversion error", error?.message || error);
+      return json({
+        error: "Não foi possível ler este PDF.",
+        detail: error?.message || "Erro desconhecido na conversão do PDF."
+      }, 422);
+    }
 
     if (!text) {
-      return json({ error: "Não foi possível extrair texto deste PDF. Verifique se o PDF contém texto selecionável e tente novamente." }, 422);
-    }
-    if (text.length > MAX_TEXT_CHARS) {
-      return json({ error: "Este PDF é grande demais para esta versão. Use um documento de até aproximadamente 140 mil caracteres." }, 413);
+      return json({
+        error: "Não foi possível extrair texto deste PDF.",
+        detail: "O conversor não encontrou conteúdo textual utilizável neste arquivo."
+      }, 422);
     }
 
-    const result = await summarizeText(env, text, mode);
-    if (!result) return json({ error: "A IA não retornou um resultado. Tente novamente." }, 502);
+    if (text.length > MAX_TEXT_CHARS) {
+      return json({
+        error: "Este PDF é grande demais para esta versão.",
+        detail: "Use um documento de até aproximadamente 140 mil caracteres."
+      }, 413);
+    }
+
+    let result;
+
+    try {
+      result = await summarizeText(env, text, mode);
+    } catch (error) {
+      console.error("PDF AI error", error?.message || error);
+      return json({
+        error: "O Nexauren AI não conseguiu gerar o resultado.",
+        detail: error?.message || "Erro desconhecido no Workers AI."
+      }, 502);
+    }
+
+    if (!result) {
+      return json({
+        error: "A IA não retornou um resultado.",
+        detail: "O modelo não produziu texto para este documento."
+      }, 502);
+    }
 
     if (mode === "quiz") {
       const parsed = parseJson(result);
-      if (!parsed?.questions?.length) return json({ error: "O modo quiz não conseguiu gerar uma estrutura válida. Tente novamente." }, 502);
-      return json({ mode, fileName, result: parsed, characters: text.length });
+      if (!parsed?.questions?.length) {
+        return json({
+          error: "O modo quiz não conseguiu gerar uma estrutura válida.",
+          detail: "Tente novamente ou use outro modo de resposta."
+        }, 502);
+      }
+      return json({
+        mode,
+        fileName,
+        result: parsed,
+        characters: text.length
+      });
     }
 
-    return json({ mode, fileName, result, characters: text.length });
+    return json({
+      mode,
+      fileName,
+      result,
+      characters: text.length
+    });
   } catch (error) {
     console.error("PDF summarizer error", error?.message || error);
     return json({
