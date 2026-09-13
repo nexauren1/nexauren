@@ -1,0 +1,106 @@
+name: Generate SEO files
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  seo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate sitemap and robots
+        shell: python
+        run: |
+          from pathlib import Path
+          from xml.sax.saxutils import escape
+          import re
+
+          root = Path("frontend")
+          base = "https://nexaurenstory.com"
+          urls = set()
+
+          for path in root.rglob("index.html"):
+              rel = path.relative_to(root).as_posix()
+
+              if rel == "index.html":
+                  url = base + "/"
+              else:
+                  url = base + "/" + rel[:-10].rstrip("/") + "/"
+
+              if any(part.startswith(".") for part in path.relative_to(root).parts):
+                  continue
+
+              if "/admin/" in url or "/account/" in url or "/login/" in url:
+                  continue
+
+              urls.add(url)
+
+          # Include root-level public HTML pages that are not index.html.
+          for path in root.glob("*.html"):
+              name = path.stem.lower()
+              if name in {"index", "404"}:
+                  continue
+              if name.startswith("admin"):
+                  continue
+              urls.add(f"{base}/{name}/")
+
+          # Only publish canonical public pages and tools.
+          urls = sorted(urls)
+
+          lines = [
+              '<?xml version="1.0" encoding="UTF-8"?>',
+              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+          ]
+
+          for url in urls:
+              lines.append(f"  <url><loc>{escape(url)}</loc></url>")
+
+          lines.append("</urlset>")
+          Path("frontend/sitemap.xml").write_text(
+              "\n".join(lines) + "\n",
+              encoding="utf-8"
+          )
+
+          Path("frontend/robots.txt").write_text(
+              "User-agent: *\n"
+              "Allow: /\n"
+              "Disallow: /admin/\n"
+              "Disallow: /account/\n"
+              "Disallow: /login/\n"
+              "Disallow: /register/\n"
+              "Disallow: /api/\n"
+              "\n"
+              f"Sitemap: {base}/sitemap.xml\n",
+              encoding="utf-8"
+          )
+
+          print(f"Generated {len(urls)} public sitemap URLs")
+          print("Generated frontend/sitemap.xml")
+          print("Generated frontend/robots.txt")
+
+      - name: Commit SEO files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add frontend/sitemap.xml frontend/robots.txt
+
+          if git diff --cached --quiet; then
+            echo "No SEO changes needed."
+            exit 0
+          fi
+
+          git commit -m "Generate sitemap and robots.txt [skip ci]"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
