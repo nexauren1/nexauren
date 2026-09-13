@@ -13,29 +13,90 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Patch tools page
         run: |
           python - <<'PY'
           from pathlib import Path
+
           p = Path('frontend/tools/index.html')
           s = p.read_text()
-          s = s.replace('.tool-info p{font-size:12px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}', '.tool-info p{font-size:11.5px;line-height:1.45;display:block;overflow:visible}')
-          s = s.replace('dialog.tool-dialog{width:min(560px,calc(100vw - 32px));border:0;', 'dialog.tool-dialog{width:min(560px,calc(100vw - 32px));max-height:min(88dvh,760px);border:0;')
-          s = s.replace('.dialog-body{padding:24px 26px}', '.dialog-body{padding:24px 26px;overflow-y:auto;overscroll-behavior:contain}')
-          s = s.replace('.dialog-description{margin:0;color:#475467;font-size:15px;line-height:1.7}', '.dialog-description{margin:0;color:#475467;font-size:15px;line-height:1.7;overflow-wrap:anywhere}')
-          s = s.replace('.dialog-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}', '.dialog-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}')
-          s = s.replace('.meta-box{padding:13px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}', '.meta-box{padding:13px;border:1px solid var(--line);border-radius:13px;background:#f8fafc;min-width:0}')
-          s = s.replace('.meta-value{font-size:13px;font-weight:800}', '.meta-value{font-size:13px;font-weight:800;overflow-wrap:anywhere}')
-          s = s.replace('.dialog-title{margin:0;font-size:23px;letter-spacing:-.03em}', '.dialog-title{margin:0;font-size:23px;letter-spacing:-.03em;overflow-wrap:anywhere}')
-          s = s.replace(' .dialog-body{padding:20px 18px}', ' .dialog-body{padding:20px 18px;max-height:55dvh}')
+          s = s.replace(
+              '.tool-info p{font-size:12px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}',
+              '.tool-info p{font-size:11.5px;line-height:1.45;display:block;overflow:visible}'
+          )
+          s = s.replace(
+              'dialog.tool-dialog{width:min(560px,calc(100vw - 32px));border:0;',
+              'dialog.tool-dialog{width:min(560px,calc(100vw - 32px));max-height:min(88dvh,760px);border:0;'
+          )
+          s = s.replace(
+              '.dialog-body{padding:24px 26px}',
+              '.dialog-body{padding:24px 26px;overflow-y:auto;overscroll-behavior:contain}'
+          )
+          s = s.replace(
+              '.dialog-description{margin:0;color:#475467;font-size:15px;line-height:1.7}',
+              '.dialog-description{margin:0;color:#475467;font-size:15px;line-height:1.7;overflow-wrap:anywhere}'
+          )
+          s = s.replace(
+              '.meta-box{padding:13px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}',
+              '.meta-box{padding:13px;border:1px solid var(--line);border-radius:13px;background:#f8fafc;min-width:0}'
+          )
+          s = s.replace(
+              '.meta-value{font-size:13px;font-weight:800}',
+              '.meta-value{font-size:13px;font-weight:800;overflow-wrap:anywhere}'
+          )
+          s = s.replace(
+              '.dialog-title{margin:0;font-size:23px;letter-spacing:-.03em}',
+              '.dialog-title{margin:0;font-size:23px;letter-spacing:-.03em;overflow-wrap:anywhere}'
+          )
+          s = s.replace(
+              ' .dialog-body{padding:20px 18px}',
+              ' .dialog-body{padding:20px 18px;max-height:55dvh}'
+          )
           if '/js/global-loader.js' not in s:
-              s = s.replace('  <script type="module">', '  <script src="/js/global-loader.js"></script>\n  <script type="module">')
+              s = s.replace(
+                  '  <script type="module">',
+                  '  <script src="/js/global-loader.js"></script>\n  <script type="module">'
+              )
           p.write_text(s)
           PY
+
+      - name: Add app.js to every HTML page
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          tag = '<script src="/js/app.js" defer></script>'
+          changed = []
+
+          for path in Path('frontend').rglob('*.html'):
+              text = path.read_text(encoding='utf-8')
+              if tag in text:
+                  continue
+
+              marker = '</body>'
+              if marker in text:
+                  text = text.replace(
+                      marker,
+                      f'{tag}{marker}',
+                      1
+                  )
+              else:
+                  text += tag
+
+              path.write_text(text, encoding='utf-8')
+              changed.append(str(path))
+
+          print('Updated HTML files:')
+          for item in changed:
+              print(item)
+          print(f'Total: {len(changed)}')
+          PY
+
       - name: Commit patch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add frontend/tools/index.html
-          git diff --cached --quiet || git commit -m "Fix tools mobile information and global loader"
+          git add frontend/tools/index.html frontend
+          git diff --cached --quiet || git commit -m "Add Nexauren app script to all pages"
           git push
