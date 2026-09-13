@@ -14,8 +14,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Add favicon and social preview metadata to every HTML page
+      - name: Add branding and G4A to every HTML page
         run: |
           python3 <<'PY'
           from pathlib import Path
@@ -25,6 +27,8 @@ jobs:
           favicon = '<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png?v=2">\n<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2">'
           apple = '<link rel="apple-touch-icon" href="/favicon.png?v=2">'
           og = '<meta property="og:site_name" content="Nexauren">\n<meta property="og:type" content="website">\n<meta property="og:image" content="https://nexaurenstory.com/favicon.png?v=2">\n<meta property="og:image:type" content="image/png">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:site" content="Nexauren">\n<meta name="twitter:image" content="https://nexaurenstory.com/favicon.png?v=2">'
+          g4a = '<script src="/js/G4A.js" defer></script>'
+          old_analytics = '<script src="/js/nexauren-analytics.js" defer></script>'
 
           changed = []
 
@@ -32,11 +36,36 @@ jobs:
               text = path.read_text(encoding="utf-8")
               original = text
 
-              text = re.sub(r'\s*<link\s+rel=["\'](?:icon|shortcut icon|apple-touch-icon)["\'][^>]*>', '', text, flags=re.I)
-              text = re.sub(r'\s*<meta\s+(?:property|name)=["\'](?:og:site_name|og:type|og:image|og:image:type|twitter:card|twitter:site|twitter:image)["\'][^>]*>', '', text, flags=re.I)
+              text = re.sub(
+                  r'\s*<link\s+rel=["\'](?:icon|shortcut icon|apple-touch-icon)["\'][^>]*>',
+                  '', text, flags=re.I
+              )
+              text = re.sub(
+                  r'\s*<meta\s+(?:property|name)=["\'](?:og:site_name|og:type|og:image|og:image:type|twitter:card|twitter:site|twitter:image)["\'][^>]*>',
+                  '', text, flags=re.I
+              )
+
+              text = text.replace(old_analytics, "")
+              text = re.sub(
+                  r'\s*<script\s+src=["\']/js/G4A\.js["\'][^>]*></script>',
+                  '', text, flags=re.I
+              )
 
               block = "\n" + favicon + "\n" + apple + "\n" + og + "\n"
-              text = re.sub(r'(<head\b[^>]*>)', r'\1' + block, text, count=1, flags=re.I)
+              text = re.sub(
+                  r'(<head\b[^>]*>)',
+                  r'\1' + block,
+                  text,
+                  count=1,
+                  flags=re.I
+              )
+
+              if g4a not in text and "</head>" in text:
+                  text = text.replace(
+                      "</head>",
+                      f"  {g4a}\n</head>",
+                      1
+                  )
 
               if text != original:
                   path.write_text(text, encoding="utf-8")
@@ -47,14 +76,16 @@ jobs:
               print(item)
           PY
 
-      - name: Commit metadata changes
+      - name: Commit branding changes
         run: |
           git config user.name "nexauren-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A frontend
           if git diff --cached --quiet; then
-            echo "No metadata changes needed."
+            echo "No branding changes needed."
             exit 0
           fi
-          git commit -m "Apply Nexauren favicon and social preview to all pages"
-          git push
+          git commit -m "Install Nexauren G4A on all pages [skip ci]"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
