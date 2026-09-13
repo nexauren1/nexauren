@@ -43,22 +43,28 @@ function chunkText(text) {
 function extractModelText(result) {
   if (!result) return "";
   if (typeof result === "string") return result;
-  return result.response || result.content || result.text || "";
+  if (Array.isArray(result)) {
+    return result.map(extractModelText).filter(Boolean).join("\n");
+  }
+  return String(result.response || result.content || result.text || "");
 }
 
 function parseJson(text) {
   try {
     return JSON.parse(text);
   } catch {}
+
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
   if (fenced) {
     try { return JSON.parse(fenced[1]); } catch {}
   }
+
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
   if (start >= 0 && end > start) {
     try { return JSON.parse(text.slice(start, end + 1)); } catch {}
   }
+
   return null;
 }
 
@@ -71,8 +77,9 @@ async function runTextModel(env, prompt) {
       },
       { role: "user", content: prompt }
     ],
-    max_tokens: 2500
+    max_completion_tokens: 2500
   });
+
   return extractModelText(result).trim();
 }
 
@@ -82,16 +89,38 @@ async function summarizeText(env, text, mode) {
   const partials = [];
 
   for (const chunk of chunks) {
-    partials.push(await runTextModel(env,
+    const partial = await runTextModel(env,
       `${instruction}\n\nConteúdo do PDF:\n---\n${chunk}\n---\nSe o conteúdo for apenas uma parte do documento, preserve os fatos essenciais para uma síntese posterior.`
-    ));
+    );
+
+    if (partial) partials.push(partial);
   }
 
+  if (!partials.length) return "";
   if (partials.length === 1) return partials[0];
 
   return runTextModel(env,
     `${instruction}\n\nConsolide os seguintes resultados parciais do mesmo PDF em uma única resposta coerente. Remova repetições e não adicione informações que não estejam nos resultados.\n\n${partials.map((p, i) => `PARTE ${i + 1}:\n${p}`).join("\n\n")}`
   );
+}
+
+async function convertPdf(env, file) {
+  const input = {
+    name: file.name || "document.pdf",
+    blob: new Blob([await file.arrayBuffer()], {
+      type: "application/pdf"
+    })
+  };
+
+  const result = await env.AI.toMarkdown(input, {
+    conversionOptions: {
+      output: { format: "text" },
+      pdf: { metadata: false }
+    }
+  });
+
+  if (Array.isArray(result)) return result[0];
+  return result;
 }
 
 export async function handlePdfSummarizer(req, env) {
@@ -116,49 +145,73 @@ export async function handlePdfSummarizer(req, env) {
     const file = form.get("file");
     const mode = String(form.get("mode") || "summary");
 
-    if (!(file instanceof File)) return json({ error: "Envie um arquivo PDF." }, 400);
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+    if (!file || typeof file.arrayBuffer !== "function") {
+      return json({ error: "Envie um arquivo PDF." }, 400);
+    }
+
+    const fileName = String(file.name || "document.pdf");
+    const fileType = String(file.type || "").toLowerCase();
+
+    if (fileType !== "application/pdf" && !fileName.toLowerCase().endsWith(".pdf")) {
       return json({ error: "O arquivo precisa ser um PDF válido." }, 400);
     }
+
     if (file.size > MAX_FILE_BYTES) {
       return json({ error: "O PDF excede o limite de 10 MB nesta versão." }, 413);
     }
-    if (!MODE_PROMPTS[mode]) return json({ error: "Modo de resposta inválido." }, 400);
 
-    const converted = await env.AI.toMarkdown({
-      name: file.name,
-      blob: new Blob([await file.arrayBuffer()], { type: "application/pdf" })
-    }, {
-      conversionOptions: {
-        output: { format: "text" },
-        pdf: { metadata: false }
-      }
-    });
+    if (!MODE_PROMPTS[mode]) {
+      return json({ error: "Modo de resposta inválido." }, 400);
+    }
 
-    if (converted.format === "error") {
-      return json({ error: converted.error || "Não foi possível extrair o texto do PDF." }, 422);
+    const converted = await convertPdf(env, file);
+
+    if (!converted || converted.format === "error") {
+      console.error("PDF conversion failed", converted?.error || "unknown conversion error");
+      return json({ error: "Não foi possível extrair o texto deste PDF. Verifique se o arquivo está íntegro e tente novamente." }, 422);
     }
 
     const text = cleanText(converted.data);
-    if (!text) return json({ error: "Não foi encontrado texto utilizável neste PDF." }, 422);
+
+    if (!text) {
+      return json({ error: "Não foi encontrado texto utilizável neste PDF. PDFs digitalizados sem camada de texto ainda não são suportados." }, 422);
+    }
+
     if (text.length > MAX_TEXT_CHARS) {
       return json({ error: "Este PDF é grande demais para esta versão. Use um documento de até aproximadamente 140 mil caracteres." }, 413);
     }
 
     const result = await summarizeText(env, text, mode);
-    if (!result) return json({ error: "A IA não retornou um resultado." }, 502);
+
+    if (!result) {
+      return json({ error: "A IA não retornou um resultado. Tente novamente." }, 502);
+    }
 
     if (mode === "quiz") {
       const parsed = parseJson(result);
       if (!parsed?.questions?.length) {
+        console.error("Invalid quiz response", result.slice(0, 1000));
         return json({ error: "O modo quiz não conseguiu gerar uma estrutura válida. Tente novamente." }, 502);
       }
-      return json({ mode, fileName: file.name, result: parsed, characters: text.length });
+
+      return json({
+        mode,
+        fileName,
+        result: parsed,
+        characters: text.length
+      });
     }
 
-    return json({ mode, fileName: file.name, result, characters: text.length });
+    return json({
+      mode,
+      fileName,
+      result,
+      characters: text.length
+    });
   } catch (error) {
     console.error("PDF summarizer error", error);
-    return json({ error: "Não foi possível processar o PDF agora. Tente novamente." }, 500);
+    return json({
+      error: "Não foi possível processar o PDF agora. Verifique o arquivo e tente novamente."
+    }, 500);
   }
 }
