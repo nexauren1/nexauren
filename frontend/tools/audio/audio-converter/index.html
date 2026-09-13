@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Free online audio converter. Convert MP3, WAV, FLAC, OGG and M4A files quickly in your browser with Nexauren Audio Converter.">
-  <meta name="keywords" content="free audio converter, online audio converter, MP3 converter, WAV converter, FLAC converter, OGG converter, M4A converter">
+  <meta name="description" content="Free online audio converter. Convert browser-supported audio files to WAV locally with Nexauren Audio Converter.">
+  <meta name="keywords" content="free audio converter, online audio converter, WAV converter, audio to WAV, browser audio converter">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://nexaurenstory.com/tools/audio/audio-converter/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Free Audio Converter Online — Nexauren">
-  <meta property="og:description" content="Convert MP3, WAV, FLAC, OGG and M4A audio files online for free. Fast, simple and private.">
+  <meta property="og:description" content="Convert supported audio files to WAV directly in your browser. No FFmpeg and no upload required.">
   <meta property="og:url" content="https://nexaurenstory.com/tools/audio/audio-converter/">
-  <title>Free Audio Converter Online — MP3, WAV, FLAC, OGG &amp; M4A | Nexauren</title>
+  <title>Free Audio Converter Online — Audio to WAV | Nexauren</title>
   <link rel="stylesheet" href="/css/nexauren-theme.css">
   <link rel="stylesheet" href="/css/nexauren-pages.css">
   <link rel="stylesheet" href="style.css">
@@ -22,11 +22,11 @@
     "@type":"WebApplication",
     "name":"Nexauren Audio Converter",
     "url":"https://nexaurenstory.com/tools/audio/audio-converter/",
-    "description":"Free online audio converter for MP3, WAV, FLAC, OGG and M4A.",
+    "description":"Free browser-based audio converter for creating WAV files.",
     "applicationCategory":"MultimediaApplication",
     "operatingSystem":"Any",
     "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
-    "featureList":["MP3 conversion","WAV conversion","FLAC conversion","OGG conversion","M4A conversion","Browser-based processing"]
+    "featureList":["Audio to WAV conversion","Local browser processing","No upload required","No FFmpeg dependency"]
   }
   </script>
 </head>
@@ -35,17 +35,17 @@
     <section class="hero">
       <span class="badge">NEXAUREN AUDIO LAB</span>
       <h1>Free Audio Converter</h1>
-      <p>Convert audio files between popular formats quickly and easily, right in your browser.</p>
+      <p>Convert supported audio files to WAV directly in your browser, without uploading your audio.</p>
     </section>
 
     <section class="card">
       <div class="drop-zone" id="dropZone">
-        <input id="fileInput" type="file" accept="audio/*,.mp3,.wav,.flac,.ogg,.m4a" hidden>
+        <input id="fileInput" type="file" accept="audio/*" hidden>
         <div class="drop-icon">♫</div>
         <h2>Drop your audio here</h2>
         <p>or choose an audio file from your device</p>
         <button class="secondary" id="chooseBtn" type="button">Choose audio file</button>
-        <small>MP3, WAV, FLAC and OGG are common conversion formats. M4A support depends on the browser FFmpeg build.</small>
+        <small>Output: WAV · 16-bit PCM · browser-native processing</small>
       </div>
 
       <div class="file-panel hidden" id="filePanel">
@@ -65,33 +65,20 @@
         <div>
           <label for="format">Convert to</label>
           <select id="format">
-            <option value="mp3">MP3</option>
-            <option value="wav">WAV</option>
-            <option value="flac">FLAC</option>
-            <option value="ogg">OGG</option>
-            <option value="m4a">M4A</option>
-          </select>
-        </div>
-        <div>
-          <label for="quality">Quality</label>
-          <select id="quality">
-            <option value="128k">128 kbps — Smaller</option>
-            <option value="192k" selected>192 kbps — Balanced</option>
-            <option value="256k">256 kbps — High</option>
-            <option value="320k">320 kbps — Best MP3</option>
+            <option value="wav">WAV — 16-bit PCM</option>
           </select>
         </div>
       </div>
 
-      <button class="primary hidden" id="convertBtn" type="button">Convert Audio</button>
+      <button class="primary hidden" id="convertBtn" type="button">Convert to WAV</button>
       <p class="status" id="status"></p>
     </section>
 
     <section class="progress hidden" id="progressBox">
       <div class="spinner"></div>
       <div>
-        <strong id="progressTitle">Preparing converter…</strong>
-        <span id="progressText">Loading the audio engine</span>
+        <strong id="progressTitle">Preparing…</strong>
+        <span id="progressText">Reading your audio</span>
       </div>
       <div class="progress-track"><div id="progressBar"></div></div>
     </section>
@@ -99,28 +86,29 @@
     <section class="result hidden" id="resultBox">
       <div>
         <span class="result-label">CONVERSION COMPLETE</span>
-        <h2>Your audio is ready.</h2>
+        <h2>Your WAV is ready.</h2>
         <p id="resultMeta"></p>
       </div>
       <audio id="resultPlayer" class="player" controls></audio>
-      <a class="download" id="downloadBtn" href="#" download>Download converted audio →</a>
+      <a class="download" id="downloadBtn" href="#" download>Download WAV →</a>
     </section>
 
     <section class="info-grid">
-      <article><span>01</span><h2>Free audio conversion</h2><p>Convert common audio formats without credits or a paid plan.</p></article>
-      <article><span>02</span><h2>Simple workflow</h2><p>Choose a file, select the output format and download the result.</p></article>
-      <article><span>03</span><h2>Browser processing</h2><p>Your selected audio is processed in your browser instead of being uploaded to a Nexauren server.</p></article>
+      <article><span>01</span><h2>Completely free</h2><p>Audio Converter does not use Nexauren credits or paid plans.</p></article>
+      <article><span>02</span><h2>No external engine</h2><p>The converter uses native browser audio capabilities and our own WAV encoder.</p></article>
+      <article><span>03</span><h2>Private by design</h2><p>Your selected audio stays in your browser during conversion and is not sent to a Nexauren server.</p></article>
     </section>
 
     <section class="seo-copy">
-      <h2>Online audio converter</h2>
-      <p>Nexauren Audio Converter is a free online tool for converting audio files between MP3, WAV, FLAC, OGG and M4A. It is designed for music, voice recordings, podcasts and everyday audio files.</p>
-      <h2>How to convert an audio file</h2>
-      <ol><li>Choose an audio file or drag it into the converter.</li><li>Select the format you want to create.</li><li>Choose the quality setting and start conversion.</li><li>Preview and download your converted file.</li></ol>
+      <h2>Online audio to WAV converter</h2>
+      <p>Nexauren Audio Converter is a free browser-based tool for converting audio that your browser can decode into standard 16-bit PCM WAV. It is useful for music production, voice recordings, samples and everyday audio files.</p>
+      <h2>How to convert audio to WAV</h2>
+      <ol><li>Choose an audio file or drag it into the converter.</li><li>Preview the source audio.</li><li>Select WAV as the output format.</li><li>Start conversion and download the WAV file.</li></ol>
       <h2>Frequently asked questions</h2>
       <details><summary>Is Nexauren Audio Converter free?</summary><p>Yes. Audio Converter is completely free and does not use Nexauren credits.</p></details>
-      <details><summary>Which audio formats are supported?</summary><p>The converter supports common MP3, WAV, FLAC, OGG and M4A workflows through its browser FFmpeg engine.</p></details>
-      <details><summary>Are my audio files uploaded?</summary><p>The conversion runs in your browser. Nexauren does not need to receive the selected audio file for the conversion itself.</p></details>
+      <details><summary>Does it use FFmpeg?</summary><p>No. The rebuilt converter does not load FFmpeg or another conversion engine. It uses the browser's native audio decoder and a WAV encoder written for Nexauren.</p></details>
+      <details><summary>Which formats can I convert?</summary><p>Input support depends on the browser's native audio decoder. WAV is the output format because WAV can be created directly without an external codec engine.</p></details>
+      <details><summary>Are my audio files uploaded?</summary><p>No. The conversion is performed locally in your browser. Nexauren does not need to receive the selected audio file.</p></details>
     </section>
   </main>
   <script type="module" src="script.js"></script>
