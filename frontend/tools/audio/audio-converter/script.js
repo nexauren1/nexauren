@@ -1,10 +1,5 @@
-import { FFmpeg } from "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm/index.js";
-import {
-  fetchFile,
-  toBlobURL
-} from "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/esm/index.js";
-
 const $ = (id) => document.getElementById(id);
+
 const fileInput = $("fileInput");
 const dropZone = $("dropZone");
 const chooseBtn = $("chooseBtn");
@@ -15,7 +10,6 @@ const fileMeta = $("fileMeta");
 const sourcePlayer = $("sourcePlayer");
 const settings = $("settings");
 const format = $("format");
-const quality = $("quality");
 const convertBtn = $("convertBtn");
 const status = $("status");
 const progressBox = $("progressBox");
@@ -30,17 +24,6 @@ const downloadBtn = $("downloadBtn");
 let selectedFile = null;
 let sourceUrl = null;
 let resultUrl = null;
-let ffmpeg = null;
-let engineReady = false;
-let lastLog = "";
-
-const outputInfo = {
-  mp3: { ext: "mp3", mime: "audio/mpeg" },
-  wav: { ext: "wav", mime: "audio/wav" },
-  flac: { ext: "flac", mime: "audio/flac" },
-  ogg: { ext: "ogg", mime: "audio/ogg" },
-  m4a: { ext: "m4a", mime: "audio/mp4" }
-};
 
 function show(el) {
   el.classList.remove("hidden");
@@ -57,12 +40,14 @@ function setStatus(message, error = false) {
 
 function formatBytes(bytes) {
   if (!bytes) return "0 B";
+
   const units = ["B", "KB", "MB", "GB"];
-  const i = Math.min(
+  const index = Math.min(
     Math.floor(Math.log(bytes) / Math.log(1024)),
     units.length - 1
   );
-  return `${(bytes / 1024 ** i).toFixed(i ? 1 : 0)} ${units[i]}`;
+
+  return `${(bytes / 1024 ** index).toFixed(index ? 1 : 0)} ${units[index]}`;
 }
 
 function cleanName(name) {
@@ -78,64 +63,6 @@ function setProgress(percent, title, text) {
   progressText.textContent = text;
 }
 
-function inputExtension(file) {
-  const ext = file.name.split(".").pop()?.toLowerCase();
-  if (ext && /^[a-z0-9]{1,8}$/.test(ext)) return ext;
-  return "bin";
-}
-
-async function loadEngine() {
-  if (engineReady) return;
-
-  if (!ffmpeg) {
-    ffmpeg = new FFmpeg();
-
-    ffmpeg.on("progress", ({ progress }) => {
-      setProgress(
-        Math.round(progress * 100),
-        "Converting audio…",
-        "Processing your file locally in the browser"
-      );
-    });
-
-    ffmpeg.on("log", ({ message }) => {
-      lastLog = message || "";
-      console.debug("[Nexauren Audio Converter]", message);
-    });
-  }
-
-  setProgress(
-    8,
-    "Preparing converter…",
-    "Loading the audio engine"
-  );
-
-  const base =
-    "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm";
-
-  await ffmpeg.load({
-    coreURL: await toBlobURL(
-      `${base}/ffmpeg-core.js`,
-      "text/javascript"
-    ),
-    wasmURL: await toBlobURL(
-      `${base}/ffmpeg-core.wasm`,
-      "application/wasm"
-    )
-  });
-
-  engineReady = true;
-}
-
-async function removeTempFile(name) {
-  if (!ffmpeg) return;
-  try {
-    await ffmpeg.deleteFile(name);
-  } catch (_) {
-    // File may not exist.
-  }
-}
-
 function setFile(file) {
   if (!file) return;
 
@@ -147,9 +74,19 @@ function setFile(file) {
     return;
   }
 
+  if (file.type && !file.type.startsWith("audio/")) {
+    setStatus(
+      "Please choose an audio file.",
+      true
+    );
+    return;
+  }
+
   selectedFile = file;
 
-  if (sourceUrl) URL.revokeObjectURL(sourceUrl);
+  if (sourceUrl) {
+    URL.revokeObjectURL(sourceUrl);
+  }
 
   sourceUrl = URL.createObjectURL(file);
   fileName.textContent = file.name;
@@ -162,15 +99,20 @@ function setFile(file) {
   show(settings);
   show(convertBtn);
   hide(resultBox);
-  setStatus("Ready to convert.");
+  setStatus("Ready to convert to WAV.");
 }
 
 function clearFile() {
   selectedFile = null;
   fileInput.value = "";
 
-  if (sourceUrl) URL.revokeObjectURL(sourceUrl);
-  if (resultUrl) URL.revokeObjectURL(resultUrl);
+  if (sourceUrl) {
+    URL.revokeObjectURL(sourceUrl);
+  }
+
+  if (resultUrl) {
+    URL.revokeObjectURL(resultUrl);
+  }
 
   sourceUrl = null;
   resultUrl = null;
@@ -186,63 +128,84 @@ function clearFile() {
   setStatus("");
 }
 
-function conversionArgs(input, output, target) {
-  const args = [
-    "-hide_banner",
-    "-loglevel",
-    "error",
-    "-nostdin",
-    "-i",
-    input,
-    "-vn",
-    "-map",
-    "0:a:0"
-  ];
+function writeString(view, offset, value) {
+  for (let i = 0; i < value.length; i += 1) {
+    view.setUint8(offset + i, value.charCodeAt(i));
+  }
+}
 
-  if (target === "mp3") {
-    args.push(
-      "-c:a",
-      "libmp3lame",
-      "-b:a",
-      quality.value
+function encodeWav(audioBuffer) {
+  const channels = Math.min(audioBuffer.numberOfChannels, 2);
+  const sampleRate = audioBuffer.sampleRate;
+  const frameCount = audioBuffer.length;
+  const bytesPerSample = 2;
+  const blockAlign = channels * bytesPerSample;
+  const dataSize = frameCount * blockAlign;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+  const channelData = [];
+
+  for (let channel = 0; channel < channels; channel += 1) {
+    channelData.push(audioBuffer.getChannelData(channel));
+  }
+
+  writeString(view, 0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(view, 8, "WAVE");
+  writeString(view, 12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, channels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(
+    28,
+    sampleRate * blockAlign,
+    true
+  );
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, 16, true);
+  writeString(view, 36, "data");
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+
+  for (let frame = 0; frame < frameCount; frame += 1) {
+    for (let channel = 0; channel < channels; channel += 1) {
+      let sample = channelData[channel][frame];
+      sample = Math.max(-1, Math.min(1, sample));
+
+      const value = sample < 0
+        ? sample * 0x8000
+        : sample * 0x7fff;
+
+      view.setInt16(offset, value, true);
+      offset += 2;
+    }
+  }
+
+  return new Blob([buffer], {
+    type: "audio/wav"
+  });
+}
+
+async function decodeAudio(file) {
+  const AudioContextClass =
+    window.AudioContext || window.webkitAudioContext;
+
+  if (!AudioContextClass) {
+    throw new Error(
+      "Audio decoding is not supported by this browser."
     );
   }
 
-  if (target === "ogg") {
-    args.push(
-      "-c:a",
-      "libvorbis",
-      "-b:a",
-      quality.value
-    );
-  }
+  const context = new AudioContextClass();
 
-  if (target === "flac") {
-    args.push("-c:a", "flac");
+  try {
+    const data = await file.arrayBuffer();
+    return await context.decodeAudioData(data);
+  } finally {
+    await context.close().catch(() => {});
   }
-
-  if (target === "wav") {
-    args.push(
-      "-c:a",
-      "pcm_s16le",
-      "-ar",
-      "44100"
-    );
-  }
-
-  if (target === "m4a") {
-    args.push(
-      "-c:a",
-      "aac",
-      "-b:a",
-      quality.value,
-      "-movflags",
-      "+faststart"
-    );
-  }
-
-  args.push("-y", output);
-  return args;
 }
 
 async function convert() {
@@ -251,119 +214,85 @@ async function convert() {
     return;
   }
 
-  const info = outputInfo[format.value];
-  if (!info) {
-    setStatus("Choose a valid output format.", true);
+  if (format.value !== "wav") {
+    setStatus("WAV is the current native browser format.", true);
     return;
   }
 
   convertBtn.disabled = true;
   show(progressBox);
   hide(resultBox);
-  lastLog = "";
-
-  const input = `input.${inputExtension(selectedFile)}`;
-  const output = `output.${info.ext}`;
 
   try {
-    await loadEngine();
-
-    await removeTempFile(input);
-    await removeTempFile(output);
-
     setProgress(
-      15,
+      12,
       "Reading audio…",
       "Preparing your selected file"
     );
 
-    await ffmpeg.writeFile(
-      input,
-      await fetchFile(selectedFile)
-    );
-
-    const args = conversionArgs(
-      input,
-      output,
-      format.value
-    );
+    const audioBuffer = await decodeAudio(selectedFile);
 
     setProgress(
-      20,
-      "Converting audio…",
-      "Processing locally in your browser"
+      55,
+      "Creating WAV…",
+      "Encoding uncompressed PCM audio locally"
     );
 
-    const exitCode = await ffmpeg.exec(args);
+    const blob = encodeWav(audioBuffer);
 
-    if (exitCode !== 0) {
-      throw new Error(
-        lastLog ||
-        `FFmpeg conversion failed with code ${exitCode}.`
-      );
+    if (!blob.size) {
+      throw new Error("The WAV output is empty.");
     }
 
     setProgress(
-      96,
+      92,
       "Finishing…",
       "Preparing your download"
     );
 
-    const data = await ffmpeg.readFile(output);
-
-    if (!data || !data.length) {
-      throw new Error("FFmpeg returned an empty output file.");
+    if (resultUrl) {
+      URL.revokeObjectURL(resultUrl);
     }
-
-    const blob = new Blob([data], {
-      type: info.mime
-    });
-
-    if (resultUrl) URL.revokeObjectURL(resultUrl);
 
     resultUrl = URL.createObjectURL(blob);
     resultPlayer.src = resultUrl;
     downloadBtn.href = resultUrl;
     downloadBtn.download =
-      `${cleanName(selectedFile.name)}.${info.ext}`;
+      `${cleanName(selectedFile.name)}.wav`;
 
     resultMeta.textContent =
-      `${info.ext.toUpperCase()} · ` +
-      `${formatBytes(blob.size)} · processed locally`;
+      `WAV · ${formatBytes(blob.size)} · ` +
+      `${audioBuffer.numberOfChannels} channel(s) · ` +
+      `${audioBuffer.sampleRate} Hz · processed locally`;
 
     show(resultBox);
+
     setProgress(
       100,
       "Conversion complete",
-      "Your audio is ready to download"
+      "Your WAV file is ready to download"
     );
+
     setStatus("Conversion complete.");
   } catch (error) {
-    console.error("Audio conversion error:", error);
+    console.error("Native audio conversion error:", error);
 
     const message = String(
       error?.message || error || "Unknown error"
     );
 
-    if (/Unknown encoder/i.test(message)) {
+    if (/decode|data|format|supported/i.test(message)) {
       setStatus(
-        "This format is not available in the current converter engine.",
-        true
-      );
-    } else if (/Invalid data|No such file|could not find/i.test(message)) {
-      setStatus(
-        "The audio file could not be decoded. Try another audio file.",
+        "This audio format is not supported by your browser. Try MP3 or WAV.",
         true
       );
     } else {
       setStatus(
-        "Conversion failed. Please try another file or format.",
+        "Conversion failed. Please try another audio file.",
         true
       );
     }
   } finally {
-    await removeTempFile(input);
-    await removeTempFile(output);
     convertBtn.disabled = false;
     setTimeout(() => hide(progressBox), 1200);
   }
