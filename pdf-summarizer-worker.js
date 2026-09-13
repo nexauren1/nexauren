@@ -108,6 +108,10 @@ async function summarizeText(env, text, mode) {
 
 async function convertPdf(env, file) {
   const bytes = await file.arrayBuffer();
+  if (!bytes.byteLength) {
+    throw new Error("O PDF enviado está vazio.");
+  }
+
   const input = {
     name: file.name || "document.pdf",
     blob: new Blob([bytes], { type: "application/pdf" })
@@ -120,15 +124,33 @@ async function convertPdf(env, file) {
     }
   });
 
-  if (!result) return "";
-  if (typeof result === "string") return result;
-  if (Array.isArray(result)) {
-    return result.map(item => typeof item === "string" ? item : item?.data || item?.text || "").join("\n");
+  const conversion = Array.isArray(result) ? result[0] : result;
+
+  if (!conversion) {
+    throw new Error("O serviço de conversão não retornou resultado.");
   }
-  if (typeof result.data === "string") return result.data;
-  if (typeof result.text === "string") return result.text;
-  if (result.data && typeof result.data.text === "string") return result.data.text;
-  return "";
+
+  if (typeof conversion === "string") {
+    return conversion;
+  }
+
+  if (conversion.format === "error") {
+    throw new Error(`Falha na conversão do PDF: ${conversion.error || "erro desconhecido"}`);
+  }
+
+  if (typeof conversion.data === "string") {
+    return conversion.data;
+  }
+
+  if (typeof conversion.text === "string") {
+    return conversion.text;
+  }
+
+  if (conversion.data && typeof conversion.data.text === "string") {
+    return conversion.data.text;
+  }
+
+  throw new Error("A conversão do PDF não retornou texto.");
 }
 
 export async function handlePdfSummarizer(req, env) {
@@ -186,6 +208,9 @@ export async function handlePdfSummarizer(req, env) {
     return json({ mode, fileName, result, characters: text.length });
   } catch (error) {
     console.error("PDF summarizer error", error?.message || error);
-    return json({ error: "Não foi possível processar o PDF agora. Verifique o arquivo e tente novamente." }, 500);
+    return json({
+      error: "Não foi possível processar o PDF agora.",
+      detail: error?.message || "Erro desconhecido"
+    }, 500);
   }
 }
