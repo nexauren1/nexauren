@@ -1,0 +1,63 @@
+name: Nexauren analytics and Free tool ads
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**/*.html"
+      - "frontend/js/nexauren-analytics.js"
+      - "frontend/js/nexauren-ads.js"
+      - ".github/workflows/nexauren-monetization.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  inject:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inject analytics everywhere and ads into individual tools
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          root = Path("frontend")
+          analytics = '<script src="/js/nexauren-analytics.js" defer></script>'
+          ads = '<script src="/js/nexauren-ads.js" defer></script>'
+          changed = []
+
+          for path in root.rglob("*.html"):
+              text = path.read_text(encoding="utf-8")
+              original = text
+
+              if analytics not in text and "</head>" in text:
+                  text = text.replace("</head>", f"  {analytics}\n</head>", 1)
+
+              is_individual_tool = (
+                  path.as_posix().startswith("frontend/tools/")
+                  and path.name == "index.html"
+                  and path.as_posix() != "frontend/tools/index.html"
+              )
+
+              if is_individual_tool and ads not in text and "</head>" in text:
+                  text = text.replace("</head>", f"  {ads}\n</head>", 1)
+
+              if text != original:
+                  path.write_text(text, encoding="utf-8")
+                  changed.append(str(path))
+
+          print("Updated:")
+          for item in changed:
+              print(item)
+          PY
+
+      - name: Commit injected tags
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add frontend
+          git diff --cached --quiet && exit 0
+          git commit -m "Add analytics and Free tool ads [skip ci]"
+          git push
