@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Free online audio converter. Convert MP3, WAV, FLAC, OGG and M4A files quickly in your browser with Nexauren Audio Converter.">
+  <meta name="keywords" content="free audio converter, online audio converter, MP3 converter, WAV converter, FLAC converter, OGG converter, M4A converter">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://nexaurenstory.com/tools/audio/audio-converter/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Free Audio Converter Online — Nexauren">
+  <meta property="og:description" content="Convert MP3, WAV, FLAC, OGG and M4A audio files online for free. Fast, simple and private.>
+  <meta property="og:url" content="https://nexaurenstory.com/tools/audio/audio-converter/">
+  <title>Free Audio Converter Online — MP3, WAV, FLAC, OGG & M4A | Nexauren</title>
+  <link rel="stylesheet" href="/css/nexauren-theme.css">
+  <link rel="stylesheet" href="/css/nexauren-pages.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="/js/global-loader.js" defer></script>
+</head>
+<body>
+  <main class="converter-page">
+    <section class="hero">
+      <span class="badge">NEXAUREN AUDIO LAB</span>
+      <h1>Free Audio Converter</h1>
+      <p>Convert audio files between popular formats quickly and easily, right in your browser.</p>
+    </section>
+
+    <section class="card">
+      <div class="drop-zone" id="dropZone">
+        <input id="fileInput" type="file" accept="audio/*,.mp3,.wav,.flac,.ogg,.m4a" hidden>
+        <div class="drop-icon">♫</div>
+        <h2>Drop your audio here</h2>
+        <p>or choose an audio file from your device</p>
+        <button class="secondary" id="chooseBtn" type="button">Choose audio file</button>
+        <small>MP3, WAV, FLAC, OGG and M4A</small>
+      </div>
+
+      <div class="file-panel hidden" id="filePanel">
+        <div class="file-info">
+          <div class="file-icon">♫</div>
+          <div>
+            <strong id="fileName">Audio file</strong>
+            <span id="fileMeta"></span>
+          </div>
+        </div>
+        <button class="text-button" id="removeBtn" type="button">Remove</button>
+      </div>
+
+      <audio id="sourcePlayer" class="player hidden" controls></audio>
+
+      <div class="settings hidden" id="settings">
+        <div>
+          <label for="format">Convert to</label>
+          <select id="format">
+            <option value="mp3">MP3</option>
+            <option value="wav">WAV</option>
+            <option value="flac">FLAC</option>
+            <option value="ogg">OGG</option>
+            <option value="m4a">M4A</option>
+          </select>
+        </div>
+        <div>
+          <label for="quality">Quality</label>
+          <select id="quality">
+            <option value="128k">128 kbps — Smaller</option>
+            <option value="192k" selected>192 kbps — Balanced</option>
+            <option value="256k">256 kbps — High</option>
+            <option value="320k">320 kbps — Best MP3</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="primary hidden" id="convertBtn" type="button">Convert Audio</button>
+      <p class="status" id="status"></p>
+    </section>
+
+    <section class="progress hidden" id="progressBox">
+      <div class="spinner"></div>
+      <div>
+        <strong id="progressTitle">Preparing converter…</strong>
+        <span id="progressText">Loading the audio engine</span>
+      </div>
+      <div class="progress-track"><div id="progressBar"></div></div>
+    </section>
+
+    <section class="result hidden" id="resultBox">
+      <div>
+        <span class="result-label">CONVERSION COMPLETE</span>
+        <h2>Your audio is ready.</h2>
+        <p id="resultMeta"></p>
+      </div>
+      <audio id="resultPlayer" class="player" controls></audio>
+      <a class="download" id="downloadBtn" href="#" download>Download converted audio →</a>
+    </section>
+
+    <section class="info-grid">
+      <article>
+        <span>01</span>
+        <h2>Free audio conversion</h2>
+        <p>Convert common audio formats without credits or a paid plan.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h2>Simple workflow</h2>
+        <p>Choose a file, select the output format and download the result.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <h2>Browser processing</h2>
+        <p>Your selected audio is processed in your browser instead of being uploaded to a Nexauren server.</p>
+      </article>
+    </section>
+
+    <section class="seo-copy">
+      <h2>Online audio converter</h2>
+      <p>Nexauren Audio Converter is a free online tool for converting audio files between MP3, WAV, FLAC, OGG and M4A. It is designed for a fast and straightforward workflow for music, voice recordings, podcasts and everyday audio files.</p>
+      <h2>How to convert an audio file</h2>
+      <ol>
+        <li>Choose an audio file or drag it into the converter.</li>
+        <li>Select the format you want to create.</li>
+        <li>Choose the available quality setting and start conversion.</li>
+        <li>Preview and download your converted file.</li>
+      </ol>
+      <h2>Frequently asked questions</h2>
+      <details><summary>Is Nexauren Audio Converter free?</summary><p>Yes. Audio Converter is completely free and does not use Nexauren credits.</p></details>
+      <details><summary>Which audio formats are supported?</summary><p>The interface supports MP3, WAV, FLAC, OGG and M4A as input or output formats. Codec support can vary by the selected conversion path and browser engine.</p></details>
+      <details><summary>Are my audio files uploaded?</summary><p>The converter uses a browser-based FFmpeg engine. Nexauren does not need to receive the selected audio file for the conversion itself.</p></details>
+    </section>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
