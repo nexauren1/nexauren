@@ -12,14 +12,13 @@ let editingId = null;
 let stats = {};
 
 const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({
-  "&": "&amp;", "<": "&lt;", ">": "&gt;",
-  "\"": "&quot;", "'": "&#39;"
+  "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
 }[char]));
 
 const fmt = value => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  return date.toLocaleString(undefined, { dateStyle:"medium", timeStyle:"short" });
 };
 
 const zones = () => [...new Set([
@@ -45,9 +44,7 @@ function embedCode(url, name) {
 
 function render() {
   count.textContent = events.length;
-  let views = 0;
-  let clicks = 0;
-  let today = 0;
+  let views = 0, clicks = 0, today = 0;
   const todayKey = new Date().toISOString().slice(0, 10);
 
   events.forEach(event => {
@@ -69,6 +66,7 @@ function render() {
 
   root.innerHTML = events.map(event => {
     const url = `${location.origin}/event/${encodeURIComponent(event.event_slug)}`;
+    const statsUrl = `stats.html?event=${encodeURIComponent(event.id)}`;
     const paused = event.status !== "active";
     const link = event.link_url || "";
     const value = stats[event.id] || {};
@@ -78,7 +76,7 @@ function render() {
       <div class="date"><span>EVENT DATE</span><strong>${esc(fmt(event.event_date))}</strong><small>${esc(event.timezone || "UTC")}</small></div>
       <div class="event-stats"><div><strong>${Number(value.views || 0).toLocaleString()}</strong><span>Views</span></div><div><strong>${Number(value.link_clicks || 0).toLocaleString()}</strong><span>Link clicks</span></div><div><strong>${Number(value.days?.length || 0)}</strong><span>Active days</span></div></div>
       ${link ? `<a class="event-link-preview" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Event link ↗</a>` : `<div class="event-link-empty">No event link added</div>`}
-      <div class="actions"><a href="${url}" target="_blank" rel="noopener">Preview</a><button data-copy="${esc(url)}">Copy Link</button><button data-embed="${esc(url)}" data-name="${esc(event.name)}">Embed</button><button data-edit="${esc(event.id)}">Edit</button><button class="toggle" data-toggle="${esc(event.id)}">${paused ? "Activate" : "Pause"}</button><button class="delete" data-delete="${esc(event.id)}">Delete</button></div>
+      <div class="actions"><a class="stats-action" href="${statsUrl}">Statistics</a><a href="${url}" target="_blank" rel="noopener">Preview</a><button data-copy="${esc(url)}">Copy Link</button><button data-embed="${esc(url)}" data-name="${esc(event.name)}">Embed</button><button data-edit="${esc(event.id)}">Edit</button><button class="toggle" data-toggle="${esc(event.id)}">${paused ? "Activate" : "Pause"}</button><button class="delete" data-delete="${esc(event.id)}">Delete</button></div>
     </article>`;
   }).join("");
 }
@@ -88,16 +86,14 @@ async function loadStats() {
     try {
       const data = await api(`/api/tools/event-countdown/events/${encodeURIComponent(event.id)}/stats`);
       return [event.id, data];
-    } catch (_) {
-      return [event.id, { views: 0, link_clicks: 0, days: [] }];
-    }
+    } catch (_) { return [event.id, { views:0, link_clicks:0, days:[] }]; }
   }));
   stats = Object.fromEntries(entries);
 }
 
 async function load() {
   try {
-    const response = await fetch("/api/tools/event-countdown/events", { credentials: "same-origin", headers: { Accept: "application/json" } });
+    const response = await fetch("/api/tools/event-countdown/events", { credentials:"same-origin", headers:{Accept:"application/json"} });
     const data = await response.json().catch(() => ({}));
     if (response.status === 401) { location.href = "/login?next=/tools/utilities/event-countdown/dashboard.html"; return; }
     if (!response.ok) throw Error(data.error || "Unable to load events.");
@@ -112,7 +108,7 @@ async function load() {
 }
 
 async function api(url, options = {}) {
-  const response = await fetch(url, { credentials: "same-origin", headers: { Accept: "application/json", ...(options.body ? { "Content-Type": "application/json" } : {}) }, ...options });
+  const response = await fetch(url, { credentials:"same-origin", headers:{Accept:"application/json", ...(options.body ? {"Content-Type":"application/json"} : {})}, ...options });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw Error(data.error || "Request failed.");
   return data;
@@ -145,8 +141,8 @@ async function saveEdit(event) {
   const button = form.querySelector(".save");
   button.disabled = true; button.textContent = "Saving…"; editMessage.textContent = "";
   try {
-    await api(`/api/tools/event-countdown/events/${encodeURIComponent(editingId)}`, { method: "PUT", body: JSON.stringify({
-      name: document.querySelector("#editName").value.trim(), description: document.querySelector("#editDescription").value.trim(), event_date: document.querySelector("#editDate").value, timezone: document.querySelector("#editTimezone").value, theme: document.querySelector("#editTheme").value, image_url: document.querySelector("#editImage").value.trim(), link_url: document.querySelector("#editLink").value.trim()
+    await api(`/api/tools/event-countdown/events/${encodeURIComponent(editingId)}`, { method:"PUT", body:JSON.stringify({
+      name:document.querySelector("#editName").value.trim(), description:document.querySelector("#editDescription").value.trim(), event_date:document.querySelector("#editDate").value, timezone:document.querySelector("#editTimezone").value, theme:document.querySelector("#editTheme").value, image_url:document.querySelector("#editImage").value.trim(), link_url:document.querySelector("#editLink").value.trim()
     }) });
     closeEdit(); await load();
   } catch (error) { editMessage.textContent = error.message; }
@@ -155,23 +151,23 @@ async function saveEdit(event) {
 
 document.addEventListener("click", async event => {
   const copy = event.target.closest("[data-copy]");
-  if (copy) { try { await navigator.clipboard.writeText(copy.dataset.copy); const old = copy.textContent; copy.textContent = "Copied"; setTimeout(() => copy.textContent = old, 1200); } catch (_) {} return; }
+  if (copy) { try { await navigator.clipboard.writeText(copy.dataset.copy); const old=copy.textContent; copy.textContent="Copied"; setTimeout(() => copy.textContent=old,1200); } catch (_) {} return; }
   const embed = event.target.closest("[data-embed]");
-  if (embed) { const code = embedCode(embed.dataset.embed, embed.dataset.name); try { await navigator.clipboard.writeText(code); const old = embed.textContent; embed.textContent = "Copied"; setTimeout(() => embed.textContent = old, 1200); } catch (_) {} return; }
+  if (embed) { const code=embedCode(embed.dataset.embed,embed.dataset.name); try { await navigator.clipboard.writeText(code); const old=embed.textContent; embed.textContent="Copied"; setTimeout(() => embed.textContent=old,1200); } catch (_) {} return; }
   const edit = event.target.closest("[data-edit]");
-  if (edit) { const item = events.find(value => value.id === edit.dataset.edit); if (item) openEdit(item); return; }
+  if (edit) { const item=events.find(value => value.id===edit.dataset.edit); if(item) openEdit(item); return; }
   const toggle = event.target.closest("[data-toggle]");
   if (toggle) {
-    const item = events.find(value => value.id === toggle.dataset.toggle); if (!item) return; toggle.disabled = true;
-    try { await api(`/api/tools/event-countdown/events/${encodeURIComponent(item.id)}`, { method: "PUT", body: JSON.stringify({ name:item.name, description:item.description||"", event_date:item.event_date, timezone:item.timezone||"UTC", theme:item.theme||"default", image_url:item.image_url||"", link_url:item.link_url||"", status:item.status === "active" ? "paused" : "active" }) }); await load(); }
-    catch (error) { message.textContent = error.message; toggle.disabled = false; } return;
+    const item=events.find(value => value.id===toggle.dataset.toggle); if(!item) return; toggle.disabled=true;
+    try { await api(`/api/tools/event-countdown/events/${encodeURIComponent(item.id)}`, {method:"PUT",body:JSON.stringify({name:item.name,description:item.description||"",event_date:item.event_date,timezone:item.timezone||"UTC",theme:item.theme||"default",image_url:item.image_url||"",link_url:item.link_url||"",status:item.status==="active"?"paused":"active"})}); await load(); }
+    catch(error){message.textContent=error.message;toggle.disabled=false;} return;
   }
-  const del = event.target.closest("[data-delete]");
-  if (del) { if (!confirm("Delete this event? This cannot be undone.")) return; del.disabled = true; try { await api(`/api/tools/event-countdown/events/${encodeURIComponent(del.dataset.delete)}`, { method:"DELETE" }); events = events.filter(item => item.id !== del.dataset.delete); delete stats[del.dataset.delete]; render(); } catch (error) { message.textContent = error.message; del.disabled = false; } }
+  const del=event.target.closest("[data-delete]");
+  if(del){if(!confirm("Delete this event? This cannot be undone."))return;del.disabled=true;try{await api(`/api/tools/event-countdown/events/${encodeURIComponent(del.dataset.delete)}`,{method:"DELETE"});events=events.filter(item=>item.id!==del.dataset.delete);delete stats[del.dataset.delete];render();}catch(error){message.textContent=error.message;del.disabled=false;}}
 });
 
-document.addEventListener("click", event => { if (event.target.closest("[data-close]") || event.target === modal) closeEdit(); });
-document.addEventListener("keydown", event => { if (event.key === "Escape" && modal.classList.contains("open")) closeEdit(); });
+document.addEventListener("click", event => { if(event.target.closest("[data-close]") || event.target===modal) closeEdit(); });
+document.addEventListener("keydown", event => { if(event.key==="Escape" && modal.classList.contains("open")) closeEdit(); });
 form.addEventListener("submit", saveEdit);
 fillZones();
 load();
