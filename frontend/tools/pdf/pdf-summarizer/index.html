@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PDF Summarizer — Summarize PDF with AI | Nexauren</title>
+  <meta name="description" content="Summarize PDF documents with Nexauren AI. Generate summaries, key points, study notes, Q&A and quizzes from your PDF.">
+  <meta name="keywords" content="PDF summarizer, summarize PDF, AI PDF summary, PDF quiz, study notes">
+  <link rel="canonical" href="https://nexaurenstory.com/tools/pdf/pdf-summarizer/">
+  <meta property="og:title" content="PDF Summarizer — Nexauren">
+  <meta property="og:description" content="Turn a PDF into a clear summary, study notes, Q&A or quiz with Nexauren AI.">
+  <meta property="og:type" content="website">
+  <meta name="robots" content="index,follow">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero">
+      <div class="badge">NEXAUREN AI · PDF</div>
+      <h1>PDF <span>Summarizer</span></h1>
+      <p>Upload a PDF and turn it into a useful summary, study notes, Q&amp;A or quiz.</p>
+    </section>
+
+    <section class="tool-card" aria-label="PDF summarizer">
+      <label class="drop-zone" id="dropZone" for="pdfInput">
+        <input id="pdfInput" type="file" accept="application/pdf,.pdf" hidden>
+        <div class="upload-icon">PDF</div>
+        <strong id="fileTitle">Drop your PDF here</strong>
+        <span id="fileMeta">or tap to choose a file · maximum 10 MB</span>
+      </label>
+
+      <div class="settings">
+        <label for="mode">Response style</label>
+        <select id="mode">
+          <option value="summary">Quick summary</option>
+          <option value="detailed">Detailed summary</option>
+          <option value="keypoints">Key points</option>
+          <option value="study">Study notes</option>
+          <option value="simple">Simple explanation</option>
+          <option value="qa">Questions &amp; answers</option>
+          <option value="quiz">Quiz</option>
+        </select>
+      </div>
+
+      <button id="processBtn" class="primary" disabled>Generate with Nexauren AI</button>
+
+      <div id="status" class="status" hidden>
+        <div class="spinner"></div>
+        <span id="statusText">Preparing your PDF…</span>
+      </div>
+
+      <div id="error" class="error" hidden></div>
+
+      <article id="resultCard" class="result" hidden>
+        <div class="result-head">
+          <div>
+            <span class="result-label">AI RESULT</span>
+            <h2 id="resultTitle">Your result</h2>
+          </div>
+          <button id="copyBtn" class="secondary">Copy</button>
+        </div>
+        <div id="resultContent" class="result-content"></div>
+        <button id="downloadBtn" class="secondary wide">Download result</button>
+      </article>
+    </section>
+
+    <section class="info">
+      <h2>How to use PDF Summarizer</h2>
+      <ol>
+        <li>Choose a PDF with selectable or extractable text.</li>
+        <li>Select how you want Nexauren AI to organize the content.</li>
+        <li>Generate your result and copy or download it.</li>
+      </ol>
+      <p class="privacy-note">Your PDF is processed through the Nexauren Worker and Cloudflare Workers AI only when you request a result. The frontend does not expose AI credentials.</p>
+    </section>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details><summary>Can it summarize scanned PDFs?</summary><p>The first version focuses on PDFs from which Cloudflare can extract usable text. OCR support can be added later.</p></details>
+      <details><summary>Can it create quizzes?</summary><p>Yes. Choose Quiz to generate five multiple-choice questions based on the document.</p></details>
+      <details><summary>Does it support Portuguese?</summary><p>Yes. The AI is instructed to answer in the predominant language of the document.</p></details>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
