@@ -1,27 +1,21 @@
 (() => {
-  const CONSENT_KEY = "nx-consent-v1";
-  const ACCOUNT_ENDPOINT = "/api/account";
+  const PLAN_ENDPOINT = "/api/tools/sample-pack/limits";
   const ZONES = ["11177602", "11215522"];
   const SOURCES = [
     "https://n6wxm.com/vignette.min.js",
     "https://nap5k.com/tag.min.js"
   ];
 
-  const readConsent = () => {
-    try {
-      const value = JSON.parse(localStorage.getItem(CONSENT_KEY) || "null");
-      return value && typeof value === "object" ? value : null;
-    } catch (_) {
-      return null;
-    }
-  };
-
   const isPaidPlan = plan => {
-    const normalized = String(plan || "free").trim().toLowerCase();
-    return normalized !== "" && normalized !== "free";
+    const value = String(plan || "free").trim().toLowerCase();
+    return value === "pro" || value === "premium";
   };
 
   const loadAd = (zone, source) => {
+    if (!source || document.querySelector(`script[data-zone="${zone}"]`)) {
+      return;
+    }
+
     const script = document.createElement("script");
     script.dataset.zone = zone;
     script.async = true;
@@ -32,19 +26,18 @@
   const loadAdsForFree = async () => {
     if (window.__nexaurenAdsLoaded) return;
 
-    const consent = readConsent();
-    if (!consent?.ads) return;
+    let plan = "free";
 
     try {
-      const response = await fetch(ACCOUNT_ENDPOINT, {
+      const response = await fetch(PLAN_ENDPOINT, {
         credentials: "same-origin",
-        cache: "no-store"
+        cache: "no-store",
+        headers: { Accept: "application/json" }
       });
 
       if (response.ok) {
         const data = await response.json();
-        const plan = data?.subscription?.plan_name || "Free";
-        if (isPaidPlan(plan)) return;
+        plan = data?.plan || "free";
       } else if (response.status !== 401) {
         return;
       }
@@ -52,19 +45,18 @@
       return;
     }
 
+    if (isPaidPlan(plan)) return;
+
     window.__nexaurenAdsLoaded = true;
 
     ZONES.forEach((zone, index) => {
-      const source = SOURCES[index];
-      if (source) loadAd(zone, source);
+      loadAd(zone, SOURCES[index]);
     });
   };
 
-  const start = () => loadAdsForFree();
-
-  window.addEventListener("nexauren:consent", event => {
-    if (event.detail?.ads) start();
-  });
+  const start = () => {
+    loadAdsForFree();
+  };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", start, { once: true });
