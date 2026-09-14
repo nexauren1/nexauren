@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Split PDF files into separate documents directly in your browser with Nexauren PDF Splitter.">
+  <title>PDF Splitter — Nexauren</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/">NEXAUREN</a><nav><a href="/tools/">All tools</a></nav></header>
+  <main class="shell">
+    <section class="hero"><div class="eyebrow">NEXAUREN · PDF</div><h1>PDF Splitter</h1><p>Split a PDF into separate documents by choosing the pages you need.</p></section>
+    <section class="card">
+      <div id="dropzone" class="dropzone" tabindex="0">
+        <div class="drop-icon">✂</div><h2>Drop a PDF here</h2><p>or choose a PDF from your device</p>
+        <button id="choose" class="primary" type="button">Choose PDF</button>
+        <input id="file" type="file" accept="application/pdf,.pdf" hidden>
+        <small>Your document is processed locally in your browser.</small>
+      </div>
+      <div id="workspace" class="workspace hidden">
+        <div class="filebar"><div><strong id="fileName"></strong><span id="pageInfo"></span></div><button id="change" class="text-button" type="button">Change PDF</button></div>
+        <div class="mode-tabs"><button class="tab active" data-mode="range" type="button">Page ranges</button><button class="tab" data-mode="each" type="button">Every page</button></div>
+        <div id="rangeMode"><label for="ranges">Pages to split</label><input id="ranges" placeholder="Example: 1-3, 5, 8-10"><p class="hint">Use commas for separate groups. Each group becomes one PDF.</p></div>
+        <div id="eachMode" class="hidden"><div class="option"><b>Split every page</b><span>Creates one PDF for each page.</span></div></div>
+        <button id="split" class="primary full" type="button">Split PDF</button>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+      <div id="result" class="result hidden"><div class="success-icon">✓</div><div><strong>PDF split successfully</strong><p id="resultText"></p></div><button id="downloadAll" class="primary" type="button">Download ZIP</button><button id="again" class="secondary" type="button">Start over</button></div>
+    </section>
+    <section class="info-grid"><article><b>Fast</b><span>Split pages without uploading your document.</span></article><article><b>Private</b><span>Processing happens on your device.</span></article><article><b>Flexible</b><span>Choose ranges or split every page.</span></article></section>
+  </main>
+  <footer>© 2026 Nexauren · PDF tools</footer>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
