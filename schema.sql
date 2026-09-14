@@ -54,4 +54,17 @@ INSERT OR IGNORE INTO categories (slug,name,description,icon,created_at) VALUES
 ('text','Text','Ferramentas de texto','text',0),
 ('productivity','Productivity','Ferramentas de produtividade','productivity',0),
 ('business','Business','Ferramentas para negócios','business',0),
-('marketplace','Marketplace','Ferramentas do marketplace','marketplace',0);
+('marketplace','Marketplace','Ferramentas do marketplace','marketplace',0),
+('utilities','Utilities','Ferramentas utilitárias','utilities',0),
+('developer','Developer','Ferramentas para desenvolvimento','developer',0),
+('calculators','Calculators','Calculadoras e ferramentas matemáticas','calculators',0),
+('qr-generators','QR & Generators','QR codes e geradores','qr-generators',0),
+('seo','SEO','Ferramentas de SEO','seo',0),
+('media','Media','Ferramentas de mídia','media',0),
+('converters','Converters','Conversores de formatos e unidades','converters',0),
+('security','Security','Ferramentas de segurança e privacidade','security',0),
+('files','Files','Ferramentas para arquivos','files',0),
+('color','Color','Ferramentas de cores','color',0),
+('date-time','Date & Time','Ferramentas de data e tempo','date-time',0),
+('finance','Finance','Ferramentas financeiras','finance',0),
+('education','Education','Ferramentas para estudo e educação','education',0);
