@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Merge multiple PDF files into one PDF directly in your browser with Nexauren PDF Merger.">
+  <title>PDF Merger — Nexauren</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">NEXAUREN</a>
+    <nav><a href="/tools/">All tools</a></nav>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">NEXAUREN · PDF</div>
+      <h1>PDF Merger</h1>
+      <p>Combine multiple PDF files into one clean document — quickly and directly in your browser.</p>
+    </section>
+
+    <section class="card" aria-label="PDF merger">
+      <div id="dropzone" class="dropzone" tabindex="0">
+        <div class="drop-icon">＋</div>
+        <h2>Drop your PDFs here</h2>
+        <p>or choose files from your device</p>
+        <button id="choose" class="primary" type="button">Choose PDF files</button>
+        <input id="files" type="file" accept="application/pdf,.pdf" multiple hidden>
+        <small>Files are processed locally in your browser.</small>
+      </div>
+
+      <div id="listSection" class="list-section hidden">
+        <div class="list-head">
+          <div><strong id="fileCount">0 files</strong><span> · Drag to reorder</span></div>
+          <button id="clear" class="text-button" type="button">Clear all</button>
+        </div>
+        <div id="fileList" class="file-list"></div>
+        <div class="actions">
+          <button id="merge" class="primary" type="button">Merge PDFs</button>
+        </div>
+      </div>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+      <div id="result" class="result hidden">
+        <div class="success-icon">✓</div>
+        <div><strong>Your PDF is ready</strong><p id="resultText"></p></div>
+        <a id="download" class="primary link-button" download="nexauren-merged.pdf">Download PDF</a>
+        <button id="again" class="secondary" type="button">Start over</button>
+      </div>
+    </section>
+
+    <section class="info-grid">
+      <article><b>Fast</b><span>Merge without waiting for an upload.</span></article>
+      <article><b>Private</b><span>Your files stay on your device during processing.</span></article>
+      <article><b>Simple</b><span>Choose, reorder, merge and download.</span></article>
+    </section>
+  </main>
+
+  <footer>© 2026 Nexauren · PDF tools</footer>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
