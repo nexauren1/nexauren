@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JPG to WebP — Nexauren</title>
+  <meta name="description" content="Convert JPG and JPEG images to WebP directly in your browser with adjustable quality.">
+  <link rel="stylesheet" href="/css/nexauren-theme.css">
+  <link rel="stylesheet" href="/css/nexauren-pages.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="nexauren-header"></div>
+  <main class="tool-page">
+    <section class="tool-hero">
+      <div class="tool-badge">NEXAUREN · IMAGE</div>
+      <h1>JPG to WebP</h1>
+      <p>Convert JPG and JPEG images to modern WebP format directly in your browser.</p>
+    </section>
+
+    <section class="converter-card">
+      <div id="dropZone" class="drop-zone" tabindex="0">
+        <div class="drop-icon">JPG</div>
+        <h2>Drop your JPG here</h2>
+        <p>JPG or JPEG · Local browser processing</p>
+        <button id="chooseBtn" class="secondary-btn" type="button">Choose JPG</button>
+        <input id="fileInput" type="file" accept="image/jpeg,.jpg,.jpeg" hidden>
+      </div>
+
+      <div id="workspace" class="workspace" hidden>
+        <div class="preview-wrap"><img id="preview" alt="JPG preview"></div>
+        <div class="file-info">
+          <strong id="fileName">image.jpg</strong>
+          <span id="fileMeta">JPG</span>
+        </div>
+
+        <div class="settings">
+          <div class="setting-row">
+            <label for="quality">WebP quality</label>
+            <output id="qualityValue">90%</output>
+          </div>
+          <input id="quality" type="range" min="40" max="100" value="90">
+        </div>
+
+        <button id="convertBtn" class="primary-btn" type="button">Convert to WebP</button>
+        <button id="resetBtn" class="text-btn" type="button">Choose another image</button>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="info-grid">
+      <article><span>01</span><h3>Choose a JPG</h3><p>Upload or drag a JPG/JPEG image into the converter.</p></article>
+      <article><span>02</span><h3>Set quality</h3><p>Adjust WebP quality to balance image quality and file size.</p></article>
+      <article><span>03</span><h3>Download WebP</h3><p>The converted image is created locally in your browser.</p></article>
+    </section>
+  </main>
+  <div id="nexauren-footer"></div>
+  <script src="/js/nexauren-ads.js"></script>
+  <script src="/js/G4A.js"></script>
+  <script src="/js/global-header.js"></script>
+  <script src="/js/global-footer.js"></script>
+  <script src="/js/global-loader.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
