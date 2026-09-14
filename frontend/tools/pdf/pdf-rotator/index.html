@@ -1,56 +1,38 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Rotate PDF pages individually or all at once directly in your browser.">
+<title>PDF Rotator — Nexauren</title>
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png?v=2">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2">
 <link rel="apple-touch-icon" href="/favicon.png?v=2">
-<meta property="og:site_name" content="Nexauren">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://nexaurenstory.com/favicon.png?v=2">
-<meta property="og:image:type" content="image/png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="Nexauren">
-<meta name="twitter:image" content="https://nexaurenstory.com/favicon.png?v=2">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Rotate PDF pages individually or all at once directly in your browser.">
-<title>PDF Rotator — Nexauren</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=4">
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="/js/nexauren-ads.js" defer></script>
-  <script src="/js/G4A.js" defer></script>
+<script src="/js/nexauren-ads.js" defer></script>
+<script src="/js/G4A.js" defer></script>
 </head>
 <body>
 <header class="topbar"><a class="brand" href="/">NEXAUREN</a><a class="back" href="/tools/">All tools <span>→</span></a></header>
 <main class="page">
 <section class="hero"><div class="eyebrow">NEXAUREN · PDF</div><h1>PDF Rotator</h1><p>Rotate PDF pages exactly the way you need. Turn every page at once or adjust individual pages directly in your browser.</p></section>
 <section class="studio">
-<div class="upload-zone" id="dropZone" tabindex="0" role="button"><input id="fileInput" type="file" accept="application/pdf" hidden><div class="upload-icon">↻</div><h2>Drop a PDF here</h2><p>One PDF · Processed locally in your browser</p><button class="primary" id="chooseBtn" type="button">Choose PDF</button></div>
+<div class="upload-zone" id="dropZone" tabindex="0" role="button"><input id="fileInput" type="file" accept="application/pdf,.pdf" hidden><div class="upload-icon">↻</div><h2>Drop a PDF here</h2><p>One PDF · Processed locally in your browser</p><button class="primary" id="chooseBtn" type="button">Choose PDF</button></div>
 <div id="workspace" hidden>
-<div class="toolbar"><div><span class="label">01</span><h2>Rotate pages</h2><p id="fileMeta"></p></div><button class="text-btn" id="clearBtn">Remove PDF</button></div>
-<div class="bulk"><strong>Rotate all pages</strong><button data-all="90">↻ 90°</button><button data-all="180">↻ 180°</button><button data-all="270">↻ 270°</button><button data-all="0">Reset</button></div>
+<div class="toolbar"><div><span class="label">01</span><h2>Rotate pages</h2><p id="fileMeta"></p></div><button class="text-btn" id="clearBtn" type="button">Remove PDF</button></div>
+<div class="bulk"><strong>Rotate all pages</strong><button type="button" data-all="90">↻ 90°</button><button type="button" data-all="180">↻ 180°</button><button type="button" data-all="270">↻ 270°</button><button type="button" data-all="0">Reset</button></div>
 <div class="page-grid" id="pageGrid"></div>
-<div class="actions"><button class="primary wide" id="rotateBtn">Create rotated PDF</button></div>
+<div class="actions"><button class="primary wide" id="rotateBtn" type="button">Create rotated PDF</button></div>
 </div>
 <div class="status" id="status" hidden><div class="spinner"></div><div><strong id="statusTitle">Preparing your PDF…</strong><p id="statusText">Loading pages</p></div></div>
 <div class="error" id="errorBox" hidden><strong>We couldn't rotate this PDF.</strong><p id="errorText"></p></div>
-<div class="result" id="result" hidden><div class="success-mark">✓</div><div><strong>Your rotated PDF is ready</strong><p id="resultText"></p></div><button class="primary" id="downloadBtn">Download PDF</button><button class="secondary" id="resetBtn">Start over</button></div>
+<div class="result" id="result" hidden><div class="success-mark">✓</div><div><strong>Your rotated PDF is ready</strong><p id="resultText"></p></div><button class="primary" id="downloadBtn" type="button">Download PDF</button><button class="secondary" id="resetBtn" type="button">Start over</button></div>
 </section>
 <section class="info-grid"><article><span>01</span><h3>Page by page</h3><p>Set a different rotation for every page when you need precise control.</p></article><article><span>02</span><h3>Rotate in bulk</h3><p>Rotate the entire document by 90°, 180° or 270° in one click.</p></article><article><span>03</span><h3>Private processing</h3><p>Your PDF stays in your browser while the rotated document is created.</p></article></section>
 <section class="faq"><div class="eyebrow">FAQ</div><h2>Rotate without the hassle.</h2><details><summary>Can I rotate only one page?</summary><p>Yes. Each page has its own rotation controls.</p></details><details><summary>Does rotation change the PDF quality?</summary><p>No. Pages are rotated in the PDF itself rather than re-rendered as images.</p></details><details><summary>Is my PDF uploaded?</summary><p>No. The document is processed locally in your browser.</p></details></section>
-</main><footer>© Nexauren · Tools that help you create faster.</footer><script src="script.js"></script>
-</body></html>
+</main><footer>© Nexauren · Tools that help you create faster.</footer>
+<script src="script.js?v=4"></script>
+</body>
+</html>
