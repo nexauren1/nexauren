@@ -1,4 +1,5 @@
 import eventRouter from "./event-router.js";
+import { getEventCountdownRules } from "./frontend/tools/utilities/event-countdown/rules.js";
 
 function json(data,status=200){
   return new Response(JSON.stringify(data),{
@@ -10,9 +11,143 @@ function json(data,status=200){
   });
 }
 
+const COOKIE="nexauren_session";
+
+async function currentUser(req,env){
+  const cookie=req.headers.get("Cookie")||"";
+  const match=cookie.match(new RegExp(`${COOKIE}=([^;]+)`));
+  if(!match)return null;
+  return env.DB.prepare(
+    "SELECT u.id,u.email,u.name,u.role FROM sessions s " +
+    "JOIN users u ON u.id=s.user_id " +
+    "WHERE s.token=? AND s.expires_at>? LIMIT 1"
+  ).bind(match[1],Date.now()).first();
+}
+
+async function toolPlan(env,userId){
+  try{
+    const balance=await env.DB.prepare(
+      "SELECT plan_credits FROM credit_balances WHERE user_id=? LIMIT 1"
+    ).bind(userId).first();
+    const credits=Number(balance?.plan_credits||0);
+    if(credits>=2000)return "premium";
+    if(credits>=1000)return "pro";
+  }catch(_){ }
+  return "free";
+}
+
+async function enforceCreate(req,env){
+  const user=await currentUser(req,env);
+  if(!user)return json({error:"Please sign in to create an event."},401);
+
+  const plan=await toolPlan(env,user.id);
+  const rules=getEventCountdownRules(plan);
+  const count=await env.TOOLS_DB.prepare(
+    "SELECT COUNT(*) AS total FROM tool_events WHERE user_id=? AND tool_slug=?"
+  ).bind(user.id,"event-countdown").first();
+
+  if(Number(count?.total||0)>=rules.maxEvents){
+    return json({
+      error:`Your ${plan} plan allows up to ${rules.maxEvents} Event Countdown events.`,
+      code:"EVENT_LIMIT_REACHED",
+      plan,
+      limit:rules.maxEvents
+    },403);
+  }
+
+  const body=await req.clone().json().catch(()=>({}));
+  const theme=String(body?.theme||"default").toLowerCase();
+  if(!rules.allowedThemes.includes(theme)){
+    return json({
+      error:`The ${theme} theme is not available on your ${plan} plan.`,
+      code:"THEME_NOT_AVAILABLE",
+      plan,
+      theme,
+      allowedThemes:rules.allowedThemes
+    },403);
+  }
+
+  return null;
+}
+
+async function enforceUpdate(req,env,eventId){
+  const user=await currentUser(req,env);
+  if(!user)return json({error:"Please sign in to edit this event."},401);
+
+  const owned=await env.TOOLS_DB.prepare(
+    "SELECT id FROM tool_events WHERE id=? AND user_id=? LIMIT 1"
+  ).bind(eventId,user.id).first();
+  if(!owned)return null;
+
+  const body=await req.clone().json().catch(()=>({}));
+  if(body?.theme===undefined)return null;
+
+  const plan=await toolPlan(env,user.id);
+  const rules=getEventCountdownRules(plan);
+  const theme=String(body.theme||"default").toLowerCase();
+  if(!rules.allowedThemes.includes(theme)){
+    return json({
+      error:`The ${theme} theme is not available on your ${plan} plan.`,
+      code:"THEME_NOT_AVAILABLE",
+      plan,
+      theme,
+      allowedThemes:rules.allowedThemes
+    },403);
+  }
+  return null;
+}
+
+async function enforceStats(req,env,eventId){
+  const user=await currentUser(req,env);
+  if(!user)return json({error:"Please sign in to view statistics."},401);
+
+  const owned=await env.TOOLS_DB.prepare(
+    "SELECT id FROM tool_events WHERE id=? AND user_id=? LIMIT 1"
+  ).bind(eventId,user.id).first();
+  if(!owned)return null;
+
+  const plan=await toolPlan(env,user.id);
+  const rules=getEventCountdownRules(plan);
+  if(!rules.statistics){
+    return json({
+      error:"Event Countdown statistics are available on Pro and Premium plans.",
+      code:"STATISTICS_PLAN_REQUIRED",
+      plan
+    },403);
+  }
+  return null;
+}
+
 export default {
   async fetch(req,env,ctx){
     const url=new URL(req.url);
+
+    const createPath=url.pathname==="/api/tools/event-countdown/events";
+    if(createPath && req.method==="POST"){
+      const blocked=await enforceCreate(req,env);
+      if(blocked)return blocked;
+    }
+
+    const eventMatch=url.pathname.match(
+      /^\/api\/tools\/event-countdown\/events\/([^/]+)$/
+    );
+    if(eventMatch && req.method==="PUT"){
+      const blocked=await enforceUpdate(
+        req,env,decodeURIComponent(eventMatch[1])
+      );
+      if(blocked)return blocked;
+    }
+
+    const statsPage=url.pathname.match(
+      /^\/api\/tools\/event-countdown\/events\/([^/]+)\/stats$/
+    );
+    if(statsPage && req.method==="GET"){
+      const blocked=await enforceStats(
+        req,env,decodeURIComponent(statsPage[1])
+      );
+      if(blocked)return blocked;
+    }
+
     const match=url.pathname.match(
       /^\/api\/tools\/event-countdown\/events\/([^/]+)\/stats\/(view|click)$/
     );
