@@ -26,12 +26,15 @@ async function currentUser(req,env){
 
 async function toolPlan(env,userId){
   try{
-    const balance=await env.DB.prepare(
-      "SELECT plan_credits FROM credit_balances WHERE user_id=? LIMIT 1"
+    const row=await env.DB.prepare(
+      "SELECT p.slug FROM subscriptions s " +
+      "JOIN plans p ON p.id=s.plan_id " +
+      "WHERE s.user_id=? AND s.status='active' AND p.active=1 " +
+      "ORDER BY s.created_at DESC LIMIT 1"
     ).bind(userId).first();
-    const credits=Number(balance?.plan_credits||0);
-    if(credits>=2000)return "premium";
-    if(credits>=1000)return "pro";
+
+    const plan=String(row?.slug||"free").toLowerCase();
+    if(["free","pro","premium"].includes(plan))return plan;
   }catch(_){ }
   return "free";
 }
@@ -141,6 +144,44 @@ async function enforceStats(req,env,eventId){
   return null;
 }
 
+async function recordStats(req,env){
+  const match=new URL(req.url).pathname.match(
+    /^\/api\/tools\/event-countdown\/events\/([^/]+)\/stats\/(view|click)$/
+  );
+  if(!match||req.method!=="POST")return null;
+
+  const eventId=decodeURIComponent(match[1]);
+  const field=match[2]==="view"?"views":"link_clicks";
+  const db=env.TOOLS_DB;
+  if(!db)return json({error:"Tools database is unavailable."},500);
+
+  const event=await db.prepare(
+    "SELECT id FROM tool_events WHERE id=? AND status='active' LIMIT 1"
+  ).bind(eventId).first();
+  if(!event)return json({error:"Event not found."},404);
+
+  try{
+    const day=new Date().toISOString().slice(0,10);
+    const views=field==="views"?1:0;
+    const clicks=field==="link_clicks"?1:0;
+
+    await db.prepare(
+      "INSERT INTO event_stats(event_id,day,views,link_clicks) " +
+      "VALUES(?,?,?,?) " +
+      "ON CONFLICT(event_id,day) DO UPDATE SET " +
+      "views=views+excluded.views, " +
+      "link_clicks=link_clicks+excluded.link_clicks"
+    ).bind(eventId,day,views,clicks).run();
+
+    return json({ok:true,field,day});
+  }catch(error){
+    return json({
+      error:"Could not record event statistics.",
+      detail:String(error?.message||error)
+    },500);
+  }
+}
+
 export default {
   async fetch(req,env,ctx){
     const url=new URL(req.url);
@@ -175,44 +216,8 @@ export default {
       if(blocked)return blocked;
     }
 
-    const match=url.pathname.match(
-      /^\/api\/tools\/event-countdown\/events\/([^/]+)\/stats\/(view|click)$/
-    );
-
-    if(match && req.method==="POST"){
-      const eventId=decodeURIComponent(match[1]);
-      const field=match[2]==="view"?"views":"link_clicks";
-      const db=env.TOOLS_DB;
-
-      if(!db)return json({error:"Tools database is unavailable."},500);
-
-      const event=await db.prepare(
-        "SELECT id FROM tool_events WHERE id=? AND status='active' LIMIT 1"
-      ).bind(eventId).first();
-
-      if(!event)return json({error:"Event not found."},404);
-
-      try{
-        const day=new Date().toISOString().slice(0,10);
-        const views=field==="views"?1:0;
-        const clicks=field==="link_clicks"?1:0;
-
-        await db.prepare(
-          "INSERT INTO event_stats(event_id,day,views,link_clicks) " +
-          "VALUES(?,?,?,?) " +
-          "ON CONFLICT(event_id,day) DO UPDATE SET " +
-          "views=views+excluded.views, " +
-          "link_clicks=link_clicks+excluded.link_clicks"
-        ).bind(eventId,day,views,clicks).run();
-
-        return json({ok:true,field,day});
-      }catch(error){
-        return json({
-          error:"Could not record event statistics.",
-          detail:String(error?.message||error)
-        },500);
-      }
-    }
+    const statsResponse=await recordStats(req,env);
+    if(statsResponse)return statsResponse;
 
     return eventRouter.fetch(req,env,ctx);
   }
