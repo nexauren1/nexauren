@@ -1,74 +1,15 @@
 const $=id=>document.getElementById(id);
-const state={title:"",description:"",features:[],tags:[],faq:[],version:0};
-function clean(value){return value.trim().replace(/\s+/g," ")}
-function escapeHtml(value){return String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[char]))}
-const styles={
-  Professional:{
-    titles:[name=>`${name} — Practical Choice for Everyday Use`,name=>`${name} — Reliable Features, Simple Experience`,name=>`${name} — Designed for Everyday Value`],
-    openings:[(name,a)=>`${name} is a practical choice for ${a.toLowerCase()} who want useful features and a straightforward experience.`,(name,a)=>`Discover ${name}, created for ${a.toLowerCase()} looking for a dependable and easy-to-understand product.`]
-  },
-  Friendly:{
-    titles:[name=>`Meet ${name} — Made for Everyday Moments`,name=>`${name} — Simple, Useful and Ready to Go`,name=>`${name} — A Smart Pick for Everyday Use`],
-    openings:[(name,a)=>`Meet ${name}, a simple and useful option for ${a.toLowerCase()}.`,(name)=>`Looking for something practical? ${name} brings useful features together in an easy-to-enjoy experience.`]
-  },
-  Premium:{
-    titles:[name=>`${name} — A Refined Everyday Choice`,name=>`${name} — Premium Features, Clean Experience`,name=>`${name} — Crafted for a Better Experience`],
-    openings:[(name,a)=>`${name} brings together thoughtful features and a polished experience for ${a.toLowerCase()} who expect more from everyday products.`,(name,a)=>`Designed with a refined approach, ${name} gives ${a.toLowerCase()} a dependable product experience with a clear focus on quality and usability.`]
-  },
-  Simple:{
-    titles:[name=>`${name} — Simple and Useful`,name=>`${name} — Easy to Use, Ready for Everyday Life`,name=>`${name} — Useful Features Without the Complexity`],
-    openings:[(name,a)=>`${name} is made for ${a.toLowerCase()} who want useful features without unnecessary complexity.`,(name,a)=>`${name} keeps the experience clear and practical for ${a.toLowerCase()}.`]
-  }
-};
-function makeTags(name,category,features){
-  const words=(name+" "+category+" "+features.join(" ")).toLowerCase().match(/[a-z0-9À-ÿ]+/gi)||[];
-  const stop=new Set(["the","and","for","with","from","this","that","your","one","per","com","uma","para","que","dos","das"]);
-  const unique=[];
-  for(const word of words){if(word.length<4||stop.has(word)||unique.includes(word))continue;unique.push(word);if(unique.length===10)break}
-  return unique;
-}
-function makeDescription(name,details,audience,tone,features,version){
-  const style=styles[tone]||styles.Professional;
-  const opening=style.openings[(version-1)%style.openings.length](name,audience);
-  const featureLine=features.length?` Key highlights include ${features.slice(0,4).join(", ")}.`:" It focuses on a clear, practical product experience.";
-  const extra=details?` ${details}.`:" Review the specifications and compatibility before publishing.";
-  return opening+featureLine+extra;
-}
-function render(){
-  $("outTitle").textContent=state.title;
-  $("outDescription").textContent=state.description;
-  $("outFeatures").innerHTML=state.features.map(item=>`<li>${escapeHtml(item)}</li>`).join("");
-  $("outTags").innerHTML=state.tags.map(tag=>`<span class="tag">${escapeHtml(tag)}</span>`).join("");
-  $("outFaq").innerHTML=state.faq.map(item=>`<div class="faq"><strong>${escapeHtml(item.q)}</strong><span>${escapeHtml(item.a)}</span></div>`).join("");
-  $("empty").hidden=true;$("result").hidden=false;$("copy").disabled=false;
-}
-function generate(){
-  const name=clean($("name").value);
-  if(!name){$("status").className="status error";$("status").textContent="Add a product name to continue.";$("name").focus();return}
-  const category=clean($("category").value);
-  const features=$("features").value.split(/\n|,/).map(clean).filter(Boolean).slice(0,8);
-  const details=clean($("details").value),audience=$("audience").value,tone=$("tone").value;
-  state.version+=1;
-  const style=styles[tone]||styles.Professional;
-  const titleFactory=style.titles[(state.version-1)%style.titles.length];
-  state.title=titleFactory(name)+(category?` — ${category}`:"");
-  state.description=makeDescription(name,details,audience,tone,features,state.version);
-  state.features=features.length?features:["Designed for straightforward everyday use","Clear product presentation","Practical value for the intended customer"];
-  state.tags=makeTags(name,category,features);
-  state.faq=[
-    {q:"What is this product?",a:`${name} is a ${category||"practical product"} designed for ${audience.toLowerCase()}.`},
-    {q:"Who is it for?",a:`It is suitable for ${audience.toLowerCase()} looking for a clear, useful solution.`},
-    {q:"What should I check before publishing?",a:"Confirm specifications, compatibility, availability, pricing and any claims against the actual product."}
-  ];
-  render();
-  $("status").className="status success";
-  $("status").textContent=state.version===1?"Listing generated. Click again to create another version.":`Version ${state.version} generated. Keep generating until you find the one you like.`;
-  $("generate").textContent="Generate another version";
-}
+const state={version:0};
+const esc=v=>String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+const clean=v=>String(v||"").trim().replace(/\s+/g," ");
+const tokens=v=>(v||"").toLowerCase().match(/[a-z0-9À-ÿ]+/gi)||[];
+const slug=v=>clean(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,70);
+const titleStyles={Professional:["Reliable Choice for Everyday Use","Useful Features, Simple Experience","Designed for Everyday Value"],Friendly:["Made for Everyday Moments","Simple, Useful and Ready to Go","A Smart Pick for Everyday Use"],Premium:["Refined Features, Better Experience","Premium Everyday Choice","Crafted for Quality and Convenience"],Simple:["Simple and Useful","Easy to Use, Ready for Everyday Life","Useful Without the Complexity"],Persuasive:["Upgrade Your Everyday Experience","A Smarter Choice for Everyday Use","Discover What Makes It Different"]};
+function tags(name,cat,features,keywords){const stop=new Set("the and for with from this that your one per com uma para que dos das uma".split(" "));const out=[];for(const w of tokens(`${name} ${cat} ${features.join(" ")} ${keywords}`)){if(w.length<4||stop.has(w)||out.includes(w))continue;out.push(w);if(out.length===14)break}return out}
+function benefits(features,v){const fall=["Clear value for the intended customer","Practical features for everyday use","A straightforward product experience"];return (features.length?features.slice(0,6):fall).map((f,i)=>[`${f} made easy.`,`Designed around ${f.toLowerCase()}.`,`A practical benefit for shoppers who value ${f.toLowerCase()}.`][(v+i)%3])}
+function description(n,b,a,t,f,d,p,c,v){const name=b?`${b} ${n}`:n;const opens={Professional:[`${name} is a dependable choice for ${a.toLowerCase()} who want useful features and a clear experience.`,`Discover ${name}, designed for ${a.toLowerCase()} looking for practical value.`],Friendly:[`Meet ${name}, a useful option for ${a.toLowerCase()} who want a simple experience.`,`Looking for something practical? ${name} brings useful features together in an easy-to-understand product.`],Premium:[`${name} brings thoughtful features and a polished experience to ${a.toLowerCase()}.`,`Designed with a refined approach, ${name} combines useful functionality with a clean product experience.`],Simple:[`${name} keeps things clear and practical for ${a.toLowerCase()}.`,`Get useful functionality without unnecessary complexity with ${name}.`],Persuasive:[`Upgrade the everyday with ${name}, built around useful features and a clear customer experience.`,`Make a smarter product choice with ${name}, combining practical functionality with easy buying.`]};let s=(opens[t]||opens.Professional)[(v-1)%2];if(f.length)s+=` Highlights include ${f.slice(0,4).join(", ")}.`;if(d)s+=` ${d}.`;if(p)s+=` Price: ${p}.`;if(c&&c!=="Not specified")s+=` Condition: ${c}.`;return s}
+function generate(){const n=clean($("name").value);if(!n){$("status").className="status error";$("status").textContent="Add a product name to continue.";$("name").focus();return}const cat=clean($("category").value),brand=clean($("brand").value),details=clean($("details").value),price=clean($("price").value),keywords=clean($("keywords").value),features=$("features").value.split(/\n|,/).map(clean).filter(Boolean).slice(0,10),aud=$("audience").value,tone=$("tone").value,cta=$("cta").value,market=$("marketplace").value,condition=$("condition").value;state.version++;const styles=titleStyles[tone]||titleStyles.Professional;state.title=`${brand?brand+" ":""}${n} — ${styles[(state.version-1)%styles.length]}${cat?` — ${cat}`:""}`;state.description=description(n,brand,aud,tone,features,details,price,condition,state.version);state.features=features.length?features:["Designed for straightforward everyday use","Clear product presentation","Practical customer value"];state.benefits=benefits(features,state.version);state.tags=tags(n,cat,features,keywords);state.meta=`${state.title}. ${state.description}`.slice(0,158);state.slug=slug(`${n} ${cat}`);state.social=cta==="No CTA"?`${state.title}. ${state.description}`:`${state.title}. ${cta} — ${state.tags.slice(0,5).map(x=>`#${x}`).join(" ")}`;state.faq=[{q:"What is this product?",a:`${n} is a ${cat||"practical product"} for ${aud.toLowerCase()}.`},{q:"Who is it for?",a:`It is suitable for ${aud.toLowerCase()} looking for useful features and clear value.`},{q:"What should I check before publishing?",a:"Confirm specifications, compatibility, availability, pricing and product claims against the actual product."},{q:"Which marketplace is this for?",a:`This draft is prepared with ${market} in mind. Check that platform's publishing requirements before posting.`}];state.check=[n,cat,features.length>0,details,price];render();$("generate").textContent="Generate another version";$("status").className="status success";$("status").textContent=`Version ${state.version} generated. Keep generating until you find the one you like.`}
+function render(){$("outTitle").textContent=state.title;$("outDescription").textContent=state.description;$("outFeatures").innerHTML=state.features.map(x=>`<li>${esc(x)}</li>`).join("");$("outBenefits").innerHTML=state.benefits.map(x=>`<li>${esc(x)}</li>`).join("");$("outTags").innerHTML=state.tags.map((x,i)=>`<span class="tag tag-${i%5}">${esc(x)}</span>`).join("");$("outMeta").textContent=state.meta;$("outSlug").textContent=state.slug;$("outSocial").textContent=state.social;$("outFaq").innerHTML=state.faq.map(x=>`<div class="faq"><strong>${esc(x.q)}</strong><span>${esc(x.a)}</span></div>`).join("");$("outChecklist").innerHTML=state.check.map((x,i)=>`<div class="check ${x?"ok":"missing"}"><b>${x?"✓":"!"}</b>${["Product name added","Category added","Key features added","Product details added","Price added"][i]}</div>`).join("");$("versionBadge").textContent=`VERSION ${state.version}`;$("score").textContent=`${state.check.filter(Boolean).length}/5 READY`;$("empty").hidden=true;$("result").hidden=false;$("copy").disabled=false}
 $("generate").addEventListener("click",generate);
-$("copy").addEventListener("click",async()=>{
-  const text=[state.title,"",state.description,"","KEY FEATURES",...state.features.map(x=>`• ${x}`),"","TAGS",state.tags.join(", "),"","FAQ",...state.faq.flatMap(x=>[x.q,x.a])].join("\n");
-  try{await navigator.clipboard.writeText(text);$("status").className="status success";$("status").textContent="Listing copied to clipboard."}
-  catch{$("status").className="status error";$("status").textContent="Copy is unavailable in this browser."}
-});
-$("features").addEventListener("keydown",event=>{if(event.key==="Enter"&&!event.shiftKey)event.stopPropagation()});
+$("reset").addEventListener("click",()=>{["name","brand","category","features","details","price","keywords"].forEach(id=>$(id).value="");state.version=0;$("empty").hidden=false;$("result").hidden=true;$("copy").disabled=true;$("generate").textContent="Generate listing";$("status").textContent=""});
+$("copy").addEventListener("click",async()=>{const text=[state.title,"",state.description,"","KEY FEATURES",...state.features.map(x=>`• ${x}`),"","BENEFITS",...state.benefits.map(x=>`• ${x}`),"","TAGS",state.tags.join(", "),"","SEO META",state.meta,"","URL SLUG",state.slug,"","SOCIAL",state.social,"","FAQ",...state.faq.flatMap(x=>[x.q,x.a])].join("\n");try{await navigator.clipboard.writeText(text);$("status").className="status success";$("status").textContent="Complete content kit copied to clipboard."}catch{$("status").className="status error";$("status").textContent="Copy is unavailable in this browser."}});
