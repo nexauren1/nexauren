@@ -5,5 +5,18 @@ export const categories = [
   { slug: "text", name: "Text" },
   { slug: "productivity", name: "Productivity" },
   { slug: "business", name: "Business" },
-  { slug: "marketplace", name: "Marketplace" }
+  { slug: "marketplace", name: "Marketplace" },
+  { slug: "utilities", name: "Utilities" },
+  { slug: "developer", name: "Developer" },
+  { slug: "calculators", name: "Calculators" },
+  { slug: "qr-generators", name: "QR & Generators" },
+  { slug: "seo", name: "SEO" },
+  { slug: "media", name: "Media" },
+  { slug: "converters", name: "Converters" },
+  { slug: "security", name: "Security" },
+  { slug: "files", name: "Files" },
+  { slug: "color", name: "Color" },
+  { slug: "date-time", name: "Date & Time" },
+  { slug: "finance", name: "Finance" },
+  { slug: "education", name: "Education" }
 ];
