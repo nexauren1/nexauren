@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF Protect — Nexauren</title>
+<meta name="description" content="Protect a PDF with a password directly in your browser.">
+<link rel="stylesheet" href="style.css?v=1">
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="/">NEXAUREN</a><a class="all" href="/tools/">All tools →</a></header>
+<main>
+<section class="hero"><span class="eyebrow">NEXAUREN · PDF</span><h1>PDF Protect</h1><p>Protect a PDF with a password directly in your browser. Your file stays on your device.</p></section>
+<section class="card">
+<div id="drop" class="drop" tabindex="0"><div class="drop-icon">🔐</div><h2>Drop a PDF here</h2><p>PDF only · Processing happens locally</p><button id="choose" type="button">Choose PDF</button><input id="file" type="file" accept="application/pdf,.pdf" hidden></div>
+<div id="workspace" class="workspace" hidden>
+<div class="file-row"><div><strong id="fileName"></strong><span id="fileMeta"></span></div><button id="remove" class="ghost" type="button">Remove PDF</button></div>
+<div class="password-grid"><label>Password<input id="password" type="password" autocomplete="new-password" placeholder="Enter a strong password"></label><label>Confirm password<input id="confirm" type="password" autocomplete="new-password" placeholder="Repeat the password"></label></div>
+<div class="note">For best security, use a unique password you can remember. Nexauren does not upload your PDF.</div>
+<button id="protect" class="primary" type="button">Protect PDF</button>
+</div>
+<div id="status" class="status" hidden><span class="spinner"></span><div><strong id="statusTitle">Protecting your PDF…</strong><span id="statusText">Applying password protection</span></div></div>
+<div id="error" class="message error" hidden></div>
+<div id="result" class="result" hidden><div class="success">✓</div><h2>Your protected PDF is ready</h2><p id="resultText"></p><a id="download" class="primary link" download="nexauren-protected.pdf">Download protected PDF</a><button id="again" class="ghost" type="button">Protect another PDF</button></div>
+</section>
+<section class="info"><div><h2>Private by design</h2><p>The PDF is processed in your browser. No upload is required.</p></div><div><h2>Strong password</h2><p>Set and confirm the password before creating the protected copy.</p></div><div><h2>Simple workflow</h2><p>Choose a PDF, set a password and download the protected file.</p></div></section>
+<section class="faq"><h2>FAQ</h2><details><summary>Does my PDF leave my device?</summary><p>No. The protection step runs locally in your browser.</p></details><details><summary>Can Nexauren recover my password?</summary><p>No. Nexauren does not receive or store the password.</p></details><details><summary>Can I open the protected PDF everywhere?</summary><p>Password-protected PDFs are supported by most modern PDF readers, but compatibility can vary.</p></details></section>
+</main>
+<script src="script.js?v=1"></script>
+</body>
+</html>
