@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PNG to WebP — Nexauren</title>
+  <meta name="description" content="Convert PNG images to WebP directly in your browser while preserving transparency.">
+  <link rel="stylesheet" href="/css/nexauren-theme.css">
+  <link rel="stylesheet" href="/css/nexauren-pages.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="nexauren-header"></div>
+  <main class="page-shell">
+    <section class="tool-hero">
+      <span class="eyebrow">NEXAUREN · IMAGE</span>
+      <h1>PNG to WebP</h1>
+      <p>Convert PNG images to modern WebP files directly in your browser, with transparency preserved.</p>
+    </section>
+
+    <section class="tool-card" aria-label="PNG to WebP converter">
+      <label class="drop-zone" id="dropZone" for="fileInput">
+        <span class="drop-icon">P→W</span>
+        <strong>Drop your PNG here</strong>
+        <small>PNG only · processed locally in your browser</small>
+        <button type="button" class="upload-btn">Choose PNG</button>
+        <input id="fileInput" type="file" accept="image/png" hidden>
+      </label>
+
+      <div class="preview-panel hidden" id="previewPanel">
+        <div class="preview-wrap">
+          <img id="preview" alt="PNG preview">
+        </div>
+        <div class="file-info" id="fileInfo"></div>
+
+        <div class="controls">
+          <div class="control-head">
+            <label for="quality">WebP quality</label>
+            <output id="qualityValue">85</output>
+          </div>
+          <input id="quality" type="range" min="40" max="100" value="85">
+          <div class="quality-labels"><span>Smaller</span><span>Higher quality</span></div>
+        </div>
+
+        <div class="actions">
+          <button id="convertBtn" class="primary-btn" type="button">Convert to WebP</button>
+          <button id="resetBtn" class="secondary-btn" type="button">New image</button>
+        </div>
+      </div>
+
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="info-grid">
+      <article><strong>Private by default</strong><span>Your image stays in your browser during conversion.</span></article>
+      <article><strong>Transparency preserved</strong><span>WebP supports the transparent areas of your PNG.</span></article>
+      <article><strong>Fast conversion</strong><span>No server upload is required for this tool.</span></article>
+    </section>
+  </main>
+  <div id="nexauren-footer"></div>
+
+  <script src="/js/nexauren-ads.js"></script>
+  <script src="/js/G4A.js"></script>
+  <script src="/js/global-header.js"></script>
+  <script src="/js/global-footer.js"></script>
+  <script src="/js/global-loader.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
