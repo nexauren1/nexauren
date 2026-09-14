@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PNG to JPG — Nexauren</title>
+  <meta name="description" content="Convert PNG images to JPG directly in your browser with local processing.">
+  <link rel="stylesheet" href="/css/nexauren-theme.css">
+  <link rel="stylesheet" href="/css/nexauren-pages.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="nexauren-header"></div>
+
+  <main class="tool-page">
+    <section class="tool-hero">
+      <div class="tool-badge">NEXAUREN · IMAGE</div>
+      <h1>PNG to JPG</h1>
+      <p>Convert PNG images to JPG directly in your browser. Fast, private and simple.</p>
+    </section>
+
+    <section class="converter-card">
+      <div id="dropZone" class="drop-zone" tabindex="0">
+        <div class="drop-icon">PNG</div>
+        <h2>Drop your PNG here</h2>
+        <p>PNG only · Your image stays on your device</p>
+        <button id="chooseBtn" class="secondary-btn" type="button">Choose PNG</button>
+        <input id="fileInput" type="file" accept="image/png,.png" hidden>
+      </div>
+
+      <div id="workspace" class="workspace" hidden>
+        <div class="preview-wrap">
+          <img id="preview" alt="PNG preview">
+        </div>
+
+        <div class="file-info">
+          <strong id="fileName">image.png</strong>
+          <span id="fileMeta">PNG</span>
+        </div>
+
+        <div class="settings">
+          <div class="setting-row">
+            <label for="quality">JPG quality</label>
+            <output id="qualityValue">90%</output>
+          </div>
+          <input id="quality" type="range" min="40" max="100" value="90">
+
+          <label class="setting-label" for="background">Transparent background</label>
+          <select id="background">
+            <option value="#ffffff">White</option>
+            <option value="#f3f4f6">Light gray</option>
+            <option value="#000000">Black</option>
+          </select>
+        </div>
+
+        <button id="convertBtn" class="primary-btn" type="button">Convert to JPG</button>
+        <button id="resetBtn" class="text-btn" type="button">Choose another image</button>
+      </div>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="info-grid">
+      <article>
+        <span>01</span>
+        <h3>Choose a PNG</h3>
+        <p>Upload one PNG image or drag it into the converter.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>Adjust quality</h3>
+        <p>Choose the JPG compression quality before converting.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <h3>Download</h3>
+        <p>Your converted JPG is generated locally in your browser.</p>
+      </article>
+    </section>
+  </main>
+
+  <div id="nexauren-footer"></div>
+
+  <script src="/js/nexauren-ads.js"></script>
+  <script src="/js/G4A.js"></script>
+  <script src="/js/global-header.js"></script>
+  <script src="/js/global-footer.js"></script>
+  <script src="/js/global-loader.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
