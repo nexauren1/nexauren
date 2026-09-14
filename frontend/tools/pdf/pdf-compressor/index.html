@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0ea5a4">
+  <meta name="description" content="Compress PDF files directly in your browser with Nexauren PDF Compressor.">
+  <title>PDF Compressor — Nexauren</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">NEXAUREN</a>
+    <a class="all-tools" href="/tools/">All tools <span>→</span></a>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">NEXAUREN · PDF</div>
+      <h1>PDF Compressor</h1>
+      <p>Reduce PDF file size in your browser with adjustable compression while keeping the document useful and readable.</p>
+    </section>
+
+    <section class="card workspace" aria-label="PDF Compressor">
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose a PDF">
+        <div class="upload-icon">↓</div>
+        <h2>Drop your PDF here</h2>
+        <p>or choose a PDF from your device</p>
+        <button class="button primary" id="chooseBtn" type="button">Choose PDF</button>
+        <input id="fileInput" type="file" accept="application/pdf,.pdf" hidden>
+        <div class="local-note">Files stay in your browser. Nothing is uploaded.</div>
+      </div>
+
+      <div class="filebar hidden" id="filebar">
+        <div class="file-icon">PDF</div>
+        <div class="file-meta">
+          <strong id="fileName">document.pdf</strong>
+          <span id="fileInfo">0 pages · 0 MB</span>
+        </div>
+        <button class="icon-button" id="removeBtn" type="button" aria-label="Remove PDF">×</button>
+      </div>
+
+      <div class="controls hidden" id="controls">
+        <div class="section-title">
+          <div>
+            <span class="label">Compression level</span>
+            <span class="helper">Higher compression creates smaller files but may reduce visual quality.</span>
+          </div>
+        </div>
+        <div class="levels" id="levels">
+          <button type="button" class="level active" data-level="balanced">
+            <span class="level-name">Balanced</span><span class="level-desc">Recommended</span>
+          </button>
+          <button type="button" class="level" data-level="strong">
+            <span class="level-name">Strong</span><span class="level-desc">Smaller file</span>
+          </button>
+          <button type="button" class="level" data-level="maximum">
+            <span class="level-name">Maximum</span><span class="level-desc">Smallest target</span>
+          </button>
+        </div>
+
+        <div class="advanced-note">
+          <span class="dot"></span>
+          This compressor rebuilds pages as optimized images. Text may no longer be selectable in the compressed copy.
+        </div>
+
+        <button class="button compress" id="compressBtn" type="button">Compress PDF <span>→</span></button>
+      </div>
+
+      <div class="status hidden" id="status" role="status" aria-live="polite">
+        <div class="spinner"></div>
+        <div><strong id="statusTitle">Compressing…</strong><span id="statusText">Preparing pages</span></div>
+      </div>
+
+      <div class="result hidden" id="result">
+        <div class="result-head">
+          <div class="success-mark">✓</div>
+          <div><h2>Compression complete</h2><p id="resultMessage">Your PDF is ready.</p></div>
+        </div>
+        <div class="stats">
+          <div><span>Original</span><strong id="beforeSize">—</strong></div>
+          <div><span>Compressed</span><strong id="afterSize">—</strong></div>
+          <div><span>Reduction</span><strong id="reduction">—</strong></div>
+        </div>
+        <div class="result-actions">
+          <button class="button primary" id="downloadBtn" type="button">Download PDF</button>
+          <button class="button secondary" id="restartBtn" type="button">Compress another</button>
+        </div>
+      </div>
+
+      <div class="error hidden" id="error" role="alert"></div>
+    </section>
+
+    <section class="features">
+      <article><span>⚡</span><div><strong>Fast</strong><p>Processing happens locally in your browser.</p></div></article>
+      <article><span>🔒</span><div><strong>Private</strong><p>Your PDF does not need to leave your device.</p></div></article>
+      <article><span>◌</span><div><strong>Flexible</strong><p>Choose the balance between size and quality.</p></div></article>
+    </section>
+
+    <section class="faq">
+      <h2>About this tool</h2>
+      <details><summary>Will every PDF become smaller?</summary><p>Not necessarily. PDFs that are already highly optimized may see little reduction. Nexauren reports the actual result instead of promising a fixed percentage.</p></details>
+      <details><summary>Does it preserve selectable text?</summary><p>The compressed copy is rebuilt from rendered pages, so text can become non-selectable. Keep the original when searchable text is important.</p></details>
+      <details><summary>Are my files uploaded?</summary><p>No. The tool is designed to load, render and create the result in your browser.</p></details>
+    </section>
+  </main>
+
+  <footer>© 2026 Nexauren · PDF Compressor</footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
