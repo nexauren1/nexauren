@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="Convert images between JPG, PNG and WebP directly in your browser with Nexauren Image Converter.">
+  <meta property="og:site_name" content="Nexauren">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://nexaurenstory.com/favicon.png?v=2">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Image Converter — Nexauren</title>
+  <link rel="icon" type="image/png" href="/favicon.png?v=2">
+  <link rel="stylesheet" href="/css/nexauren-theme.css">
+  <link rel="stylesheet" href="/css/nexauren-pages.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="/js/nexauren-ads.js" defer></script>
+  <script src="/js/G4A.js" defer></script>
+</head>
+<body>
+  <div id="global-header"></div>
+
+  <main class="converter-page">
+    <section class="converter-hero">
+      <div class="converter-mark">⇄</div>
+      <div class="converter-label">NEXAUREN • IMAGE</div>
+      <h1>Image Converter</h1>
+      <p>Convert your images between popular formats directly in your browser.</p>
+      <div class="format-pills"><span>JPG</span><span>PNG</span><span>WebP</span></div>
+    </section>
+
+    <section class="converter-card">
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-icon">＋</div>
+        <h2>Drop an image here</h2>
+        <p>or choose a file from your device</p>
+        <label class="choose-button" for="imageInput">Choose image</label>
+        <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp">
+        <small>JPG, JPEG, PNG and WebP · processed locally</small>
+      </div>
+
+      <div class="workspace hidden" id="workspace">
+        <div class="preview-column">
+          <div class="section-heading"><span>Preview</span><span class="live-badge">LOCAL</span></div>
+          <div class="preview-frame">
+            <img id="preview" alt="Selected image preview">
+          </div>
+          <div class="file-meta" id="fileMeta"></div>
+        </div>
+
+        <div class="settings-column">
+          <div class="section-heading">Conversion</div>
+          <label class="field-label">
+            Convert to
+            <select id="formatInput">
+              <option value="image/jpeg">JPG</option>
+              <option value="image/png">PNG</option>
+              <option value="image/webp" selected>WebP</option>
+            </select>
+          </label>
+
+          <div id="qualityGroup">
+            <div class="quality-top"><label class="field-label" for="qualityInput">Quality</label><output id="qualityValue">90%</output></div>
+            <input id="qualityInput" type="range" min="10" max="100" value="90">
+            <div class="range-labels"><span>Smaller</span><span>Higher quality</span></div>
+          </div>
+
+          <div class="format-note" id="formatNote">WebP is a modern format with strong compression and transparency support.</div>
+
+          <div class="actions">
+            <button class="secondary" id="resetButton" type="button">New image</button>
+            <button class="convert-button" id="convertButton" type="button">Convert image</button>
+          </div>
+          <div class="status" id="status" role="status" aria-live="polite"></div>
+          <a class="download-button hidden" id="downloadButton">Download converted image</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="info-card">
+      <div><span class="info-number">01</span><h2>Choose</h2><p>Select a JPG, PNG or WebP image.</p></div>
+      <div><span class="info-number">02</span><h2>Convert</h2><p>Pick the format and adjust quality when supported.</p></div>
+      <div><span class="info-number">03</span><h2>Download</h2><p>Save the converted image to your device.</p></div>
+    </section>
+
+    <section class="privacy-note">
+      <strong>Private by design.</strong> Your image is processed locally in your browser. It does not need to be uploaded to Nexauren.
+    </section>
+  </main>
+
+  <div id="global-footer"></div>
+  <script src="/js/global-header.js"></script>
+  <script src="/js/global-footer.js"></script>
+  <script src="/js/global-loader.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
