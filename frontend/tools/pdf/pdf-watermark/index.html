@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF Watermark — Nexauren</title>
+<meta name="description" content="Add a text watermark to every page of a PDF directly in your browser.">
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<header class="top"><a class="brand" href="/">NEXAUREN</a><a class="all" href="/tools/">All tools →</a></header>
+<main>
+<section class="hero"><span class="eyebrow">NEXAUREN · PDF</span><h1>PDF Watermark</h1><p>Add a clean text watermark to your PDF and control its position, opacity, size and rotation — locally in your browser.</p></section>
+<section class="card">
+<label class="drop" id="drop"><input id="file" type="file" accept="application/pdf,.pdf"><span class="dropIcon">⌁</span><strong>Drop a PDF here</strong><small>or click to browse · PDF only</small></label>
+<div id="fileInfo" class="fileInfo" hidden></div>
+<div class="grid">
+<label>Watermark text<input id="text" type="text" maxlength="80" value="CONFIDENTIAL" placeholder="e.g. CONFIDENTIAL"></label>
+<label>Font size<input id="size" type="number" min="8" max="120" value="36"></label>
+<label>Opacity<select id="opacity"><option value="0.15">15%</option><option value="0.25" selected>25%</option><option value="0.4">40%</option><option value="0.6">60%</option><option value="0.8">80%</option></select></label>
+<label>Rotation<select id="rotation"><option value="0">0°</option><option value="-45" selected>-45°</option><option value="45">45°</option><option value="90">90°</option></select></label>
+<label>Horizontal<select id="x"><option value="left">Left</option><option value="center" selected>Center</option><option value="right">Right</option></select></label>
+<label>Vertical<select id="y"><option value="top">Top</option><option value="center" selected>Center</option><option value="bottom">Bottom</option></select></label>
+</div>
+<button id="run" class="primary" disabled>Add watermark</button>
+<div id="status" class="status" hidden><span class="spinner"></span><div><strong id="statusTitle"></strong><small id="statusText"></small></div></div>
+<div id="error" class="error" hidden></div>
+<div id="result" class="result" hidden><span>✓</span><div><strong>Watermarked PDF is ready</strong><small>Your original file was not uploaded.</small></div><a id="download" class="download" href="#">Download PDF</a><button id="reset" class="secondary">Start over</button></div>
+</section>
+<section class="info"><div><h2>Private by design</h2><p>Your PDF is processed in browser memory. Nothing is sent to a Nexauren server.</p></div><div><h2>Simple controls</h2><p>Choose text, size, opacity, rotation and page position before exporting.</p></div><div><h2>Works on every page</h2><p>The watermark is placed on each page while keeping the original PDF structure.</p></div></section>
+<section class="faq"><h2>FAQ</h2><details><summary>Can I watermark every page?</summary><p>Yes. Nexauren applies the watermark to every page of the selected PDF.</p></details><details><summary>Is my PDF uploaded?</summary><p>No. Processing happens locally in your browser.</p></details><details><summary>Can I use a different watermark?</summary><p>Yes. Enter any short text you want, such as a name, draft label or confidentiality notice.</p></details></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="script.js?v=1"></script>
+</body></html>
