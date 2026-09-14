@@ -58,6 +58,149 @@
     @media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:25px}.categories{grid-template-columns:repeat(2,1fr)}.navlinks{display:none}.nav-actions .btn:first-child{display:none}.menu{display:block}.footer-grid{grid-template-columns:1.4fr 1fr 1fr}}
     @media(max-width:600px){.wrap{width:calc(100% - 24px)}.hero{padding:36px 0 24px}h1{font-size:38px}.hero-copy{font-size:15px}.hero-actions{display:grid;grid-template-columns:1fr}.hero-actions .btn{width:100%}.tool-list{grid-template-columns:1fr 1fr}section{padding:29px 0}.categories{grid-template-columns:1fr 1fr}.category{min-height:125px;padding:14px}.icon{margin-bottom:10px}.category h3{font-size:14px}.category p{font-size:11px}.steps{grid-template-columns:1fr}.cta{display:grid}.footer-grid{grid-template-columns:1fr 1fr}.footer-grid>div:first-child{grid-column:1/-1}}
   </style>
+<!-- NEXAUREN-HOME-DESIGN-START -->
+
+<style>
+/* NEXAUREN HOME — COLOR SYSTEM */
+:root{
+  --nx-green:#16a34a;
+  --nx-red:#ef4444;
+  --nx-yellow:#eab308;
+  --nx-blue:#2563eb;
+  --nx-violet:#7c3aed;
+}
+
+.hero:after{
+  content:"";
+  position:absolute;
+  left:-180px;
+  bottom:-220px;
+  width:520px;
+  height:520px;
+  background:radial-gradient(circle,rgba(124,58,237,.10),transparent 68%);
+  pointer-events:none;
+}
+
+.eyebrow{
+  background:linear-gradient(90deg,#effdf4,#eff6ff,#f5f3ff);
+  border-color:#dbe5f5;
+}
+
+.hero h1 .gradient{
+  background:linear-gradient(
+    90deg,
+    var(--nx-green) 0%,
+    var(--nx-blue) 35%,
+    var(--nx-violet) 68%,
+    var(--nx-red) 100%
+  );
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.finder{
+  border-top:3px solid var(--nx-blue);
+}
+
+.tool-grid .tool{
+  position:relative;
+  overflow:hidden;
+}
+
+.tool-grid .tool:before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:4px;
+  background:var(--nx-blue);
+}
+
+.tool-grid .tool:nth-child(5n+1):before{background:var(--nx-green)}
+.tool-grid .tool:nth-child(5n+2):before{background:var(--nx-red)}
+.tool-grid .tool:nth-child(5n+3):before{background:var(--nx-yellow)}
+.tool-grid .tool:nth-child(5n+4):before{background:var(--nx-blue)}
+.tool-grid .tool:nth-child(5n):before{background:var(--nx-violet)}
+
+.tool-grid .tool:nth-child(5n+1) .tool-icon{
+  background:#ecfdf3;color:#15803d;border-color:#bbf7d0;
+}
+.tool-grid .tool:nth-child(5n+2) .tool-icon{
+  background:#fef2f2;color:#dc2626;border-color:#fecaca;
+}
+.tool-grid .tool:nth-child(5n+3) .tool-icon{
+  background:#fefce8;color:#a16207;border-color:#fde68a;
+}
+.tool-grid .tool:nth-child(5n+4) .tool-icon{
+  background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;
+}
+.tool-grid .tool:nth-child(5n) .tool-icon{
+  background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe;
+}
+
+.tool-grid .tool:nth-child(5n+1) .tool-link{color:var(--nx-green)}
+.tool-grid .tool:nth-child(5n+2) .tool-link{color:var(--nx-red)}
+.tool-grid .tool:nth-child(5n+3) .tool-link{color:#a16207}
+.tool-grid .tool:nth-child(5n+4) .tool-link{color:var(--nx-blue)}
+.tool-grid .tool:nth-child(5n) .tool-link{color:var(--nx-violet)}
+
+.categories .category{
+  position:relative;
+  overflow:hidden;
+  border-top:3px solid #dbe2ee;
+}
+
+.categories .category:nth-child(1){border-top-color:var(--nx-green)}
+.categories .category:nth-child(2){border-top-color:var(--nx-red)}
+.categories .category:nth-child(3){border-top-color:var(--nx-yellow)}
+.categories .category:nth-child(4){border-top-color:var(--nx-blue)}
+.categories .category:nth-child(5){border-top-color:var(--nx-violet)}
+
+.categories .category:nth-child(1) .category-icon{
+  background:#ecfdf3;color:#15803d;
+}
+.categories .category:nth-child(2) .category-icon{
+  background:#fef2f2;color:#dc2626;
+}
+.categories .category:nth-child(3) .category-icon{
+  background:#fefce8;color:#a16207;
+}
+.categories .category:nth-child(4) .category-icon{
+  background:#eff6ff;color:#1d4ed8;
+}
+.categories .category:nth-child(5) .category-icon{
+  background:#f5f3ff;color:#6d28d9;
+}
+
+.categories .category:nth-child(1) strong{color:#15803d}
+.categories .category:nth-child(2) strong{color:#dc2626}
+.categories .category:nth-child(3) strong{color:#a16207}
+.categories .category:nth-child(4) strong{color:#1d4ed8}
+.categories .category:nth-child(5) strong{color:#6d28d9}
+
+.value-grid .value{
+  border-left:4px solid #dbe2ee;
+}
+.value-grid .value:nth-child(1){border-left-color:var(--nx-green)}
+.value-grid .value:nth-child(2){border-left-color:var(--nx-blue)}
+.value-grid .value:nth-child(3){border-left-color:var(--nx-violet)}
+
+.cta{
+  background:
+    radial-gradient(circle at 90% 20%,rgba(124,58,237,.34),transparent 30%),
+    radial-gradient(circle at 10% 100%,rgba(22,163,74,.22),transparent 30%),
+    linear-gradient(120deg,#172554,#263f91 52%,#5b21b6);
+}
+
+@media(max-width:700px){
+  .tool-grid .tool{border-radius:17px}
+  .categories .category{border-top-width:3px}
+}
+</style>
+
+<!-- NEXAUREN-HOME-DESIGN-END -->
 </head>
 <body>
 <header>
