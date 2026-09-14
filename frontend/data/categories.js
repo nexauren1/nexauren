@@ -1,4 +1,5 @@
 export const categories = [
+  { slug: "ai", name: "AI" },
   { slug: "audio", name: "Audio" },
   { slug: "image", name: "Image" },
   { slug: "pdf", name: "PDF" },
