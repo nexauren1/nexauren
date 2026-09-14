@@ -1,7 +1,14 @@
+import {
+  getToolPlan,
+  planRank,
+  checkToolFeature,
+  upgradeRequired
+} from "./access-control.js";
+
 const COOKIE = "nexauren_session";
 const MODEL = "@cf/black-forest-labs/flux-2-klein-9b";
 
-const FEATURES = {
+const FEATURE_FALLBACKS = {
   "image-editing": "pro",
   variations: "pro",
   "multi-reference": "premium",
@@ -17,10 +24,6 @@ const json = (data, status = 200) =>
     }
   });
 
-function rank(plan) {
-  return { free: 0, pro: 1, premium: 2 }[plan] ?? 0;
-}
-
 async function user(req, env) {
   const cookie = req.headers.get("Cookie") || "";
   const match = cookie.match(new RegExp(`${COOKIE}=([^;]+)`));
@@ -32,20 +35,19 @@ async function user(req, env) {
   ).bind(match[1], Date.now()).first();
 }
 
-async function planData(userId, env) {
-  return env.DB.prepare(
-    "SELECT p.slug FROM subscriptions s " +
-    "JOIN plans p ON p.id=s.plan_id " +
-    "WHERE s.user_id=? AND s.status='active' " +
-    "ORDER BY s.created_at DESC LIMIT 1"
-  ).bind(userId).first();
-}
+async function featureRows(env, plan) {
+  const rows = await env.TOOLS_DB.prepare(
+    "SELECT feature_key,required_plan,name,description " +
+    "FROM tool_features " +
+    "WHERE tool_slug=? AND active=1 ORDER BY feature_key"
+  ).bind("ai-image-generator").all();
 
-function featureRows(plan) {
-  return Object.entries(FEATURES).map(([key, required]) => ({
-    key,
-    required_plan: required,
-    unlocked: rank(plan) >= rank(required)
+  return (rows.results || []).map((row) => ({
+    key: row.feature_key,
+    name: row.name,
+    description: row.description,
+    required_plan: row.required_plan,
+    unlocked: planRank(plan) >= planRank(row.required_plan)
   }));
 }
 
@@ -99,18 +101,52 @@ async function runModel(env, prompt, width, height, images, guidance) {
   return response.image;
 }
 
+async function requireConfiguredFeature(env, userId, featureKey) {
+  const result = await checkToolFeature(
+    env,
+    userId,
+    "ai-image-generator",
+    featureKey
+  );
+
+  if (result.code === "FEATURE_NOT_CONFIGURED") {
+    const fallback = FEATURE_FALLBACKS[featureKey];
+    if (!fallback) return result;
+    return {
+      ok: false,
+      code: "UPGRADE_REQUIRED",
+      plan: await getToolPlan(env, userId),
+      required_plan: fallback,
+      feature: { name: featureKey }
+    };
+  }
+
+  return result;
+}
+
 export async function handleAIImage(req, env) {
   const path = new URL(req.url).pathname;
   if (!path.startsWith("/api/ai/image")) return null;
 
   const currentUser = await user(req, env);
-  const row = currentUser
-    ? await planData(currentUser.id, env)
-    : null;
-  const plan = String(row?.slug || "free");
+  const plan = currentUser
+    ? await getToolPlan(env, currentUser.id)
+    : "free";
 
   if (path === "/api/ai/image/access" && req.method === "GET") {
-    return json({ ok: true, plan, features: featureRows(plan) });
+    if (!currentUser) {
+      return json({
+        ok: false,
+        code: "LOGIN_REQUIRED",
+        error: "Please log in to view image feature access."
+      }, 401);
+    }
+
+    return json({
+      ok: true,
+      plan,
+      features: await featureRows(env, plan)
+    });
   }
 
   if (path !== "/api/ai/image" || req.method !== "POST") {
@@ -164,26 +200,23 @@ export async function handleAIImage(req, env) {
     return json({ ok: false, error: "Upload an image first." }, 400);
   }
 
-  if (feature && !FEATURES[feature]) {
+  if (feature && !FEATURE_FALLBACKS[feature]) {
     return json({ ok: false, error: "Invalid image feature." }, 400);
   }
 
-  if (mode === "edit" && rank(plan) < rank("pro")) {
-    return json({
-      ok: false,
-      code: "UPGRADE_REQUIRED",
-      required_plan: "pro",
-      error: "AI Image Editing requires Pro."
-    }, 403);
-  }
+  const requiredFeature = mode === "edit"
+    ? "image-editing"
+    : feature;
 
-  if (feature && rank(plan) < rank(FEATURES[feature])) {
-    return json({
-      ok: false,
-      code: "UPGRADE_REQUIRED",
-      required_plan: FEATURES[feature],
-      error: `This feature requires ${FEATURES[feature]}.`
-    }, 403);
+  if (requiredFeature) {
+    const access = await requireConfiguredFeature(
+      env,
+      currentUser.id,
+      requiredFeature
+    );
+    if (!access.ok) {
+      return json(upgradeRequired(access), 403);
+    }
   }
 
   if (feature === "variations" && variationCount < 2) {
