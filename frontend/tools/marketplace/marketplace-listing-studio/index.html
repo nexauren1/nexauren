@@ -4,60 +4,49 @@
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png?v=2">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2">
 <link rel="apple-touch-icon" href="/favicon.png?v=2">
-<meta property="og:site_name" content="Nexauren">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://nexaurenstory.com/favicon.png?v=2">
-<meta property="og:image:type" content="image/png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="Nexauren">
-<meta name="twitter:image" content="https://nexaurenstory.com/favicon.png?v=2">
-
-
-
-
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta property="og:site_name" content="Nexauren"><meta property="og:type" content="website">
+<meta property="og:image" content="https://nexaurenstory.com/favicon.png?v=2"><meta property="og:image:type" content="image/png">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="Nexauren"><meta name="twitter:image" content="https://nexaurenstory.com/favicon.png?v=2">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Marketplace Listing Studio | Nexauren</title>
-<meta name="description" content="Create marketplace listings, SEO copy, tags, social captions, FAQs and product copy with Nexauren.">
-<link rel="stylesheet" href="./style.css">
-<script src="/js/nexauren-ads.js" defer></script>
-  <script src="/js/G4A.js" defer></script>
+<meta name="description" content="Create intelligent marketplace listings, SEO copy, tags, social captions and FAQs with Nexauren.">
+<link rel="stylesheet" href="./style.css"><script src="/js/nexauren-ads.js" defer></script><script src="/js/G4A.js" defer></script>
 </head>
 <body>
 <header class="site-header"><a class="brand" href="/"><img src="/favicon.png?v=2" alt="Nexauren">Nexauren</a><a href="/tools/" class="back">All tools →</a></header>
 <main class="shell">
-<section class="hero"><span class="eyebrow">NEXAUREN · MARKETPLACE</span><h1>Marketplace Listing Studio</h1><p>One product. Multiple publishing assets. Create listings, SEO copy, social content, tags and FAQs in seconds.</p></section>
+<section class="hero"><span class="eyebrow">NEXAUREN · MARKETPLACE</span><h1>Marketplace Listing Studio</h1><p>Turn raw product information into a complete, polished content kit: listing copy, SEO, tags, social content, FAQs and a quality check.</p></section>
 <section class="workspace">
 <div class="panel input-panel">
-<div class="panel-head"><div><span class="step">01</span><h2>Product studio</h2></div><span class="local">Runs in your browser</span></div>
-<div class="quick-grid"><label>Marketplace<select id="marketplace"><option>General marketplace</option><option>Amazon</option><option>Etsy</option><option>eBay</option><option>Shopify</option><option>Facebook Marketplace</option></select></label><label>Language<select id="language"><option>English</option><option>Português</option><option>Français</option><option>Español</option></select></label></div>
+<div class="panel-head"><div><span class="step">01</span><h2>Product studio</h2></div><span class="local">Smart browser generation</span></div>
+<div class="quick-grid"><label>Marketplace<select id="marketplace"><option>General marketplace</option><option>Amazon</option><option>Etsy</option><option>eBay</option><option>Shopify</option><option>Facebook Marketplace</option></select></label><label>Output language<select id="language"><option>English</option><option>Português</option><option>Français</option><option>Español</option></select></label></div>
 <label>Product name<input id="name" maxlength="100" placeholder="e.g. Wireless Desk Lamp"></label>
 <div class="quick-grid"><label>Brand<input id="brand" maxlength="60" placeholder="e.g. Nexauren"></label><label>Category<input id="category" maxlength="80" placeholder="e.g. Home & Office"></label></div>
 <label>Key features<textarea id="features" rows="4" placeholder="One feature per line or comma separated"></textarea></label>
-<label>Product details<textarea id="details" rows="4" placeholder="Materials, size, compatibility, what's included, warranty, etc."></textarea></label>
-<div class="quick-grid"><label>Price<input id="price" maxlength="30" placeholder="e.g. $25"></label><label>Condition<select id="condition"><option>New</option><option>Used</option><option>Refurbished</option><option>Not specified</option></select></label></div>
+<label>Product details<textarea id="details" rows="4" placeholder="Materials, size, compatibility, what's included, warranty, condition, important facts..."></textarea></label>
+<div class="quick-grid"><label>Price<input id="price" maxlength="30" placeholder="e.g. 50 MT"></label><label>Condition<select id="condition"><option>New</option><option>Used</option><option>Refurbished</option><option>Not specified</option></select></label></div>
 <label>Target customer<select id="audience"><option>General shoppers</option><option>Professionals</option><option>Students</option><option>Creators</option><option>Home users</option><option>Gift buyers</option></select></label>
 <div class="quick-grid"><label>Tone<select id="tone"><option>Professional</option><option>Friendly</option><option>Premium</option><option>Simple</option><option>Persuasive</option></select></label><label>Call to action<select id="cta"><option>Shop now</option><option>Learn more</option><option>Order today</option><option>Discover it</option><option>No CTA</option></select></label></div>
-<label>Extra SEO keywords<input id="keywords" maxlength="180" placeholder="e.g. wireless headphones, bluetooth audio, long battery"></label>
+<label>Extra SEO keywords<input id="keywords" maxlength="180" placeholder="e.g. itel phone, affordable smartphone, 50 MT phone"></label>
 <div class="action-row"><button id="generate" class="primary">Generate listing</button><button id="reset" class="ghost" type="button">Reset</button></div><div id="status" class="status" role="status"></div>
 </div>
 <div class="panel result-panel">
-<div class="panel-head"><div><span class="step">02</span><h2>Your content</h2></div><button id="copy" class="secondary" disabled>Copy all</button></div>
-<div id="empty" class="empty"><div class="empty-icon">✦</div><strong>Your content will appear here</strong><p>Generate a version, then keep generating until you find the one you like.</p></div>
+<div class="panel-head"><div><span class="step">02</span><h2 id="contentHeading">Your content</h2></div><button id="copy" class="secondary" disabled>Copy all</button></div>
+<div id="empty" class="empty"><div class="empty-icon">✦</div><strong>Ready to build your listing</strong><p>Generate a version, review the quality score, then generate again for another angle.</p></div>
 <div id="result" class="result" hidden>
-<div class="result-top"><span id="versionBadge" class="version">VERSION 1</span><span id="score" class="score">READY</span></div>
-<div class="result-block accent-blue"><span class="label">TITLE</span><div id="outTitle" class="title-output"></div></div>
-<div class="result-block accent-violet"><span class="label">DESCRIPTION</span><p id="outDescription"></p></div>
-<div class="result-block accent-green"><span class="label">KEY FEATURES</span><ul id="outFeatures"></ul></div>
-<div class="result-block accent-yellow"><span class="label">BENEFITS</span><ul id="outBenefits"></ul></div>
-<div class="result-block accent-red"><span class="label">SEARCH TAGS</span><div id="outTags" class="tags"></div></div>
-<div class="result-block"><span class="label">SEO META DESCRIPTION</span><p id="outMeta"></p></div>
-<div class="result-block"><span class="label">URL SLUG</span><code id="outSlug"></code></div>
-<div class="result-block"><span class="label">SOCIAL CAPTION</span><p id="outSocial"></p></div>
-<div class="result-block"><span class="label">FAQ</span><div id="outFaq"></div></div>
-<div class="result-block checklist"><span class="label">PUBLISH CHECK</span><div id="outChecklist"></div></div>
+<div class="result-top"><span id="versionBadge" class="version">VERSION 1</span><span id="score" class="score">0/100 READY</span></div>
+<div class="result-block accent-blue"><span id="labelTitle" class="label">TITLE</span><div id="outTitle" class="title-output"></div></div>
+<div class="result-block accent-violet"><span id="labelDescription" class="label">DESCRIPTION</span><p id="outDescription"></p></div>
+<div class="result-block accent-green"><span id="labelFeatures" class="label">KEY FEATURES</span><ul id="outFeatures"></ul></div>
+<div class="result-block accent-yellow"><span id="labelBenefits" class="label">BENEFITS</span><ul id="outBenefits"></ul></div>
+<div class="result-block accent-red"><span id="labelTags" class="label">SEARCH TAGS</span><div id="outTags" class="tags"></div></div>
+<div class="result-block"><span id="labelMeta" class="label">SEO META DESCRIPTION</span><p id="outMeta"></p></div>
+<div class="result-block"><span id="labelSlug" class="label">URL SLUG</span><code id="outSlug"></code></div>
+<div class="result-block"><span id="labelSocial" class="label">SOCIAL CAPTION</span><p id="outSocial"></p></div>
+<div class="result-block"><span id="labelFaq" class="label">FAQ</span><div id="outFaq"></div></div>
+<div class="result-block checklist"><span id="labelCheck" class="label">PUBLISH CHECK</span><div id="outChecklist"></div></div>
 </div></div></section>
-<section class="info"><div><strong>More than a listing generator.</strong><p>Create a complete product-content kit from the same information. Review facts, pricing and claims before publishing.</p></div><a href="/categories/">Explore categories →</a></section>
+<section class="info"><div><strong>Built to help you publish better.</strong><p>Nexauren checks the information you supplied and turns it into multiple reusable assets. Always verify product facts, price, availability and claims before publishing.</p></div><a href="/categories/">Explore categories →</a></section>
 </main><footer>© 2026 Nexauren · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/cookies/">Cookies</a></footer>
 <script src="./script.js" defer></script>
 </body></html>
