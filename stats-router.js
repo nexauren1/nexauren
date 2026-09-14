@@ -36,6 +36,29 @@ async function toolPlan(env,userId){
   return "free";
 }
 
+async function rulesApi(req,env){
+  if(req.method!=="GET")return null;
+  const user=await currentUser(req,env);
+  if(!user)return json({error:"Please sign in."},401);
+  const plan=await toolPlan(env,user.id);
+  const rules=getEventCountdownRules(plan);
+  let total=0;
+  try{
+    const row=await env.TOOLS_DB.prepare(
+      "SELECT COUNT(*) AS total FROM tool_events WHERE user_id=? AND tool_slug=?"
+    ).bind(user.id,"event-countdown").first();
+    total=Number(row?.total||0);
+  }catch(_){ }
+  return json({
+    ok:true,
+    plan,
+    maxEvents:Number.isFinite(rules.maxEvents)?rules.maxEvents:null,
+    eventsUsed:total,
+    allowedThemes:rules.allowedThemes,
+    statistics:rules.statistics
+  });
+}
+
 async function enforceCreate(req,env){
   const user=await currentUser(req,env);
   if(!user)return json({error:"Please sign in to create an event."},401);
@@ -121,6 +144,10 @@ async function enforceStats(req,env,eventId){
 export default {
   async fetch(req,env,ctx){
     const url=new URL(req.url);
+
+    if(url.pathname==="/api/tools/event-countdown/rules"){
+      return rulesApi(req,env);
+    }
 
     const createPath=url.pathname==="/api/tools/event-countdown/events";
     if(createPath && req.method==="POST"){
