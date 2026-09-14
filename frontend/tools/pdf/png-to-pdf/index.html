@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0ea5e9"><meta name="description" content="Turn PNG images into a PDF directly in your browser with Nexauren.">
+<title>PNG to PDF — Nexauren</title><link rel="icon" type="image/png" sizes="48x48" href="/favicon.png?v=2"><link rel="apple-touch-icon" href="/favicon.png?v=2">
+<meta property="og:site_name" content="Nexauren"><meta property="og:type" content="website"><meta property="og:image" content="https://nexaurenstory.com/favicon.png?v=2"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://nexaurenstory.com/favicon.png?v=2">
+<link rel="stylesheet" href="style.css"><script src="/js/nexauren-ads.js" defer></script><script src="/js/G4A.js" defer></script>
+</head><body>
+<header class="topbar"><a class="brand" href="/">NEXAUREN</a><a class="tools" href="/tools/">All tools <span>→</span></a></header>
+<main class="page">
+<section class="hero"><div class="eyebrow">NEXAUREN · PDF</div><h1>PNG to PDF</h1><p>Combine your PNG images into a polished PDF, with flexible page sizing and simple page ordering.</p></section>
+<section class="card">
+<div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Add PNG images"><div class="upload-icon">◇</div><h2>Drop your PNG images here</h2><p>or choose multiple PNG files from your device</p><button class="button primary" id="chooseBtn" type="button">Choose PNG images</button><input id="fileInput" type="file" accept="image/png,.png" multiple hidden><small>Private processing · Your images stay on your device</small></div>
+<div id="workspace" class="hidden"><div class="workspace-head"><div><strong id="fileCount">0 images</strong><span>Drag cards to change page order.</span></div><button class="clear" id="clearBtn" type="button">Clear all</button></div><div class="thumbs" id="thumbs"></div>
+<div class="options"><div><label for="pageSize">Page size</label><p>Choose the PDF page format.</p></div><select id="pageSize"><option value="fit" selected>Fit image</option><option value="a4">A4</option><option value="letter">Letter</option></select></div>
+<div class="options"><div><label for="orientation">Orientation</label><p>Used for fixed page sizes.</p></div><select id="orientation"><option value="auto" selected>Auto</option><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div>
+<div class="options"><div><label for="margin">Margin</label><p>Add breathing room around each image.</p></div><select id="margin"><option value="0" selected>None</option><option value="18">Small</option><option value="36">Medium</option></select></div>
+<button class="button convert" id="convertBtn" type="button">Create PDF <span>→</span></button></div>
+<div id="status" class="status hidden"><div class="spinner"></div><div><strong id="statusTitle">Creating PDF…</strong><span id="statusText">Preparing your images</span></div></div>
+<div id="result" class="result hidden"><div class="success">✓</div><div class="resultcopy"><h2>Your PDF is ready</h2><p id="resultText">Your images have been combined successfully.</p></div><a class="download" id="downloadBtn" href="#">Download PDF <span>↓</span></a><button class="button secondary" id="restartBtn" type="button">Create another PDF</button></div>
+<div id="error" class="error hidden"></div>
+</section>
+<section class="features"><article><b>↕</b><div><strong>Easy ordering</strong><p>Arrange PNG pages before creating the PDF.</p></div></article><article><b>🔒</b><div><strong>Private</strong><p>Conversion happens locally in your browser.</p></div></article><article><b>◇</b><div><strong>PNG ready</strong><p>Transparent PNG artwork can be placed cleanly on PDF pages.</p></div></article></section>
+<section class="faq"><h2>Good to know</h2><details><summary>Can I add several PNG images?</summary><p>Yes. Select or drop multiple PNG files and each image becomes a PDF page.</p></details><details><summary>Can I reorder the pages?</summary><p>Yes. Drag the image cards into your preferred order before creating the PDF.</p></details><details><summary>Are my PNG files uploaded?</summary><p>No. The conversion is performed locally in your browser.</p></details></section>
+</main><footer>© 2026 Nexauren · PNG to PDF</footer>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script><script src="script.js"></script>
+</body></html>
