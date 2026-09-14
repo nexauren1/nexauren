@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="Convert JPG images to PNG directly in your browser with Nexauren.">
+  <title>JPG to PNG — Nexauren</title>
+  <link rel="icon" href="/favicon.png?v=2">
+  <link rel="stylesheet" href="/css/nexauren-theme.css">
+  <link rel="stylesheet" href="/css/nexauren-pages.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="/js/nexauren-ads.js" defer></script>
+  <script src="/js/G4A.js" defer></script>
+</head>
+<body>
+  <div id="global-header"></div>
+  <main class="tool-page">
+    <section class="tool-hero">
+      <div class="tool-icon">J→P</div>
+      <div class="tool-label">NEXAUREN • IMAGE</div>
+      <h1>JPG to PNG</h1>
+      <p>Convert JPG and JPEG images to crisp PNG files directly in your browser.</p>
+    </section>
+    <section class="tool-card">
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-symbol">＋</div>
+        <h2>Drop a JPG image here</h2>
+        <p>JPG or JPEG · Your image stays on your device</p>
+        <label class="upload-button" for="imageInput">Choose JPG</label>
+        <input id="imageInput" type="file" accept="image/jpeg">
+      </div>
+      <div class="workspace hidden" id="workspace">
+        <div class="preview-panel">
+          <div class="panel-title">Preview</div>
+          <div class="preview-wrap"><img id="preview" alt="JPG preview"></div>
+          <div class="file-info" id="fileInfo"></div>
+        </div>
+        <div class="controls-panel">
+          <div class="panel-title">PNG output</div>
+          <div class="format-box"><span>Output format</span><strong>PNG</strong><small>Lossless format · no quality slider needed</small></div>
+          <div class="actions">
+            <button class="secondary" id="newButton" type="button">New image</button>
+            <button class="primary" id="convertButton" type="button">Convert to PNG</button>
+          </div>
+          <div class="status" id="status" role="status"></div>
+        </div>
+      </div>
+    </section>
+    <section class="tool-info">
+      <h2>How to use</h2>
+      <ol>
+        <li>Select or drop a JPG/JPEG image.</li>
+        <li>Check the preview.</li>
+        <li>Click <strong>Convert to PNG</strong>.</li>
+        <li>Your PNG file is generated locally and downloaded.</li>
+      </ol>
+      <p>Processing happens entirely in your browser. The image is not uploaded to a Nexauren server.</p>
+    </section>
+  </main>
+  <div id="global-footer"></div>
+  <script src="/js/global-header.js"></script>
+  <script src="/js/global-footer.js"></script>
+  <script src="/js/global-loader.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
