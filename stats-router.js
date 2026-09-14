@@ -1,6 +1,5 @@
 import eventRouter from "./event-router.js";
 import { getEventCountdownRules } from "./frontend/tools/utilities/event-countdown/rules.js";
-import { getToolPlan } from "./access-control.js";
 
 function json(data,status=200){
   return new Response(JSON.stringify(data),{
@@ -25,11 +24,26 @@ async function currentUser(req,env){
   ).bind(match[1],Date.now()).first();
 }
 
+async function toolPlan(env,userId){
+  try{
+    const row=await env.DB.prepare(
+      "SELECT p.slug FROM subscriptions s " +
+      "JOIN plans p ON p.id=s.plan_id " +
+      "WHERE s.user_id=? AND s.status='active' AND p.active=1 " +
+      "ORDER BY s.created_at DESC LIMIT 1"
+    ).bind(userId).first();
+
+    const plan=String(row?.slug||"free").toLowerCase();
+    if(["free","pro","premium"].includes(plan))return plan;
+  }catch(_){ }
+  return "free";
+}
+
 async function rulesApi(req,env){
   if(req.method!=="GET")return null;
   const user=await currentUser(req,env);
   if(!user)return json({error:"Please sign in."},401);
-  const plan=await getToolPlan(env,user.id);
+  const plan=await toolPlan(env,user.id);
   const rules=getEventCountdownRules(plan);
   let total=0;
   try{
@@ -52,7 +66,7 @@ async function enforceCreate(req,env){
   const user=await currentUser(req,env);
   if(!user)return json({error:"Please sign in to create an event."},401);
 
-  const plan=await getToolPlan(env,user.id);
+  const plan=await toolPlan(env,user.id);
   const rules=getEventCountdownRules(plan);
   const count=await env.TOOLS_DB.prepare(
     "SELECT COUNT(*) AS total FROM tool_events WHERE user_id=? AND tool_slug=?"
@@ -94,7 +108,7 @@ async function enforceUpdate(req,env,eventId){
   const body=await req.clone().json().catch(()=>({}));
   if(body?.theme===undefined)return null;
 
-  const plan=await getToolPlan(env,user.id);
+  const plan=await toolPlan(env,user.id);
   const rules=getEventCountdownRules(plan);
   const theme=String(body.theme||"default").toLowerCase();
   if(!rules.allowedThemes.includes(theme)){
@@ -118,7 +132,7 @@ async function enforceStats(req,env,eventId){
   ).bind(eventId,user.id).first();
   if(!owned)return null;
 
-  const plan=await getToolPlan(env,user.id);
+  const plan=await toolPlan(env,user.id);
   const rules=getEventCountdownRules(plan);
   if(!rules.statistics){
     return json({
