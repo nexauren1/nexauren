@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f97316"><meta name="description" content="Convert PDF pages to JPG images in your browser with Nexauren.">
+<title>PDF to JPG — Nexauren</title><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar"><a class="brand" href="/">NEXAUREN</a><a class="tools" href="/tools/">All tools <span>→</span></a></header>
+<main class="page">
+<section class="hero"><div class="eyebrow">NEXAUREN · PDF</div><h1>PDF to JPG</h1><p>Turn every PDF page into a high-quality JPG image, directly in your browser.</p></section>
+<section class="card">
+<div class="dropzone" id="dropzone" tabindex="0"><div class="upload-icon">▧</div><h2>Drop your PDF here</h2><p>or choose a PDF from your device</p><button class="button primary" id="chooseBtn">Choose PDF</button><input id="fileInput" type="file" accept="application/pdf,.pdf" hidden><small>Private processing · Your file stays on your device</small></div>
+<div id="workspace" class="hidden">
+<div class="filebar"><div class="pdf-badge">PDF</div><div class="filemeta"><strong id="fileName">document.pdf</strong><span id="fileInfo">0 pages</span></div><button class="remove" id="removeBtn">×</button></div>
+<div class="options"><div><label for="quality">JPG quality</label><p>Higher quality means larger images.</p></div><select id="quality"><option value="0.92">High</option><option value="0.82" selected>Balanced</option><option value="0.68">Smaller</option></select></div>
+<div class="options"><div><label for="scale">Resolution</label><p>Controls the output image dimensions.</p></div><select id="scale"><option value="1.5">Standard</option><option value="2" selected>High</option><option value="2.5">Very high</option></select></div>
+<button class="button convert" id="convertBtn">Convert to JPG <span>→</span></button>
+</div>
+<div id="status" class="status hidden"><div class="spinner"></div><div><strong id="statusTitle">Converting…</strong><span id="statusText">Preparing your PDF</span></div></div>
+<div id="result" class="result hidden"><div class="success">✓</div><div class="resultcopy"><h2>JPG images are ready</h2><p id="resultText">Your pages have been converted.</p></div><div class="downloads" id="downloads"></div><button class="button secondary" id="restartBtn">Convert another PDF</button></div>
+<div id="error" class="error hidden"></div>
+</section>
+<section class="features"><article><b>⚡</b><div><strong>Fast</strong><p>Pages are rendered locally in your browser.</p></div></article><article><b>🔒</b><div><strong>Private</strong><p>No server upload is required.</p></div></article><article><b>▣</b><div><strong>Flexible</strong><p>Choose quality and resolution per conversion.</p></div></article></section>
+<section class="faq"><h2>Good to know</h2><details><summary>Will each page become a JPG?</summary><p>Yes. Each PDF page is rendered as an individual JPG image.</p></details><details><summary>Can I convert a specific page?</summary><p>This version converts all pages so the complete document is available as images.</p></details><details><summary>Are the images uploaded?</summary><p>No. PDF rendering and JPG creation happen locally in your browser.</p></details></section>
+</main><footer>© 2026 Nexauren · PDF to JPG</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script><script src="script.js"></script>
+</body></html>
