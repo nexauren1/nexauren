@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
-<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png?v=2">
-<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2">
-<link rel="apple-touch-icon" href="/favicon.png?v=2">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Combine JPG, PNG and WebP images into a polished PDF directly in your browser. Private, fast and easy to use.">
 <meta property="og:site_name" content="Nexauren">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://nexaurenstory.com/favicon.png?v=2">
@@ -11,137 +11,58 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="Nexauren">
 <meta name="twitter:image" content="https://nexaurenstory.com/favicon.png?v=2">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Turn JPG, PNG and WebP images into a polished PDF directly in your browser.">
-  <title>Images to PDF — Nexauren</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <script src="/js/G4A.js" defer></script>
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png?v=2">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2">
+<link rel="apple-touch-icon" href="/favicon.png?v=2">
+<title>Images to PDF — Nexauren</title>
+<link rel="stylesheet" href="style.css?v=3">
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="/js/G4A.js" defer></script>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="/">NEXAUREN</a>
-    <a class="back" href="/tools/">All tools <span>→</span></a>
-  </header>
-
-  <main class="page">
-    <section class="hero">
-      <div class="eyebrow">NEXAUREN · PDF</div>
-      <h1>Images to PDF</h1>
-      <p>Combine JPG, PNG and WebP images into one polished PDF, with ordering and page controls, directly in your browser.</p>
-    </section>
-
-    <section class="studio" aria-label="Images to PDF tool">
-      <div class="upload-zone" id="dropZone" tabindex="0" role="button" aria-label="Choose images">
-        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
-        <div class="upload-icon">▧</div>
-        <h2>Drop your images here</h2>
-        <p>JPG, PNG or WebP · Multiple files supported</p>
-        <button class="primary" id="chooseBtn" type="button">Choose images</button>
+<header class="topbar">
+  <a class="brand" href="/">NEXAUREN</a>
+  <a class="back" href="/tools/">All tools <span>→</span></a>
+</header>
+<main class="page">
+  <section class="hero">
+    <div class="eyebrow">NEXAUREN · PDF</div>
+    <h1>Images to PDF</h1>
+    <p>Turn your images into one polished PDF. Reorder pages, choose the layout and create everything directly in your browser.</p>
+  </section>
+  <section class="studio" aria-label="Images to PDF tool">
+    <div class="upload-zone" id="dropZone" tabindex="0" role="button" aria-label="Choose images">
+      <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
+      <div class="upload-icon">▧</div>
+      <h2>Drop your images here</h2>
+      <p>JPG, PNG or WebP · Multiple files supported</p>
+      <button class="primary" id="chooseBtn" type="button">Choose images</button>
+    </div>
+    <div class="workspace" id="workspace" hidden>
+      <div class="section-head"><div><span class="label">01</span><h2>Image order</h2></div><button class="text-btn" id="clearBtn" type="button">Clear all</button></div>
+      <p class="hint">Drag cards to set the PDF page order.</p>
+      <div class="image-grid" id="imageGrid"></div>
+      <button class="secondary add-btn" id="addBtn" type="button">＋ Add more images</button>
+      <div class="section-head settings-head"><div><span class="label">02</span><h2>PDF settings</h2></div></div>
+      <div class="settings">
+        <label>Page size<select id="sizeSelect"><option value="fit">Fit image</option><option value="a4">A4</option><option value="letter">Letter</option></select></label>
+        <label>Orientation<select id="orientationSelect"><option value="auto">Auto</option><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></label>
+        <label>Margins<select id="marginSelect"><option value="0">None</option><option value="18">Small</option><option value="36">Medium</option></select></label>
       </div>
-
-      <div class="workspace" id="workspace" hidden>
-        <div class="section-head">
-          <div>
-            <span class="label">01</span>
-            <h2>Image order</h2>
-          </div>
-          <button class="text-btn" id="clearBtn" type="button">Clear all</button>
-        </div>
-        <p class="hint">Drag cards to change the PDF page order.</p>
-        <div class="image-grid" id="imageGrid"></div>
-        <button class="secondary add-btn" id="addBtn" type="button">＋ Add more images</button>
-
-        <div class="section-head settings-head">
-          <div>
-            <span class="label">02</span>
-            <h2>PDF settings</h2>
-          </div>
-        </div>
-        <div class="settings">
-          <label>Page size
-            <select id="sizeSelect">
-              <option value="fit">Fit image</option>
-              <option value="a4">A4</option>
-              <option value="letter">Letter</option>
-            </select>
-          </label>
-          <label>Orientation
-            <select id="orientationSelect">
-              <option value="auto">Auto</option>
-              <option value="portrait">Portrait</option>
-              <option value="landscape">Landscape</option>
-            </select>
-          </label>
-          <label>Margins
-            <select id="marginSelect">
-              <option value="0">None</option>
-              <option value="18">Small</option>
-              <option value="36">Medium</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="actions">
-          <button class="primary wide" id="createBtn" type="button">Create PDF</button>
-        </div>
-      </div>
-
-      <div class="status" id="status" hidden aria-live="polite">
-        <div class="spinner"></div>
-        <div>
-          <strong id="statusTitle">Creating your PDF…</strong>
-          <p id="statusText">Processing image 1 of 1</p>
-        </div>
-      </div>
-
-      <div class="error" id="errorBox" hidden role="alert">
-        <strong>We couldn't create the PDF.</strong>
-        <p id="errorText">Please check the images and try again.</p>
-      </div>
-
-      <div class="result" id="result" hidden>
-        <div class="success-mark">✓</div>
-        <div>
-          <strong>Your PDF is ready</strong>
-          <p id="resultText">Your images were combined successfully.</p>
-        </div>
-        <button class="primary" id="downloadBtn" type="button">Download PDF</button>
-        <button class="secondary" id="resetBtn" type="button">Start over</button>
-      </div>
-    </section>
-
-    <section class="info-grid">
-      <article><span>01</span><h3>Multiple formats</h3><p>Combine JPG, PNG and WebP images in a single PDF.</p></article>
-      <article><span>02</span><h3>Full control</h3><p>Reorder pages and choose page size, orientation and margins.</p></article>
-      <article><span>03</span><h3>Private by design</h3><p>Images are processed locally in your browser and are not uploaded by this tool.</p></article>
-    </section>
-
-    <section class="faq">
-      <div class="eyebrow">FAQ</div>
-      <h2>Simple, useful, local.</h2>
-      <details><summary>Which image formats are supported?</summary><p>JPG/JPEG, PNG and WebP are supported.</p></details>
-      <details><summary>Can I change the page order?</summary><p>Yes. Drag the image cards into the order you want before creating the PDF.</p></details>
-      <details><summary>Are my images uploaded?</summary><p>No. PDF creation happens locally in your browser.</p></details>
-    </section>
-  </main>
-
-  <footer>© Nexauren · Tools that help you create faster.</footer>
-  <script src="script.js"></script>
+      <div class="actions"><button class="primary wide" id="createBtn" type="button">Create PDF</button></div>
+    </div>
+    <div class="status" id="status" hidden aria-live="polite"><div class="spinner"></div><div><strong id="statusTitle">Creating your PDF…</strong><p id="statusText">Preparing your images</p></div></div>
+    <div class="error" id="errorBox" hidden role="alert"><strong>We couldn't create the PDF.</strong><p id="errorText">Please check the images and try again.</p></div>
+    <div class="result" id="result" hidden><div class="success-mark">✓</div><div><strong>Your PDF is ready</strong><p id="resultText">Your images were combined successfully.</p></div><button class="primary" id="downloadBtn" type="button">Download PDF</button><button class="secondary" id="resetBtn" type="button">Start over</button></div>
+  </section>
+  <section class="info-grid">
+    <article><span>01</span><h3>Multiple formats</h3><p>Combine JPG, PNG and WebP images in one PDF.</p></article>
+    <article><span>02</span><h3>Full control</h3><p>Reorder pages and choose page size, orientation and margins.</p></article>
+    <article><span>03</span><h3>Private by design</h3><p>Images stay in your browser. This tool does not upload them.</p></article>
+  </section>
+  <section class="faq"><div class="eyebrow">FAQ</div><h2>Simple, useful, local.</h2><details><summary>Which image formats are supported?</summary><p>JPG/JPEG, PNG and WebP are supported.</p></details><details><summary>Can I change the page order?</summary><p>Yes. Drag the image cards into the order you want before creating the PDF.</p></details><details><summary>Are my images uploaded?</summary><p>No. PDF creation happens locally in your browser.</p></details></section>
+</main>
+<footer>© Nexauren · Tools that help you create faster.</footer>
+<script src="script.js?v=3"></script>
 </body>
 </html>
