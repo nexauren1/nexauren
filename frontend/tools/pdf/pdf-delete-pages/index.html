@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Remove selected pages from a PDF and create a clean PDF directly in your browser.">
+<title>PDF Delete Pages — Nexauren</title>
+<link rel="icon" type="image/png" href="/favicon.png?v=2">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="/js/nexauren-ads.js" defer></script>
+<script src="/js/G4A.js" defer></script>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="/">NEXAUREN</a><a class="back" href="/tools/">All tools <span>→</span></a></header>
+<main class="page">
+<section class="hero"><div class="eyebrow">NEXAUREN · PDF</div><h1>PDF Delete Pages</h1><p>Remove exactly the pages you don't need and create a clean PDF directly in your browser.</p></section>
+<section class="studio">
+<div class="upload-zone" id="dropZone" tabindex="0" role="button" aria-label="Choose a PDF"><input id="fileInput" type="file" accept="application/pdf,.pdf" hidden><div class="upload-icon">−▤</div><h2>Drop a PDF here</h2><p>One PDF · Processed locally in your browser</p><button class="primary" id="chooseBtn" type="button">Choose PDF</button></div>
+<div id="workspace" hidden>
+<div class="toolbar"><div><span class="label">01</span><h2>Choose pages to remove</h2><p id="fileMeta"></p></div><button class="text-btn" id="clearBtn" type="button">Remove PDF</button></div>
+<div class="selection-bar"><div><strong id="selectedCount">0 pages marked</strong><span id="selectionHint">Click pages you want to delete.</span></div><div class="quick"><button id="selectAll" type="button">Select all</button><button id="clearSelection" type="button">Clear</button></div></div>
+<div class="range-row"><label for="pageRange">Pages to remove</label><input id="pageRange" type="text" inputmode="text" placeholder="Example: 2-4, 7, 10-12"><button id="applyRange" class="secondary" type="button">Apply</button></div>
+<div class="page-grid" id="pageGrid"></div>
+<div class="actions"><button class="primary wide" id="deleteBtn" type="button" disabled>Delete selected pages</button></div>
+</div>
+<div class="status" id="status" hidden><div class="spinner"></div><div><strong id="statusTitle">Preparing your PDF…</strong><p id="statusText">Loading pages</p></div></div>
+<div class="error" id="errorBox" hidden><strong>We couldn't delete those pages.</strong><p id="errorText"></p></div>
+<div class="result" id="result" hidden><div class="success-mark">✓</div><div><strong>Your PDF is ready</strong><p id="resultText"></p></div><button class="primary" id="downloadBtn" type="button">Download PDF</button><button class="secondary" id="resetBtn" type="button">Start over</button></div>
+</section>
+<section class="info-grid"><article><span>01</span><h3>Mark pages to remove</h3><p>Select individual pages or use ranges such as 2-4, 7 and 10-12.</p></article><article><span>02</span><h3>Keep everything else</h3><p>All unselected pages stay in their original order.</p></article><article><span>03</span><h3>Private processing</h3><p>Your PDF stays in your browser while the new document is created.</p></article></section>
+<section class="faq"><div class="eyebrow">FAQ</div><h2>Remove unwanted PDF pages.</h2><details><summary>Can I remove individual pages?</summary><p>Yes. Click any page card to mark it for removal.</p></details><details><summary>Can I remove a range?</summary><p>Yes. Enter ranges such as 2-4, 7, 10-12 and apply them.</p></details><details><summary>Will the remaining pages change order?</summary><p>No. The pages you keep remain in their original order.</p></details></section>
+</main>
+<footer>© Nexauren · Tools that help you create faster.</footer>
+<script src="script.js?v=1"></script>
+</body>
+</html>
