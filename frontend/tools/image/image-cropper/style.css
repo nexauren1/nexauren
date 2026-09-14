@@ -1,0 +1,58 @@
+:root {
+  --crop-accent: #ea580c;
+  --crop-accent-soft: #ffedd5;
+  --crop-surface: #fff7ed;
+}
+
+.tool-page { max-width: 1080px; margin: 0 auto; padding: 48px 20px 80px; }
+.tool-hero { text-align: center; margin-bottom: 32px; }
+.tool-icon { width: 64px; height: 64px; margin: 0 auto 14px; display: grid; place-items: center; border-radius: 18px; background: var(--crop-accent-soft); color: var(--crop-accent); font-size: 30px; font-weight: 800; }
+.tool-label { color: var(--crop-accent); font-size: 12px; font-weight: 800; letter-spacing: .14em; }
+.tool-hero h1 { margin: 8px 0; font-size: clamp(32px, 6vw, 52px); }
+.tool-hero p { max-width: 650px; margin: 0 auto; color: #64748b; font-size: 17px; }
+.tool-card, .tool-info { background: #fff; border: 1px solid #e2e8f0; border-radius: 24px; box-shadow: 0 18px 45px rgba(15,23,42,.07); }
+.tool-card { padding: 24px; }
+.upload-area { min-height: 330px; border: 2px dashed #fdba74; border-radius: 20px; display: grid; place-items: center; align-content: center; text-align: center; background: var(--crop-surface); padding: 30px; }
+.upload-area h2 { margin: 12px 0 5px; }
+.upload-area p { margin: 0 0 20px; color: #64748b; }
+.upload-symbol { width: 58px; height: 58px; border-radius: 16px; display: grid; place-items: center; background: var(--crop-accent); color: #fff; font-size: 30px; }
+#imageInput { display: none; }
+.upload-button, .primary, .secondary, .download-button { border: 0; border-radius: 12px; padding: 12px 18px; font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; justify-content: center; align-items: center; }
+.upload-button, .primary, .download-button { background: var(--crop-accent); color: #fff; }
+.secondary { background: #f1f5f9; color: #334155; }
+.workspace { display: grid; grid-template-columns: 1.2fr .8fr; gap: 24px; }
+.panel-title { margin-bottom: 12px; font-weight: 800; }
+.canvas-wrap { position: relative; width: 100%; min-height: 360px; border-radius: 16px; overflow: hidden; display: grid; place-items: center; background: repeating-conic-gradient(#f1f5f9 0 25%, #fff 0 50%) 50% / 24px 24px; touch-action: none; }
+#canvas { display: block; max-width: 100%; max-height: 560px; }
+.crop-box { position: absolute; box-sizing: border-box; border: 2px solid #fff; box-shadow: 0 0 0 9999px rgba(15,23,42,.38); cursor: move; touch-action: none; }
+.crop-box::after { content: ''; position: absolute; inset: 33.33% 0; border-top: 1px solid rgba(255,255,255,.5); border-bottom: 1px solid rgba(255,255,255,.5); pointer-events: none; }
+.crop-box::before { content: ''; position: absolute; left: 33.33%; right: 33.33%; top: 0; bottom: 0; border-left: 1px solid rgba(255,255,255,.5); border-right: 1px solid rgba(255,255,255,.5); pointer-events: none; }
+.handle { position: absolute; width: 14px; height: 14px; border: 2px solid #fff; background: var(--crop-accent); border-radius: 4px; z-index: 2; }
+.handle.nw { left: -8px; top: -8px; cursor: nwse-resize; }
+.handle.ne { right: -8px; top: -8px; cursor: nesw-resize; }
+.handle.sw { left: -8px; bottom: -8px; cursor: nesw-resize; }
+.handle.se { right: -8px; bottom: -8px; cursor: nwse-resize; }
+.editor-hint { margin-top: 10px; color: #64748b; font-size: 13px; text-align: center; }
+.controls-panel { display: flex; flex-direction: column; gap: 16px; }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.controls-panel label { display: grid; gap: 7px; color: #334155; font-size: 14px; font-weight: 700; }
+.controls-panel select { width: 100%; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 10px; padding: 11px; background: #fff; font: inherit; }
+.controls-panel input[type="range"] { accent-color: var(--crop-accent); }
+.crop-size { padding: 10px 12px; border-radius: 10px; background: var(--crop-surface); color: #9a3412; font-size: 13px; font-weight: 700; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+.status { min-height: 20px; color: #475569; font-size: 13px; }
+.status.success { color: #047857; }
+.status.error { color: #b91c1c; }
+.download-button { width: 100%; box-sizing: border-box; }
+.tool-info { margin-top: 24px; padding: 24px 28px; }
+.tool-info h2 { margin-top: 0; }
+.tool-info li { margin: 9px 0; }
+.tool-info p { color: #64748b; font-size: 14px; }
+.hidden { display: none !important; }
+@media (max-width: 760px) {
+  .tool-page { padding: 32px 14px 60px; }
+  .tool-card { padding: 14px; }
+  .workspace { grid-template-columns: 1fr; }
+  .canvas-wrap { min-height: 280px; }
+  .field-grid { grid-template-columns: 1fr; }
+}
