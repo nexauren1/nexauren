@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF Unlock — Nexauren</title>
+<meta name="description" content="Remove password protection from a PDF you are authorized to unlock, directly in your browser.">
+<link rel="stylesheet" href="style.css?v=1">
+<script src="/js/G4A.js" defer></script>
+<script src="/js/nexauren-ads.js" defer></script>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="/">NEXAUREN</a><a class="all" href="/tools/">All tools →</a></header>
+<main>
+<section class="hero"><span class="eyebrow">NEXAUREN · PDF</span><h1>PDF Unlock</h1><p>Remove password protection from a PDF you are authorized to unlock. Everything runs locally in your browser.</p></section>
+<section class="card">
+<div id="drop" class="drop" tabindex="0"><div class="drop-icon">🔓</div><h2>Drop a protected PDF here</h2><p>PDF only · Your file stays on this device</p><button id="choose" type="button">Choose PDF</button><input id="file" type="file" accept="application/pdf,.pdf" hidden></div>
+<div id="workspace" hidden>
+<div class="file-row"><div><strong id="fileName"></strong><span id="fileMeta"></span></div><button id="remove" class="ghost" type="button">Remove PDF</button></div>
+<label class="password-label">PDF password<input id="password" type="password" autocomplete="off" placeholder="Enter the password you already know"></label>
+<p class="privacy"><strong>Private processing.</strong> The PDF and password are processed in your browser and are not uploaded by this tool.</p>
+<button id="unlock" class="primary" type="button">Unlock PDF</button>
+</div>
+<div id="status" class="status" hidden><span class="spinner"></span><div><strong id="statusTitle">Unlocking your PDF…</strong><span id="statusText">Decrypting locally</span></div></div>
+<div id="error" class="message error" hidden></div>
+<div id="result" class="result" hidden><div class="success">✓</div><h2>Your unlocked PDF is ready</h2><p id="resultText"></p><a id="download" class="primary link" download="nexauren-unlocked.pdf">Download unlocked PDF</a><button id="again" class="ghost" type="button">Unlock another PDF</button></div>
+</section>
+<section class="info"><div><h2>Local by design</h2><p>Your document is handled in browser memory rather than uploaded to a server.</p></div><div><h2>Known password</h2><p>Enter the password you are authorized to use. This tool does not crack forgotten passwords.</p></div><div><h2>Content preserving</h2><p>QPDF decrypts the PDF structure instead of rendering pages into images.</p></div></section>
+<section class="faq"><h2>FAQ</h2><details><summary>Can it recover a forgotten password?</summary><p>No. Nexauren Unlock is not a password-cracking tool. You need the correct password or authorization to unlock the document.</p></details><details><summary>Does the PDF get uploaded?</summary><p>No. The intended processing path is browser-local WebAssembly.</p></details><details><summary>What if the password is wrong?</summary><p>The tool reports the failure and does not create a download.</p></details></section>
+</main>
+<script type="module" src="script.js?v=1"></script>
+</body>
+</html>
