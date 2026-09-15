@@ -41,6 +41,16 @@ function readingTime(content) {
   return Math.max(1, Math.ceil(text.split(" ").length / 200));
 }
 
+function publicArticleUrl(req, slug) {
+  const origin = new URL(req.url).origin;
+  return `${origin}/blog/${encodeURIComponent(slug)}/`;
+}
+
+function publicImageUrl(req, slug) {
+  const origin = new URL(req.url).origin;
+  return `${origin}/api/blog/image/${encodeURIComponent(slug)}`;
+}
+
 async function currentUser(req, env) {
   const cookie = req.headers.get("Cookie") || "";
   const match = cookie.match(/nexauren_session=([^;]+)/);
@@ -84,6 +94,12 @@ async function publicPosts(req, env) {
     ).bind(slug).first();
 
     if (!post) return json({ error: "Post not found." }, 404);
+
+    post.article_url = publicArticleUrl(req, post.slug);
+    post.preview_image_url = post.cover_image
+      ? publicImageUrl(req, post.slug)
+      : null;
+
     return json({ ok: true, post });
   }
 
@@ -107,7 +123,15 @@ async function publicPosts(req, env) {
   bindings.push(limit);
 
   const result = await env.BLOG_DB.prepare(query).bind(...bindings).all();
-  return json({ ok: true, posts: result.results || [] });
+  const posts = (result.results || []).map(post => ({
+    ...post,
+    article_url: publicArticleUrl(req, post.slug),
+    preview_image_url: post.cover_image
+      ? publicImageUrl(req, post.slug)
+      : null
+  }));
+
+  return json({ ok: true, posts });
 }
 
 async function publicPostImage(req, env, slug) {
@@ -132,7 +156,9 @@ async function publicPostImage(req, env, slug) {
 
   try {
     const response = await fetch(imageUrl.toString(), {
-      headers: { Accept: "image/avif,image/webp,image/png,image/jpeg,image/*" }
+      headers: {
+        Accept: "image/avif,image/webp,image/png,image/jpeg,image/*"
+      }
     });
 
     if (!response.ok) {
@@ -144,9 +170,12 @@ async function publicPostImage(req, env, slug) {
       return new Response("Resource is not an image.", { status: 415 });
     }
 
-    const headers = new Headers(response.headers);
+    const headers = new Headers();
     headers.set("Content-Type", type.split(";")[0]);
-    headers.set("Cache-Control", "public, max-age=86400, s-maxage=604800");
+    headers.set(
+      "Cache-Control",
+      "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400"
+    );
     headers.set("X-Content-Type-Options", "nosniff");
 
     return new Response(response.body, {
@@ -244,10 +273,21 @@ async function createPost(req, env) {
     String(body.seo_keywords || "").trim() || null,
     String(body.canonical_url || "").trim() || null,
     readingTime(content),
-    status === "published" ? (body.published_at || new Date().toISOString()) : null
+    status === "published"
+      ? (body.published_at || new Date().toISOString())
+      : null
   ).run();
 
-  return json({ ok: true, id: result.meta?.last_row_id || null, slug }, 201);
+  return json({
+    ok: true,
+    id: result.meta?.last_row_id || null,
+    slug,
+    status,
+    article_url: status === "published" ? publicArticleUrl(req, slug) : null,
+    preview_image_url: status === "published" && body.cover_image
+      ? publicImageUrl(req, slug)
+      : null
+  }, 201);
 }
 
 async function updatePost(req, env, id) {
@@ -261,8 +301,12 @@ async function updatePost(req, env, id) {
 
   const title = String(body.title ?? current.title).trim();
   const content = String(body.content ?? current.content).trim();
-  const type = BLOG_TYPES.includes(body.type) ? body.type : current.type || "article";
-  const status = BLOG_STATUSES.includes(body.status) ? body.status : current.status;
+  const type = BLOG_TYPES.includes(body.type)
+    ? body.type
+    : current.type || "article";
+  const status = BLOG_STATUSES.includes(body.status)
+    ? body.status
+    : current.status;
   const slug = slugify(body.slug || title);
 
   const duplicate = await env.BLOG_DB.prepare(
@@ -274,6 +318,10 @@ async function updatePost(req, env, id) {
     ? (body.published_at || current.published_at || new Date().toISOString())
     : null;
 
+  const coverImage = String(
+    body.cover_image ?? current.cover_image ?? ""
+  ).trim() || null;
+
   await env.BLOG_DB.prepare(
     "UPDATE posts SET title=?,slug=?,excerpt=?,content=?,cover_image=?," +
     "cover_image_alt=?,category_id=?,author_id=?,status=?,type=?," +
@@ -284,10 +332,14 @@ async function updatePost(req, env, id) {
     slug,
     String(body.excerpt ?? current.excerpt ?? "").trim() || null,
     content,
-    String(body.cover_image ?? current.cover_image ?? "").trim() || null,
+    coverImage,
     String(body.cover_image_alt ?? current.cover_image_alt ?? "").trim() || null,
-    body.category_id === undefined ? current.category_id : (body.category_id ? Number(body.category_id) : null),
-    body.author_id === undefined ? current.author_id : (body.author_id ? Number(body.author_id) : null),
+    body.category_id === undefined
+      ? current.category_id
+      : (body.category_id ? Number(body.category_id) : null),
+    body.author_id === undefined
+      ? current.author_id
+      : (body.author_id ? Number(body.author_id) : null),
     status,
     type,
     String(body.seo_title ?? current.seo_title ?? "").trim() || null,
@@ -299,7 +351,16 @@ async function updatePost(req, env, id) {
     id
   ).run();
 
-  return json({ ok: true, id: Number(id), slug });
+  return json({
+    ok: true,
+    id: Number(id),
+    slug,
+    status,
+    article_url: status === "published" ? publicArticleUrl(req, slug) : null,
+    preview_image_url: status === "published" && coverImage
+      ? publicImageUrl(req, slug)
+      : null
+  });
 }
 
 async function deletePost(req, env, id) {
