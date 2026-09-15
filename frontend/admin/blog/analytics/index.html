@@ -1,80 +1,10 @@
 <!doctype html>
 <html lang="en">
 <head>
-<link rel="icon" type="image/png" sizes="48x48" href="/favicon.png?v=2">
-<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2">
-<link rel="apple-touch-icon" href="/favicon.png?v=2">
-<meta property="og:site_name" content="Nexauren">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://nexaurenstory.com/favicon.png?v=2">
-<meta property="og:image:type" content="image/png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="Nexauren">
-<meta name="twitter:image" content="https://nexaurenstory.com/favicon.png?v=2">
-
-
-
-
-
-
-
-
-
-
-
-
-
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
 <title>Blog Analytics | Nexauren</title>
+<link rel="icon" href="/favicon.png?v=2">
 <link rel="stylesheet" href="/admin/blog/analytics/style.css">
-  <script src="/js/G4A.js" defer></script>
+<script src="/js/G4A.js" defer></script>
 </head>
-<body>
-<div class="app">
-  <aside class="sidebar">
-    <a class="brand" href="/">NEXA<span>UREN</span></a>
-    <div class="workspace">BLOG STUDIO</div>
-    <nav>
-      <a href="/admin/blog/">▤ Posts</a>
-      <a class="active" href="/admin/blog/analytics/">◌ Analytics</a>
-      <a href="/blog/">↗ View blog</a>
-      <a href="/admin/">← Admin center</a>
-    </nav>
-    <div class="side-note">Privacy-conscious publishing analytics. No visitor IP addresses are stored.</div>
-  </aside>
-  <main>
-    <header class="topbar">
-      <div>
-        <div class="eyebrow">NEXAUREN · BLOG</div>
-        <h1>Analytics</h1>
-        <p>Understand what readers are viewing, clicking and reading.</p>
-      </div>
-      <div class="controls">
-        <select id="range"><option value="7">Last 7 days</option><option value="28">Last 28 days</option><option value="custom">Custom</option></select>
-        <div id="custom" class="custom" hidden><input id="from" type="date"><span>to</span><input id="to" type="date"><button id="apply">Apply</button></div>
-      </div>
-    </header>
-    <div id="notice" class="notice" hidden></div>
-    <section class="cards">
-      <article><span>Page views</span><strong id="views">—</strong><small>Article views</small></article>
-      <article><span>Clicks</span><strong id="clicks">—</strong><small>Tracked article links</small></article>
-      <article><span>Engaged reads</span><strong id="reads">—</strong><small>Readers who sent reading time</small></article>
-      <article><span>Avg. reading time</span><strong id="time">—</strong><small>Per engaged read</small></article>
-    </section>
-    <section class="grid two">
-      <article class="panel"><div class="panel-head"><div><h2>Traffic</h2><p>Views, clicks and engaged reads by day.</p></div><span id="period"></span></div><div id="chart" class="chart"></div></article>
-      <article class="panel"><div class="panel-head"><div><h2>Top posts</h2><p>Content attracting the most views.</p></div></div><div id="posts" class="list"></div></article>
-    </section>
-    <section class="grid three">
-      <article class="panel"><h2>Traffic sources</h2><p>Where readers came from.</p><div id="sources" class="list"></div></article>
-      <article class="panel"><h2>Countries</h2><p>Approximate visitor origin.</p><div id="countries" class="list"></div></article>
-      <article class="panel"><h2>Devices & browsers</h2><p>Reading environment.</p><div id="devices" class="list"></div><div id="browsers" class="list sublist"></div></article>
-    </section>
-    <section class="panel privacy"><strong>Privacy note</strong><span>Nexauren stores aggregated analytics events without visitor IP addresses. Country comes from Cloudflare's country header, and referral data is stored as a hostname.</span></section>
-  </main>
-</div>
-<script src="/admin/blog/analytics/script.js" defer></script>
-</body>
-</html>
+<body><div id="app" class="app"><aside class="sidebar"><a class="brand" href="/">NEXA<span>UREN</span></a><div class="workspace">BLOG STUDIO</div><nav><a href="/admin/blog/">▤ Posts</a><a class="active" href="/admin/blog/analytics/">◌ Analytics</a><a href="/blog/">↗ View blog</a><a href="/admin/">← Admin center</a></nav><div class="side-note">Privacy-conscious publishing analytics. No visitor IP addresses are stored.</div></aside><main><header class="topbar"><div><div class="eyebrow">NEXAUREN · BLOG</div><h1>Analytics</h1><p>Understand readers, content, traffic and engagement across the entire blog.</p></div><div class="controls"><select id="range"><option value="7">Last 7 days</option><option value="28">Last 28 days</option><option value="90">Last 90 days</option><option value="today">Today</option><option value="custom">Custom</option></select><div id="custom" class="custom" hidden><input id="from" type="date"><span>to</span><input id="to" type="date"><button id="apply">Apply</button></div></div></header><div id="notice" class="notice" hidden></div><section class="cards"><article><span>Page views</span><strong id="views">—</strong><small id="viewsChange">—</small></article><article><span>Unique visitors</span><strong id="unique">—</strong><small id="uniqueChange">Backend metric pending</small></article><article><span>Engaged reads</span><strong id="reads">—</strong><small id="readsChange">—</small></article><article><span>Avg. reading time</span><strong id="time">—</strong><small id="timeChange">—</small></article><article><span>Clicks</span><strong id="clicks">—</strong><small id="clicksChange">—</small></article></section><section class="panel"><div class="panel-head"><div><h2>Traffic over time</h2><p>Views, readers, clicks and engaged reads by day.</p></div><span id="period"></span></div><div id="chart" class="chart"></div></section><section class="grid two"><article class="panel"><div class="panel-head"><div><h2>Top posts</h2><p>Content attracting the most views.</p></div></div><div id="posts" class="list"></div></article><article class="panel"><div class="panel-head"><div><h2>Traffic sources</h2><p>Where readers came from.</p></div></div><div id="sources" class="list"></div></article></section><section class="grid three"><article class="panel"><h2>Countries</h2><p>Approximate visitor origin.</p><div id="countries" class="list"></div></article><article class="panel"><h2>Devices</h2><p>Reading environment.</p><div id="devices" class="list"></div></article><article class="panel"><h2>Browsers</h2><p>Browser distribution.</p><div id="browsers" class="list"></div></article></section><section class="panel privacy"><strong>Privacy note</strong><span>Nexauren stores aggregated analytics events without visitor IP addresses. Country comes from Cloudflare's country header, and referral data is stored as a hostname. Device, browser and operating system are inferred from the request user-agent.</span></section></main></div><script src="/admin/blog/analytics/script.js" defer></script></body></html>
