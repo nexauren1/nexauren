@@ -1,0 +1,64 @@
+name: Fix blog analytics worker
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Patch analytics worker
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          path = Path("stats-router.js")
+          text = path.read_text(encoding="utf-8")
+          original = text
+
+          replacements = {
+              'const days=range==="28"?28:range==="90"?90:1;':
+              'const days=range==="28"?28:range==="90"?90:range==="today"?1:7;',
+
+              'duration_ms,page_path,target_url,scroll_percent,utm_source,utm_medium,utm_campaign,event_data)':
+              'duration_ms,visitor_id,page_path,target_url,scroll_percent,utm_source,utm_medium,utm_campaign,event_data)',
+
+              'duration,pagePath,targetUrl,scrollPercent,utmSource,utmMedium,utmCampaign,eventData)':
+              'duration,visitorId,pagePath,targetUrl,scrollPercent,utmSource,utmMedium,utmCampaign,eventData)',
+
+              'COUNT(DISTINCT CASE WHEN e.event_type IN (\'view\',\'page_enter\') AND e.visitor_id IS NOT NULL THEN e.visitor_id END) AS unique_visitors':
+              'COUNT(DISTINCT CASE WHEN e.event_type IN (\'view\',\'page_enter\') THEN COALESCE(NULLIF(e.visitor_id,\'\'),NULLIF(e.session_id,\'\')) END) AS unique_visitors',
+
+              'COUNT(CASE WHEN e.event_type IN (\'engagement\',\'heartbeat\') THEN 1 END) AS engaged_reads':
+              'COUNT(CASE WHEN e.event_type=\'engagement\' THEN 1 END) AS engaged_reads',
+          }
+
+          for old, new in replacements.items():
+              text = text.replace(old, new)
+
+          if text != original:
+              path.write_text(text, encoding="utf-8")
+          else:
+              print("No worker patch was necessary.")
+          PY
+
+      - name: Commit worker patch
+        run: |
+          if git diff --quiet -- stats-router.js; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stats-router.js
+          git commit -m "fix blog analytics worker metrics"
+          git push
