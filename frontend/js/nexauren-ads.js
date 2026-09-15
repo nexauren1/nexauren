@@ -11,6 +11,15 @@
     return path.startsWith("/tools/") && path !== "/tools";
   };
 
+  const isIndividualBlogArticle = () => {
+    const path = window.location.pathname.replace(/\/+$/, "");
+    return /^\/blog\/[^/]+$/.test(path);
+  };
+
+  const isAdEligiblePage = () => {
+    return isIndividualTool() || isIndividualBlogArticle();
+  };
+
   const isPaidPlan = plan => {
     const value = String(plan || "free").trim().toLowerCase();
     return value === "pro" || value === "premium";
@@ -29,7 +38,7 @@
   };
 
   const loadAdsForFree = async () => {
-    if (!isIndividualTool() || window.__nexaurenAdsLoaded) {
+    if (!isAdEligiblePage() || window.__nexaurenAdsLoaded) {
       return;
     }
 
