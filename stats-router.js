@@ -41,6 +41,40 @@ async function toolPlan(env,userId){
   return "free";
 }
 
+async function catalogToolCount(env){
+  if(!env.ASSETS)return 0;
+  try{
+    const url=new URL("/data/tools.json","https://nexauren.internal");
+    const response=await env.ASSETS.fetch(new Request(url.toString()));
+    if(!response.ok)return 0;
+    const data=await response.json();
+    const tools=Array.isArray(data)?data:data?.tools;
+    if(!Array.isArray(tools))return 0;
+    return tools.filter(tool=>String(tool?.status||"").toLowerCase()==="published").length;
+  }catch(_){
+    return 0;
+  }
+}
+
+async function renderAdminHome(req,env){
+  const response=await adminHome(req,env);
+  if(req.method!=="GET"||!response.ok)return response;
+
+  const toolCount=await catalogToolCount(env);
+  if(!toolCount)return response;
+
+  const html=await response.text();
+  const updated=html.replace(
+    /(<div class="stat-label">Ferramentas publicadas<\/div>\s*<div class="stat-value">)\d+(<\/div>)/,
+    `$1${toolCount}$2`
+  );
+
+  return new Response(updated,{
+    status:response.status,
+    headers:response.headers
+  });
+}
+
 async function rulesApi(req,env){
   if(req.method!=="GET")return null;
   const user=await currentUser(req,env);
@@ -165,7 +199,7 @@ export default {
     const url=new URL(req.url);
 
     if(url.pathname==="/admin"||url.pathname==="/admin/"){
-      return adminHome(req,env);
+      return renderAdminHome(req,env);
     }
 
     if(url.pathname.startsWith("/admin/products")||url.pathname.startsWith("/admin/plans")){
