@@ -62,13 +62,6 @@ async function requireAdmin(req, env) {
   return { user };
 }
 
-/*
- * D1 CURRENT_TIMESTAMP uses "YYYY-MM-DD HH:MM:SS", while the admin
- * currently stores published_at as an ISO string such as
- * "YYYY-MM-DDTHH:MM:SS.sssZ". Comparing those strings directly makes
- * a newly published post look like it is scheduled in the future.
- * Normalize ISO timestamps before comparing them with CURRENT_TIMESTAMP.
- */
 const PUBLISHED_FILTER =
   "(p.published_at IS NULL OR " +
   "datetime(replace(replace(p.published_at,'T',' '),'Z',''))<=CURRENT_TIMESTAMP)";
@@ -115,6 +108,54 @@ async function publicPosts(req, env) {
 
   const result = await env.BLOG_DB.prepare(query).bind(...bindings).all();
   return json({ ok: true, posts: result.results || [] });
+}
+
+async function publicPostImage(req, env, slug) {
+  const post = await env.BLOG_DB.prepare(
+    "SELECT cover_image FROM posts WHERE slug=? AND status='published' AND " +
+    PUBLISHED_FILTER + " LIMIT 1"
+  ).bind(slug).first();
+
+  const source = String(post?.cover_image || "").trim();
+  if (!source) return new Response("Image not found.", { status: 404 });
+
+  let imageUrl;
+  try {
+    imageUrl = new URL(source);
+  } catch (_) {
+    return new Response("Invalid image URL.", { status: 400 });
+  }
+
+  if (!["http:", "https:"].includes(imageUrl.protocol)) {
+    return new Response("Unsupported image URL.", { status: 400 });
+  }
+
+  try {
+    const response = await fetch(imageUrl.toString(), {
+      headers: { Accept: "image/avif,image/webp,image/png,image/jpeg,image/*" }
+    });
+
+    if (!response.ok) {
+      return new Response("Image unavailable.", { status: 404 });
+    }
+
+    const type = response.headers.get("Content-Type") || "";
+    if (!type.toLowerCase().startsWith("image/")) {
+      return new Response("Resource is not an image.", { status: 415 });
+    }
+
+    const headers = new Headers(response.headers);
+    headers.set("Content-Type", type.split(";")[0]);
+    headers.set("Cache-Control", "public, max-age=86400, s-maxage=604800");
+    headers.set("X-Content-Type-Options", "nosniff");
+
+    return new Response(response.body, {
+      status: 200,
+      headers
+    });
+  } catch (_) {
+    return new Response("Could not load image.", { status: 502 });
+  }
 }
 
 async function adminCategories(req, env) {
@@ -277,6 +318,11 @@ export default {
 
     if (!env.BLOG_DB) {
       return json({ error: "Blog database is not configured." }, 500);
+    }
+
+    const imageMatch = path.match(/^\/api\/blog\/image\/([^/]+)\/?$/);
+    if (imageMatch && method === "GET") {
+      return publicPostImage(req, env, decodeURIComponent(imageMatch[1]));
     }
 
     if (path === "/api/blog/posts" && method === "GET") {
