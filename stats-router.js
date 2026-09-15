@@ -14,6 +14,15 @@ function json(data,status=200){
   });
 }
 
+function xmlEscape(value){
+  return String(value||"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&apos;");
+}
+
 const COOKIE="nexauren_session";
 
 async function currentUser(req,env){
@@ -72,6 +81,65 @@ async function renderAdminHome(req,env){
   return new Response(updated,{
     status:response.status,
     headers:response.headers
+  });
+}
+
+async function renderSitemap(req,env){
+  if(req.method!=="GET"||!env.BLOG_DB)return null;
+
+  const path=new URL(req.url).pathname;
+  if(path!=="/sitemap.xml")return null;
+
+  const result=await env.BLOG_DB.prepare(
+    "SELECT p.slug,p.published_at,p.updated_at,p.cover_image " +
+    "FROM posts p WHERE p.status='published' AND " +
+    "(p.published_at IS NULL OR " +
+    "datetime(replace(replace(p.published_at,'T',' '),'Z',''))<=CURRENT_TIMESTAMP) " +
+    "ORDER BY COALESCE(p.published_at,p.created_at) DESC"
+  ).all();
+
+  const staticUrls=[
+    "/","/about/","/blog/","/blog/business/","/blog/culture/",
+    "/blog/guides/","/blog/news/","/blog/technology/","/categories/",
+    "/category/","/category/ai/","/category/audio/","/category/image/",
+    "/category/marketplace/","/category/pdf/","/category/text/",
+    "/category/utilities/","/cookies/","/faq/","/plans/","/privacy/",
+    "/terms/","/tools/"
+  ];
+
+  const lines=[
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" ' +
+      'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">'
+  ];
+
+  for(const pathName of staticUrls){
+    lines.push(`<url><loc>https://nexaurenstory.com${pathName}</loc></url>`);
+  }
+
+  for(const post of result.results||[]){
+    const loc=`https://nexaurenstory.com/blog/${encodeURIComponent(post.slug)}/`;
+    const image=`https://nexaurenstory.com/api/blog/image/${encodeURIComponent(post.slug)}`;
+    const lastmod=post.updated_at||post.published_at;
+    lines.push("<url>");
+    lines.push(`<loc>${xmlEscape(loc)}</loc>`);
+    if(lastmod)lines.push(`<lastmod>${xmlEscape(lastmod)}</lastmod>`);
+    if(post.cover_image){
+      lines.push("<image:image>");
+      lines.push(`<image:loc>${xmlEscape(image)}</image:loc>`);
+      lines.push("</image:image>");
+    }
+    lines.push("</url>");
+  }
+
+  lines.push("</urlset>");
+
+  return new Response(lines.join("\n"),{
+    status:200,
+    headers:{
+      "Content-Type":"application/xml; charset=UTF-8",
+      "Cache-Control":"public, max-age=300, s-maxage=300"
+    }
   });
 }
 
@@ -187,11 +255,89 @@ async function blogPage(req,env){
   if(!match)return null;
   const slug=decodeURIComponent(match[1]);
   if(slug==="article")return null;
+
   const target=new URL("/blog/article/",req.url);
-  return env.ASSETS.fetch(new Request(target.toString(),{
+  const response=await env.ASSETS.fetch(new Request(target.toString(),{
     method:"GET",
     headers:req.headers
   }));
+  if(!response.ok)return response;
+
+  const post=await env.BLOG_DB.prepare(
+    "SELECT p.title,p.excerpt,p.cover_image,p.cover_image_alt,p.seo_title," +
+    "p.seo_description,p.canonical_url,c.name AS category_name " +
+    "FROM posts p LEFT JOIN categories c ON c.id=p.category_id " +
+    "WHERE p.slug=? AND p.status='published' AND " +
+    "(p.published_at IS NULL OR " +
+    "datetime(replace(replace(p.published_at,'T',' '),'Z',''))<=CURRENT_TIMESTAMP) " +
+    "LIMIT 1"
+  ).bind(slug).first();
+
+  if(!post)return response;
+
+  const html=await response.text();
+  const title=String(post.seo_title||post.title||"Article — Nexauren");
+  const description=String(post.seo_description||post.excerpt||"Nexauren Blog");
+  const image=post.cover_image
+    ? `https://nexaurenstory.com/api/blog/image/${encodeURIComponent(slug)}`
+    : "https://nexaurenstory.com/favicon.png?v=2";
+  const canonical=String(
+    post.canonical_url||`https://nexaurenstory.com/blog/${encodeURIComponent(slug)}/`
+  );
+
+  const replaceMeta=(source,pattern,value)=>source.replace(pattern,value);
+  let updated=html;
+  updated=replaceMeta(
+    updated,
+    /<meta property="og:title" content="[^"]*">/,
+    `<meta property="og:title" content="${xmlEscape(title)}">`
+  );
+  updated=replaceMeta(
+    updated,
+    /<meta property="og:description" content="[^"]*">/,
+    `<meta property="og:description" content="${xmlEscape(description)}">`
+  );
+  updated=replaceMeta(
+    updated,
+    /<meta property="og:url" content="[^"]*">/,
+    `<meta property="og:url" content="${xmlEscape(canonical)}">`
+  );
+  updated=replaceMeta(
+    updated,
+    /<meta property="og:image" content="[^"]*">/,
+    `<meta property="og:image" content="${xmlEscape(image)}">`
+  );
+  updated=replaceMeta(
+    updated,
+    /<meta name="twitter:title" content="[^"]*">/,
+    `<meta name="twitter:title" content="${xmlEscape(title)}">`
+  );
+  updated=replaceMeta(
+    updated,
+    /<meta name="twitter:description" content="[^"]*">/,
+    `<meta name="twitter:description" content="${xmlEscape(description)}">`
+  );
+  updated=replaceMeta(
+    updated,
+    /<meta name="twitter:image" content="[^"]*">/,
+    `<meta name="twitter:image" content="${xmlEscape(image)}">`
+  );
+  updated=replaceMeta(
+    updated,
+    /<meta name="description" content="[^"]*">/,
+    `<meta name="description" content="${xmlEscape(description)}">`
+  );
+  updated=replaceMeta(
+    updated,
+    /<title>[^<]*<\/title>/,
+    `<title>${xmlEscape(title)} — Nexauren</title>`
+  );
+
+  const headers=new Headers(response.headers);
+  headers.set("Content-Type","text/html; charset=UTF-8");
+  headers.set("Cache-Control","public, max-age=60, s-maxage=300");
+
+  return new Response(updated,{status:response.status,headers});
 }
 
 export default {
@@ -210,6 +356,9 @@ export default {
       const blogResponse=await blogRouter.fetch(req,env,ctx);
       if(blogResponse)return blogResponse;
     }
+
+    const sitemapResponse=await renderSitemap(req,env);
+    if(sitemapResponse)return sitemapResponse;
 
     const blogResponse=await blogPage(req,env);
     if(blogResponse)return blogResponse;
