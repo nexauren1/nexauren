@@ -143,6 +143,112 @@ async function renderSitemap(req,env){
   });
 }
 
+async function directBlogAnalytics(req,env){
+  const url=new URL(req.url);
+  if(url.pathname!=="/api/blog/analytics"||req.method!=="POST")return null;
+  if(!env.BLOG_DB)return json({error:"Blog database is not configured."},500);
+
+  const body=await req.json().catch(()=>null);
+  if(!body)return json({error:"Invalid JSON."},400);
+
+  const slug=String(body.slug||"")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g,"-")
+    .replace(/^-+|-+$/g,"")
+    .slice(0,180);
+  const eventType=["view","engagement","click"].includes(body.event)
+    ? body.event
+    : null;
+  if(!slug||!eventType){
+    return json({error:"slug and a valid event are required."},400);
+  }
+
+  try{
+    const post=await env.BLOG_DB.prepare(
+      "SELECT id FROM posts WHERE slug=? AND status='published' AND " +
+      "(p.published_at IS NULL OR datetime(replace(replace(p.published_at,'T',' '),'Z',''))<=CURRENT_TIMESTAMP) LIMIT 1"
+    ).bind(slug).first();
+
+    if(!post)return json({error:"Post not found."},404);
+
+    const ua=String(req.headers.get("User-Agent")||"").toLowerCase();
+    const device=/tablet|ipad/.test(ua)
+      ? "tablet"
+      : /mobile|android|iphone|ipod/.test(ua)
+        ? "mobile"
+        : "desktop";
+    const browser=/edg\//.test(ua)
+      ? "Edge"
+      : /chrome\//.test(ua)&&!/edg\//.test(ua)
+        ? "Chrome"
+        : /firefox\//.test(ua)
+          ? "Firefox"
+          : /safari\//.test(ua)&&!/chrome\//.test(ua)
+            ? "Safari"
+            : /opera|opr\//.test(ua)
+              ? "Opera"
+              : "Other";
+    const os=/windows/.test(ua)
+      ? "Windows"
+      : /android/.test(ua)
+        ? "Android"
+        : /iphone|ipad|ipod/.test(ua)
+          ? "iOS"
+          : /mac os|macintosh/.test(ua)
+            ? "macOS"
+            : /linux/.test(ua)
+              ? "Linux"
+              : "Other";
+    const referrerValue=req.headers.get("Referer")||"";
+    let referrer="Direct";
+    try{
+      referrer=new URL(referrerValue).hostname
+        .replace(/^www\./,"")
+        .slice(0,180)||"Direct";
+    }catch(_){
+      if(referrerValue)referrer="Other";
+    }
+    const country=String(
+      req.headers.get("CF-IPCountry")||""
+    ).slice(0,8)||null;
+    const sessionId=String(body.session_id||"")
+      .trim()
+      .slice(0,180)||null;
+    const duration=Math.min(
+      3600000,
+      Math.max(0,Number(body.duration_ms)||0)
+    );
+
+    await env.BLOG_DB.prepare(
+      "INSERT INTO blog_analytics_events(" +
+      "post_id,event_type,session_id,referrer_host,country," +
+      "device_type,browser,os,duration_ms" +
+      ") VALUES(?,?,?,?,?,?,?,?,?)"
+    ).bind(
+      post.id,
+      eventType,
+      sessionId,
+      referrer,
+      country,
+      device,
+      browser,
+      os,
+      duration
+    ).run();
+
+    return json({ok:true});
+  }catch(error){
+    console.error("Nexauren direct blog analytics error",error);
+    return json({
+      error:"Analytics event could not be recorded.",
+      detail:String(error?.message||error)
+    },500);
+  }
+}
+
 async function rulesApi(req,env){
   if(req.method!=="GET")return null;
   const user=await currentUser(req,env);
@@ -351,6 +457,9 @@ export default {
     if(url.pathname.startsWith("/admin/products")||url.pathname.startsWith("/admin/plans")){
       return adminRouter(req,env);
     }
+
+    const directAnalytics=await directBlogAnalytics(req,env);
+    if(directAnalytics)return directAnalytics;
 
     if(url.pathname.startsWith("/api/blog/")){
       const blogResponse=await blogRouter.fetch(req,env,ctx);
