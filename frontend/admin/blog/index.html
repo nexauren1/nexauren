@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Blog Admin | Nexauren</title>
+  <link rel="icon" href="/favicon.png?v=2">
+  <link rel="stylesheet" href="/admin/blog/style.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <aside class="sidebar">
+      <a class="brand" href="/">NEXA<span>UREN</span></a>
+      <div class="admin-label">BLOG ADMIN</div>
+      <nav>
+        <button class="nav-item active" data-view="posts">Posts <span id="navPosts">0</span></button>
+        <button class="nav-item" data-view="new">New post</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="/" class="back-link">← Nexauren</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">NEXAUREN · BLOG</div>
+          <h1 id="pageTitle">Posts</h1>
+        </div>
+        <button class="primary" id="newPost">+ New post</button>
+      </header>
+
+      <section id="notice" class="notice" hidden></section>
+
+      <section id="postsView" class="view">
+        <div class="stats">
+          <div class="stat"><span>Total</span><strong id="totalPosts">0</strong></div>
+          <div class="stat"><span>Published</span><strong id="publishedPosts">0</strong></div>
+          <div class="stat"><span>Drafts</span><strong id="draftPosts">0</strong></div>
+          <div class="stat"><span>Scheduled</span><strong id="scheduledPosts">0</strong></div>
+        </div>
+        <div class="toolbar">
+          <input id="search" type="search" placeholder="Search posts…">
+          <select id="statusFilter"><option value="">All statuses</option><option value="published">Published</option><option value="draft">Drafts</option><option value="scheduled">Scheduled</option></select>
+        </div>
+        <div class="table-card">
+          <div id="loading" class="empty">Loading posts…</div>
+          <div class="table-wrap">
+            <table id="postsTable" hidden>
+              <thead><tr><th>Post</th><th>Category</th><th>Type</th><th>Status</th><th>Updated</th><th></th></tr></thead>
+              <tbody id="postsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="editorView" class="view" hidden>
+        <form id="postForm" class="editor">
+          <div class="editor-main">
+            <div class="card">
+              <label>Title<input id="title" required maxlength="220" placeholder="Your article title"></label>
+              <label>Slug<input id="slug" maxlength="180" placeholder="your-article-slug"></label>
+              <label>Excerpt<textarea id="excerpt" rows="3" maxlength="500" placeholder="Short description for cards and SEO…"></textarea></label>
+              <label>Content<textarea id="content" rows="20" required placeholder="Write your article here…"></textarea></label>
+              <p class="hint">The content is stored as text/HTML. Keep HTML controlled and trusted.</p>
+            </div>
+            <div class="card">
+              <div class="card-title">SEO</div>
+              <label>SEO title<input id="seoTitle" maxlength="220" placeholder="Optional search title"></label>
+              <label>Meta description<textarea id="seoDescription" rows="3" maxlength="320" placeholder="Optional search description"></textarea></label>
+              <label>Keywords<input id="seoKeywords" placeholder="AI, technology, software"></label>
+              <label>Canonical URL<input id="canonicalUrl" type="url" placeholder="https://example.com/blog/article"></label>
+            </div>
+          </div>
+          <aside class="editor-side">
+            <div class="card">
+              <div class="card-title">Publish</div>
+              <label>Status<select id="status"><option value="draft">Draft</option><option value="published">Published</option><option value="scheduled">Scheduled</option></select></label>
+              <label>Publication date<input id="publishedAt" type="datetime-local"></label>
+              <button class="primary full" type="submit" id="save">Save post</button>
+              <button class="ghost full" type="button" id="cancel">Cancel</button>
+            </div>
+            <div class="card">
+              <div class="card-title">Classification</div>
+              <label>Category<select id="category"></select></label>
+              <label>Type<select id="type"><option value="article">Article</option><option value="guide">Guide</option><option value="news">News</option><option value="breaking_news">Breaking news</option><option value="review">Review</option><option value="comparison">Comparison</option><option value="opinion">Opinion</option><option value="announcement">Announcement</option></select></label>
+              <label>Author<select id="author"></select></label>
+              <label>Tags<input id="tags" placeholder="AI, PDF, Mozambique"></label>
+            </div>
+            <div class="card">
+              <div class="card-title">Cover image</div>
+              <label>Image URL<input id="coverImage" type="url" placeholder="https://…"></label>
+              <label>Alt text<input id="coverAlt" maxlength="220" placeholder="Describe the image"></label>
+              <div id="imagePreview" class="image-preview">No image</div>
+            </div>
+          </aside>
+        </form>
+      </section>
+    </main>
+  </div>
+  <script src="/admin/blog/script.js" defer></script>
+</body>
+</html>
