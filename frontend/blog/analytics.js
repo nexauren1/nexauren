@@ -47,26 +47,34 @@
 
   function payload(event,duration_ms=0,extra={}){
     return JSON.stringify({
-      slug,event,duration_ms,
+      slug,
+      event,
+      duration_ms,
       session_id:session,
       visitor_id:visitor,
       page_path:pagePath,
-      ...utm,...extra
+      ...utm,
+      ...extra
     });
   }
 
   async function send(event,duration_ms=0,extra={}){
     const body=payload(event,duration_ms,extra);
     const endpoint=new URL(
-      "/api/blog/analytics",location.origin
+      "/api/blog/analytics",
+      location.origin
     ).toString();
 
     try{
       const response=await fetch(endpoint,{
         method:"POST",
         headers:{"Content-Type":"text/plain;charset=UTF-8"},
-        body,credentials:"same-origin",mode:"same-origin",
-        cache:"no-store",keepalive:true,redirect:"follow"
+        body,
+        credentials:"same-origin",
+        mode:"same-origin",
+        cache:"no-store",
+        keepalive:true,
+        redirect:"follow"
       });
       if(response.ok)return true;
     }catch(_){ }
@@ -75,7 +83,9 @@
       if(navigator.sendBeacon){
         return navigator.sendBeacon(
           endpoint,
-          new Blob([body],{type:"text/plain;charset=UTF-8"})
+          new Blob([body],{
+            type:"text/plain;charset=UTF-8"
+          })
         );
       }
     }catch(_){ }
@@ -90,14 +100,28 @@
     const elapsed=Date.now()-started;
     if(elapsed<3000)return;
     sentEngagement=true;
-    send("engagement",Math.min(elapsed,3600000));
+    send(
+      "engagement",
+      Math.min(elapsed,3600000),
+      {scroll_percent:maxScroll}
+    );
   }
 
   function exitPage(){
     if(sentExit)return;
     sentExit=true;
-    const elapsed=Math.min(Date.now()-started,3600000);
-    send("page_exit",elapsed,{exit_path:pagePath});
+    const elapsed=Math.min(
+      Date.now()-started,
+      3600000
+    );
+    send(
+      "page_exit",
+      elapsed,
+      {
+        exit_path:pagePath,
+        scroll_percent:maxScroll
+      }
+    );
     engagement();
   }
 
@@ -106,35 +130,61 @@
     const now=Date.now();
     if(now-lastHeartbeat<15000)return;
     lastHeartbeat=now;
-    send("heartbeat",Math.min(now-started,3600000));
+    send(
+      "heartbeat",
+      Math.min(now-started,3600000),
+      {scroll_percent:maxScroll}
+    );
   }
 
   document.addEventListener("visibilitychange",()=>{
-    if(document.visibilityState==="hidden")exitPage();
-    else lastHeartbeat=Date.now();
+    if(document.visibilityState==="hidden"){
+      exitPage();
+    }else{
+      lastHeartbeat=Date.now();
+    }
   });
+
   window.addEventListener("pagehide",exitPage);
+
   setInterval(()=>{
-    if(document.visibilityState==="visible")heartbeat();
+    if(document.visibilityState==="visible"){
+      heartbeat();
+    }
   },15000);
 
   function reportScroll(){
-    const max=document.documentElement.scrollHeight-window.innerHeight;
+    const max=document.documentElement.scrollHeight-
+      window.innerHeight;
     if(max<=0)return;
-    const percent=Math.round(
-      (window.scrollY/max)*100
+
+    const percent=Math.min(
+      100,
+      Math.round((window.scrollY/max)*100)
     );
+
     if(percent>maxScroll)maxScroll=percent;
+
     [25,50,75,90,100].forEach(mark=>{
       const key=`nexauren_scroll_${mark}_${slug}`;
       if(percent>=mark&&!sessionStorage.getItem(key)){
-        try{sessionStorage.setItem(key,"1");}catch(_){ }
-        send("scroll",0,{scroll_percent:mark});
+        try{
+          sessionStorage.setItem(key,"1");
+        }catch(_){ }
+        send(
+          "scroll",
+          0,
+          {scroll_percent:mark}
+        );
       }
     });
   }
 
-  window.addEventListener("scroll",reportScroll,{passive:true});
+  window.addEventListener(
+    "scroll",
+    reportScroll,
+    {passive:true}
+  );
 
   document.addEventListener("click",event=>{
     const target=event.target;
@@ -143,13 +193,27 @@
 
     const href=link.href||"";
     let external=false;
+
     try{
-      external=new URL(href,location.href).origin!==location.origin;
+      external=new URL(
+        href,
+        location.href
+      ).origin!==location.origin;
     }catch(_){ }
 
-    if(link.closest(".share"))send("click",0,{target_url:href});
-    if(external)send("outbound_click",0,{target_url:href});
-    if(href&&href.startsWith(location.origin+"/blog/"))
+    if(link.closest(".share")){
+      send("click",0,{target_url:href});
+    }
+
+    if(external){
+      send("outbound_click",0,{target_url:href});
+    }
+
+    if(
+      href&&
+      href.startsWith(location.origin+"/blog/")
+    ){
       send("internal_click",0,{target_url:href});
+    }
   },{passive:true});
 })();
