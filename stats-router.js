@@ -1,4 +1,5 @@
 import eventRouter from "./event-router.js";
+import blogRouter from "./blog-router.js";
 import { getEventCountdownRules } from "./frontend/tools/utilities/event-countdown/rules.js";
 
 function json(data,status=200){
@@ -185,6 +186,11 @@ async function recordStats(req,env){
 export default {
   async fetch(req,env,ctx){
     const url=new URL(req.url);
+
+    if(url.pathname.startsWith("/api/blog/")){
+      const blogResponse=await blogRouter.fetch(req,env,ctx);
+      if(blogResponse)return blogResponse;
+    }
 
     if(url.pathname==="/api/tools/event-countdown/rules"){
       return rulesApi(req,env);
