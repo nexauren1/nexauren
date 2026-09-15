@@ -3,6 +3,8 @@ const postsEl=document.querySelector("#posts");
 const emptyEl=document.querySelector("#empty");
 const searchEl=document.querySelector("#search");
 const categoryEl=document.querySelector("#category");
+const categoriesEl=document.querySelector("#categories");
+const countEl=document.querySelector("#resultCount");
 let posts=[];
 const CATEGORIES=[
   {name:"Technology",slug:"technology"},
@@ -13,13 +15,16 @@ const CATEGORIES=[
 ];
 
 function esc(value){
-  return String(value??"").replace(/[&<>"']/g,c=>({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    "\"":"&quot;",
-    "'":"&#39;"
+  return String(value??"").replace(/[&<>\"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    "\"":"&quot;","'":"&#39;"
   }[c]));
+}
+
+function renderCategories(){
+  if(!categoriesEl)return;
+  categoriesEl.innerHTML=`<a class="category active" href="/blog/">All</a>`+
+    CATEGORIES.map(c=>`<a class="category" href="/blog/${c.slug}/">${c.name}</a>`).join("");
 }
 
 function render(){
@@ -30,14 +35,14 @@ function render(){
     return (!q||text.includes(q))&&(!cat||p.category_slug===cat);
   });
 
+  if(countEl)countEl.textContent=`${list.length} ${list.length===1?"article":"articles"}`;
   postsEl.innerHTML=list.map(p=>`<article class="card">
     <a href="/blog/${encodeURIComponent(p.slug)}/" aria-label="${esc(p.title)}">
       <div class="cover">${p.cover_image?`<img src="${esc(p.cover_image)}" alt="${esc(p.cover_image_alt||p.title)}" loading="lazy">`:""}</div>
       <div class="body">
         <div class="meta">
           <span class="tag">${esc(p.category_name||"Nexauren")}</span>
-          <span>·</span>
-          <span>${esc(p.type||"article")}</span>
+          <span>·</span><span>${esc(p.type||"article")}</span>
           ${p.reading_time?`<span>· ${p.reading_time} min</span>`:""}
         </div>
         <h2>${esc(p.title)}</h2>
@@ -51,25 +56,20 @@ function render(){
 }
 
 async function load(){
-  categoryEl.innerHTML='<option value="">All categories</option>'+
-    CATEGORIES.map(c=>`<option value="${c.slug}">${c.name}</option>`).join("");
+  renderCategories();
+  categoryEl.innerHTML='<option value="">All categories</option>'+CATEGORIES.map(c=>`<option value="${c.slug}">${c.name}</option>`).join("");
 
   try{
     const res=await fetch(`${API}/posts?limit=50`,{
-      method:"GET",
-      headers:{Accept:"application/json"},
-      cache:"no-store"
+      method:"GET",headers:{Accept:"application/json"},cache:"no-store"
     });
-
     if(!res.ok)throw new Error("Blog unavailable");
-
     const data=await res.json();
     posts=Array.isArray(data.posts)?data.posts:[];
   }catch(error){
     console.error("Nexauren Blog:",error);
     posts=[];
   }
-
   render();
 }
 
