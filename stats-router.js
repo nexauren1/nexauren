@@ -1,5 +1,7 @@
 import eventRouter from "./event-router.js";
 import blogRouter from "./blog-router.js";
+import { adminRouter } from "./admin.js";
+import { adminHome } from "./admin-home.js";
 import { getEventCountdownRules } from "./frontend/tools/utilities/event-countdown/rules.js";
 
 function json(data,status=200){
@@ -161,6 +163,14 @@ async function blogPage(req,env){
 export default {
   async fetch(req,env,ctx){
     const url=new URL(req.url);
+
+    if(url.pathname==="/admin"||url.pathname==="/admin/"){
+      return adminHome(req,env);
+    }
+
+    if(url.pathname.startsWith("/admin/products")||url.pathname.startsWith("/admin/plans")){
+      return adminRouter(req,env);
+    }
 
     if(url.pathname.startsWith("/api/blog/")){
       const blogResponse=await blogRouter.fetch(req,env,ctx);
