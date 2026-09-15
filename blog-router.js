@@ -62,6 +62,17 @@ async function requireAdmin(req, env) {
   return { user };
 }
 
+/*
+ * D1 CURRENT_TIMESTAMP uses "YYYY-MM-DD HH:MM:SS", while the admin
+ * currently stores published_at as an ISO string such as
+ * "YYYY-MM-DDTHH:MM:SS.sssZ". Comparing those strings directly makes
+ * a newly published post look like it is scheduled in the future.
+ * Normalize ISO timestamps before comparing them with CURRENT_TIMESTAMP.
+ */
+const PUBLISHED_FILTER =
+  "(p.published_at IS NULL OR " +
+  "datetime(replace(replace(p.published_at,'T',' '),'Z',''))<=CURRENT_TIMESTAMP)";
+
 async function publicPosts(req, env) {
   const url = new URL(req.url);
   const slug = url.searchParams.get("slug");
@@ -75,9 +86,8 @@ async function publicPosts(req, env) {
       "FROM posts p " +
       "LEFT JOIN categories c ON c.id=p.category_id " +
       "LEFT JOIN authors a ON a.id=p.author_id " +
-      "WHERE p.slug=? AND p.status='published' " +
-      "AND (p.published_at IS NULL OR p.published_at<=CURRENT_TIMESTAMP) " +
-      "LIMIT 1"
+      "WHERE p.slug=? AND p.status='published' AND " +
+      PUBLISHED_FILTER + " LIMIT 1"
     ).bind(slug).first();
 
     if (!post) return json({ error: "Post not found." }, 404);
@@ -91,8 +101,8 @@ async function publicPosts(req, env) {
     "FROM posts p " +
     "LEFT JOIN categories c ON c.id=p.category_id " +
     "LEFT JOIN authors a ON a.id=p.author_id " +
-    "WHERE p.status='published' " +
-    "AND (p.published_at IS NULL OR p.published_at<=CURRENT_TIMESTAMP) ";
+    "WHERE p.status='published' AND " +
+    PUBLISHED_FILTER + " ";
 
   const bindings = [];
   if (category) {
