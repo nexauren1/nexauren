@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Crop PDF page margins and create a cleaner PDF directly in your browser.">
+  <title>PDF Cropper · Nexauren</title>
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">NEXAUREN</a>
+    <a class="all-tools" href="/tools/">All tools →</a>
+  </header>
+  <main class="shell">
+    <section class="hero">
+      <span class="eyebrow">NEXAUREN · PDF</span>
+      <h1>PDF Cropper</h1>
+      <p>Crop page margins precisely and create a cleaner PDF directly in your browser.</p>
+    </section>
+
+    <section class="card">
+      <label class="drop" id="dropZone" tabindex="0">
+        <input id="fileInput" type="file" accept="application/pdf,.pdf" hidden>
+        <span class="drop-icon">⌗</span>
+        <strong>Drop your PDF here</strong>
+        <span>PDF only · processed locally in your browser</span>
+        <button type="button" id="chooseBtn">Choose PDF</button>
+      </label>
+
+      <div id="filePanel" class="file-panel" hidden>
+        <div><strong id="fileName"></strong><span id="fileMeta"></span></div>
+        <button type="button" class="ghost" id="removeBtn">Remove</button>
+      </div>
+
+      <div class="controls" id="controls" hidden>
+        <div class="control full">
+          <label for="preset">Crop preset</label>
+          <select id="preset">
+            <option value="custom">Custom margins</option>
+            <option value="small">Small crop</option>
+            <option value="medium">Medium crop</option>
+            <option value="large">Large crop</option>
+            <option value="fit">Trim to visible page content</option>
+          </select>
+        </div>
+        <div class="grid4">
+          <div class="control"><label for="top">Top</label><input id="top" type="number" min="0" max="1000" step="1" value="20"><small>pt</small></div>
+          <div class="control"><label for="right">Right</label><input id="right" type="number" min="0" max="1000" step="1" value="20"><small>pt</small></div>
+          <div class="control"><label for="bottom">Bottom</label><input id="bottom" type="number" min="0" max="1000" step="1" value="20"><small>pt</small></div>
+          <div class="control"><label for="left">Left</label><input id="left" type="number" min="0" max="1000" step="1" value="20"><small>pt</small></div>
+        </div>
+        <p class="hint">Margins are measured from each page edge. The crop is applied to every page.</p>
+        <button id="cropBtn" class="primary" type="button">Crop PDF</button>
+      </div>
+
+      <div id="status" class="status" hidden>
+        <span class="spinner"></span><div><strong id="statusTitle">Cropping your PDF…</strong><span id="statusText">Applying the new page boxes</span></div>
+      </div>
+      <div id="error" class="message error" hidden></div>
+      <div id="result" class="result" hidden>
+        <div class="success-icon">✓</div><div><strong>Your cropped PDF is ready</strong><span id="resultMeta"></span></div>
+        <a id="downloadBtn" class="primary download" href="#">Download PDF</a>
+        <button id="resetBtn" class="ghost" type="button">Start over</button>
+      </div>
+    </section>
+
+    <section class="info-grid">
+      <article><b>Private</b><span>Your PDF stays on your device while it is processed.</span></article>
+      <article><b>Precise</b><span>Set independent top, right, bottom and left margins.</span></article>
+      <article><b>Flexible</b><span>Use presets or switch to fully custom measurements.</span></article>
+    </section>
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details><summary>Does cropping delete content?</summary><p>It changes the visible page box. Content outside the new box is no longer visible in the cropped document.</p></details>
+      <details><summary>Are my files uploaded?</summary><p>No. This tool performs the crop locally in your browser.</p></details>
+      <details><summary>What units are used?</summary><p>Margins use PDF points. 72 points equals 1 inch.</p></details>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="script.js?v=1"></script>
+</body>
+</html>
