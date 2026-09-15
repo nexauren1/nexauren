@@ -12,7 +12,11 @@
 
   try{
     session=sessionStorage.getItem(key)||
-      crypto.randomUUID();
+      (crypto.randomUUID?crypto.randomUUID():"");
+    if(!session){
+      session=`s-${Date.now()}-${Math.random()
+        .toString(36).slice(2)}`;
+    }
     sessionStorage.setItem(key,session);
   }catch(_){
     session=`s-${Date.now()}-${Math.random()
@@ -28,13 +32,21 @@
     }catch(_){ }
   }
 
-  async function send(event,duration_ms=0){
-    const body=JSON.stringify({
+  function payload(event,duration_ms=0){
+    return JSON.stringify({
       slug,
       event,
       duration_ms,
       session_id:session
     });
+  }
+
+  async function send(event,duration_ms=0){
+    const body=payload(event,duration_ms);
+    const endpoint=new URL(
+      "/api/blog/analytics",
+      location.origin
+    ).toString();
 
     debug("sending",{
       slug,
@@ -43,25 +55,25 @@
     });
 
     try{
-      const response=await fetch(
-        "/api/blog/analytics",
-        {
-          method:"POST",
-          headers:{
-            "Content-Type":"application/json"
-          },
-          body,
-          keepalive:true,
-          credentials:"same-origin",
-          cache:"no-store"
-        }
-      );
+      const response=await fetch(endpoint,{
+        method:"POST",
+        headers:{
+          "Content-Type":"text/plain;charset=UTF-8"
+        },
+        body,
+        credentials:"same-origin",
+        mode:"same-origin",
+        cache:"no-store",
+        keepalive:true,
+        redirect:"follow"
+      });
 
       const text=await response.text().catch(()=>"");
 
       debug("server response",{
         status:response.status,
         ok:response.ok,
+        url:response.url,
         body:text
       });
 
@@ -75,10 +87,10 @@
     try{
       if(navigator.sendBeacon){
         const beacon=navigator.sendBeacon(
-          "/api/blog/analytics",
+          endpoint,
           new Blob(
             [body],
-            {type:"application/json"}
+            {type:"text/plain;charset=UTF-8"}
           )
         );
         debug("beacon",{sent:beacon});
@@ -127,7 +139,8 @@
   document.addEventListener(
     "click",
     event=>{
-      const link=event.target.closest("a,button");
+      const target=event.target;
+      const link=target?.closest?.("a,button");
       if(!link)return;
 
       if(
