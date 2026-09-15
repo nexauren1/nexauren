@@ -19,6 +19,11 @@ binding = "TOOLS_DB"
 database_name = "nexauren-tools-db"
 database_id = "9319a2ad-ffb4-4587-b6f2-dcd9bce60014"
 
+[[d1_databases]]
+binding = "BLOG_DB"
+database_name = "nexauren-blog"
+database_id = "f249fa45-41ba-41e5-9e0a-9642afa6b1fd"
+
 routes = [
   { pattern = "nexaurenstory.com", custom_domain = true }
 ]
