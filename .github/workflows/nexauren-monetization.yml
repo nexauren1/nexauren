@@ -24,11 +24,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Inject G4A everywhere and ads into individual tools
+      - name: Inject G4A and ads only into eligible pages
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
           root = Path("frontend")
           g4a = '<script src="/js/G4A.js" defer></script>'
@@ -46,25 +45,35 @@ jobs:
                   text = text.replace(
                       "</head>",
                       f"  {g4a}\n</head>",
-                      1
+                      1,
                   )
 
+              relative = path.as_posix()
+
               is_individual_tool = (
-                  path.as_posix().startswith("frontend/tools/")
+                  relative.startswith("frontend/tools/")
                   and path.name == "index.html"
-                  and path.as_posix() != "frontend/tools/index.html"
+                  and relative != "frontend/tools/index.html"
               )
 
-              if is_individual_tool and ads not in text and "</head>" in text:
+              is_blog_article_shell = (
+                  relative == "frontend/blog/article/index.html"
+              )
+
+              if (
+                  (is_individual_tool or is_blog_article_shell)
+                  and ads not in text
+                  and "</head>" in text
+              ):
                   text = text.replace(
                       "</head>",
                       f"  {ads}\n</head>",
-                      1
+                      1,
                   )
 
               if text != original:
                   path.write_text(text, encoding="utf-8")
-                  changed.append(str(path))
+                  changed.append(relative)
 
           print(f"Updated {len(changed)} HTML pages")
           for item in changed:
@@ -81,7 +90,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Install Nexauren G4A analytics and Free tool ads [skip ci]"
+          git commit -m "Apply ads automatically to blog article pages [skip ci]"
           git fetch origin main
           git rebase origin/main
           git push origin HEAD:main
