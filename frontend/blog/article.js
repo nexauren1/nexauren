@@ -1,14 +1,14 @@
 const root=document.querySelector("#article");
-const slug=decodeURIComponent(location.pathname.replace(/^\/blog\//,"" ).replace(/\/$/,""));
+const slug=decodeURIComponent(location.pathname.replace(/^\/blog\//,"").replace(/\/$/,""));
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
 function safeContent(v){return String(v??"");}
 async function load(){
   if(!slug){root.textContent="Article not found.";return;}
   try{
-    const res=await fetch(`/api/blog/posts/${encodeURIComponent(slug)}`);
+    const res=await fetch(`/api/blog/posts?slug=${encodeURIComponent(slug)}`);
     if(!res.ok)throw new Error("not found");
     const data=await res.json();
-    const p=data.post||data;
+    const p=data.post;
     if(!p?.title)throw new Error("not found");
     document.title=`${p.seo_title||p.title} — Nexauren`;
     const desc=p.seo_description||p.excerpt||"Nexauren Blog article";
