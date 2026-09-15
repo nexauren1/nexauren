@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WebP to PNG — Nexauren</title>
+  <meta name="description" content="Convert WebP images to PNG directly in your browser while preserving transparency.">
+  <link rel="stylesheet" href="/css/nexauren-theme.css">
+  <link rel="stylesheet" href="/css/nexauren-pages.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="nexauren-header"></div>
+  <main class="page-shell">
+    <section class="tool-hero">
+      <span class="eyebrow">NEXAUREN · IMAGE</span>
+      <h1>WebP to PNG</h1>
+      <p>Convert WebP images to lossless PNG files directly in your browser, with transparency preserved.</p>
+    </section>
+
+    <section class="tool-card">
+      <label class="drop-zone" id="dropZone" for="fileInput">
+        <span class="drop-icon">W→P</span>
+        <strong>Drop your WebP here</strong>
+        <small>WebP only · processed locally in your browser</small>
+        <button type="button" class="upload-btn">Choose WebP</button>
+        <input id="fileInput" type="file" accept="image/webp" hidden>
+      </label>
+
+      <div class="preview-panel hidden" id="previewPanel">
+        <div class="preview-wrap"><img id="preview" alt="WebP preview"></div>
+        <div class="file-info" id="fileInfo"></div>
+        <div class="actions">
+          <button id="convertBtn" class="primary-btn" type="button">Convert to PNG</button>
+          <button id="resetBtn" class="secondary-btn" type="button">New image</button>
+        </div>
+      </div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="info-grid">
+      <article><strong>Lossless output</strong><span>PNG preserves the rendered image without JPEG-style quality loss.</span></article>
+      <article><strong>Transparency preserved</strong><span>Transparent WebP areas remain transparent in the PNG.</span></article>
+      <article><strong>Private by default</strong><span>Your image is converted locally without uploading it to a server.</span></article>
+    </section>
+  </main>
+  <div id="nexauren-footer"></div>
+  <script src="/js/nexauren-ads.js"></script>
+  <script src="/js/G4A.js"></script>
+  <script src="/js/global-header.js"></script>
+  <script src="/js/global-footer.js"></script>
+  <script src="/js/global-loader.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
