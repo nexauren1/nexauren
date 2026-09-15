@@ -4,10 +4,14 @@ const emptyEl=document.querySelector("#empty");
 const searchEl=document.querySelector("#search");
 const categoryEl=document.querySelector("#category");
 let posts=[];
-
-function esc(value){
-  return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
-}
+const CATEGORIES=[
+  {name:"Technology",slug:"technology"},
+  {name:"News",slug:"news"},
+  {name:"Culture",slug:"culture"},
+  {name:"Business",slug:"business"},
+  {name:"Guides",slug:"guides"}
+];
+function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
 function render(){
   const q=searchEl.value.trim().toLowerCase();
   const cat=categoryEl.value;
@@ -24,21 +28,16 @@ function render(){
   emptyEl.hidden=list.length!==0;
 }
 async function load(){
+  categoryEl.innerHTML='<option value="">All categories</option>'+CATEGORIES.map(c=>`<option value="${c.slug}">${c.name}</option>`).join("");
   try{
-    const [postRes,catRes]=await Promise.all([
-      fetch(`${API}/posts?status=published`),
-      fetch(`${API}/categories`)
-    ]);
-    const postData=await postRes.json();
-    const catData=await catRes.json();
-    posts=Array.isArray(postData.posts)?postData.posts:Array.isArray(postData)?postData:[];
-    const categories=Array.isArray(catData.categories)?catData.categories:Array.isArray(catData)?catData:[];
-    categoryEl.innerHTML='<option value="">All categories</option>'+categories.map(c=>`<option value="${esc(c.slug)}">${esc(c.name)}</option>`).join("");
-    render();
+    const res=await fetch(`${API}/posts?limit=50`);
+    if(!res.ok)throw new Error("Blog unavailable");
+    const data=await res.json();
+    posts=Array.isArray(data.posts)?data.posts:[];
   }catch(error){
     posts=[];
-    render();
   }
+  render();
 }
 searchEl.addEventListener("input",render);
 categoryEl.addEventListener("change",render);
