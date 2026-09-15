@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Image Background Remover — Nexauren</title>
+<meta name="description" content="Remove a plain image background directly in your browser and export a transparent PNG.">
+<link rel="stylesheet" href="/css/nexauren-theme.css">
+<link rel="stylesheet" href="/css/nexauren-pages.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page-shell">
+<header class="tool-head">
+  <a class="brand" href="/">NEXAUREN</a>
+  <a class="back" href="/category/image/">← Image tools</a>
+</header>
+<main class="tool-main">
+  <section class="hero">
+    <div class="eyebrow">NEXAUREN · IMAGE</div>
+    <h1>Image Background Remover</h1>
+    <p>Remove a plain or solid-color background from an image and create a transparent PNG directly in your browser.</p>
+  </section>
+  <section class="tool-card">
+    <label class="drop" id="dropZone">
+      <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp">
+      <span class="drop-icon">✦</span>
+      <strong>Drop your image here</strong>
+      <small>JPG, PNG or WebP · Processed locally</small>
+      <span class="choose">Choose image</span>
+    </label>
+    <div id="workspace" class="workspace hidden">
+      <div class="preview-wrap">
+        <canvas id="canvas"></canvas>
+        <div class="preview-note">Transparent areas are shown with a checkerboard.</div>
+      </div>
+      <div class="controls">
+        <div class="control">
+          <label for="tolerance">Background tolerance <output id="toleranceValue">28</output></label>
+          <input id="tolerance" type="range" min="1" max="100" value="28">
+          <small>Higher values remove more colors similar to the selected background.</small>
+        </div>
+        <div class="control">
+          <label for="edge">Edge softness <output id="edgeValue">8</output></label>
+          <input id="edge" type="range" min="0" max="30" value="8">
+        </div>
+        <div class="control">
+          <label for="background">Background color</label>
+          <div class="color-row"><input id="background" type="color" value="#ffffff"><button id="sample" type="button">Sample from corner</button></div>
+        </div>
+        <div class="actions">
+          <button id="remove" class="primary" type="button">Remove background</button>
+          <button id="download" class="secondary" type="button" disabled>Download PNG</button>
+          <button id="reset" class="ghost" type="button">New image</button>
+        </div>
+        <div id="status" class="status" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+  <section class="info"><h2>How it works</h2><p>Upload an image, choose the background color or sample it from a corner, then adjust tolerance and edge softness. Everything runs locally in your browser.</p></section>
+</main>
+<footer class="tool-foot"><span>© Nexauren</span><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></footer>
+</div>
+<script src="/js/nexauren-ads.js"></script>
+<script src="/js/G4A.js"></script>
+<script src="/js/global-header.js"></script>
+<script src="/js/global-footer.js"></script>
+<script src="/js/global-loader.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
