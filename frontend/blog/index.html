@@ -11,42 +11,45 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="Nexauren">
 <meta name="twitter:image" content="https://nexaurenstory.com/favicon.png?v=2">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="index,follow"><meta name="description" content="Nexauren Blog — technology, news, culture, business and practical guides.">
 <title>Blog — Nexauren</title>
 <style>
-:root{--bg:#fbfaf6;--card:#fff;--ink:#171717;--muted:#6b7280;--line:#e8e3d7;--accent:#7257d9;--soft:#f0edff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}a{text-decoration:none;color:inherit}.wrap{width:min(1120px,calc(100% - 28px));margin:auto}
-.nav{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.brand{font-weight:950;letter-spacing:.08em}.back{font-size:13px;font-weight:800;color:var(--muted)}
-.hero{padding:58px 0 30px}.eyebrow{display:inline-flex;padding:7px 10px;border-radius:999px;background:var(--soft);color:var(--accent);font-size:10px;font-weight:900;letter-spacing:.1em}.hero h1{font-size:clamp(42px,8vw,72px);line-height:.95;letter-spacing:-.065em;margin:16px 0 12px}.hero p{max-width:690px;color:var(--muted);font-size:16px;line-height:1.7;margin:0}
-.controls{display:flex;gap:10px;margin:8px 0 25px}.search{height:48px;flex:1;border:1px solid var(--line);border-radius:14px;background:#fff;padding:0 15px;font-size:14px;outline:0}.search:focus{border-color:#b8a9ef;box-shadow:0 0 0 4px #7257d914}.select{height:48px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:0 12px;font-weight:700;color:#555}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:.2s}.card:hover{transform:translateY(-3px);box-shadow:0 16px 35px #30251510}.cover{height:185px;background:var(--soft);overflow:hidden}.cover img{width:100%;height:100%;object-fit:cover;display:block}.body{padding:18px}.meta{display:flex;gap:8px;align-items:center;color:#918a7b;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.07em}.tag{color:var(--accent)}h2{font-size:19px;line-height:1.25;margin:10px 0 7px;letter-spacing:-.02em}.excerpt{font-size:12px;line-height:1.6;color:var(--muted);margin:0}.read{display:inline-block;margin-top:15px;font-size:11px;font-weight:900;color:var(--accent)}.empty{text-align:center;padding:55px 20px;border:1px dashed #d7cfba;border-radius:18px;background:#fff;color:var(--muted)}footer{margin-top:65px;border-top:1px solid var(--line);padding:24px 0;color:var(--muted);font-size:11px}
-@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.hero{padding:40px 0 25px}.controls{flex-direction:column}.grid{grid-template-columns:1fr}.cover{height:200px}}
+:root{--bg:#f5f7fb;--surface:#fff;--surface2:#eef3ff;--ink:#14213d;--muted:#65738b;--line:#dfe6f2;--blue:#3867e8;--cyan:#13a8c7;--violet:#7657e8;--orange:#f59e0b;--shadow:0 18px 55px rgba(30,55,105,.09)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(180deg,#f8faff 0,#f5f7fb 52%,#fff 100%);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}a{text-decoration:none;color:inherit}.wrap{width:min(1180px,calc(100% - 36px));margin:auto}
+.header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.88);backdrop-filter:blur(18px);border-bottom:1px solid rgba(223,230,242,.9)}.nav{min-height:74px;display:flex;align-items:center;gap:28px}.brand{font-weight:950;letter-spacing:.12em;font-size:19px}.brand span{color:var(--blue)}.nav-links{display:flex;align-items:center;gap:5px;margin-left:auto}.nav-links a{padding:10px 12px;border-radius:10px;color:#5c6a81;font-size:13px;font-weight:800}.nav-links a:hover,.nav-links a.active{background:var(--surface2);color:var(--blue)}.nav-cta{background:linear-gradient(135deg,var(--blue),var(--violet))!important;color:#fff!important;box-shadow:0 8px 22px rgba(56,103,232,.18)}.menu{display:none;border:1px solid var(--line);background:#fff;border-radius:11px;width:43px;height:43px;font-size:20px;color:var(--ink)}
+.hero{padding:70px 0 35px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:45px;align-items:end}.eyebrow{display:inline-flex;padding:7px 11px;border-radius:999px;background:#eaf0ff;color:var(--blue);font-size:10px;font-weight:950;letter-spacing:.13em}.hero h1{font-size:clamp(44px,7vw,76px);line-height:.93;letter-spacing:-.065em;margin:17px 0 15px;max-width:780px}.hero h1 em{font-style:normal;background:linear-gradient(100deg,var(--blue),var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:700px;color:var(--muted);font-size:16px;line-height:1.75;margin:0}.hero-card{background:linear-gradient(145deg,#14213d,#263f76);border-radius:24px;padding:25px;color:#fff;box-shadow:var(--shadow);position:relative;overflow:hidden}.hero-card:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-55px;top:-55px;background:rgba(19,168,199,.25)}.hero-card strong{display:block;font-size:24px;letter-spacing:-.03em}.hero-card p{color:#c9d5ed;font-size:12px;line-height:1.65;margin:9px 0 0}.hero-card .mini{display:flex;gap:7px;margin-top:18px;flex-wrap:wrap}.mini span{font-size:9px;font-weight:850;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.1);color:#dce7ff}
+.categories{display:flex;gap:8px;overflow:auto;padding:4px 0 20px;scrollbar-width:none}.categories::-webkit-scrollbar{display:none}.category{border:1px solid var(--line);background:#fff;color:#5d6b82;border-radius:999px;padding:9px 14px;font:inherit;font-size:11px;font-weight:850;white-space:nowrap;cursor:pointer}.category:hover,.category.active{border-color:#b8c9ff;background:#edf2ff;color:var(--blue)}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:10px 0 15px}.section-head h2{font-size:23px;letter-spacing:-.035em;margin:0}.section-head span{font-size:11px;color:#8793a6;font-weight:750}.controls{display:flex;gap:10px;margin:0 0 24px}.search{height:50px;flex:1;border:1px solid var(--line);border-radius:14px;background:#fff;padding:0 16px;font-size:14px;color:var(--ink);outline:0;box-shadow:0 5px 20px rgba(30,55,105,.03)}.search:focus{border-color:#9eb5ff;box-shadow:0 0 0 4px #3867e814}.select{height:50px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:0 14px;font-weight:750;color:#53627a;outline:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 7px 25px rgba(30,55,105,.04);transition:transform .2s,box-shadow .2s,border-color .2s}.card:hover{transform:translateY(-5px);box-shadow:0 20px 45px rgba(30,55,105,.11);border-color:#cbd7ee}.cover{height:205px;background:linear-gradient(135deg,#eaf0ff,#e8f8fb);overflow:hidden;position:relative}.cover:after{content:"N";position:absolute;right:15px;bottom:-30px;font-size:150px;line-height:1;font-weight:950;color:rgba(56,103,232,.08)}.cover img{width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1}.body{padding:19px}.meta{display:flex;gap:8px;align-items:center;color:#8a96a9;font-size:9px;font-weight:950;text-transform:uppercase;letter-spacing:.07em}.tag{color:var(--blue)}h3{font-size:19px;line-height:1.25;margin:10px 0 8px;letter-spacing:-.025em}.excerpt{font-size:12px;line-height:1.65;color:var(--muted);margin:0}.read{display:inline-flex;align-items:center;gap:5px;margin-top:16px;font-size:11px;font-weight:950;color:var(--blue)}.empty{text-align:center;padding:55px 20px;border:1px dashed #cbd5e5;border-radius:18px;background:#fff;color:var(--muted)}
+footer{margin-top:85px;background:#111f3b;color:#d8e1f2}.footer-main{padding:55px 0 42px;display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:45px}.footer-brand{font-size:20px;font-weight:950;letter-spacing:.1em;color:#fff}.footer-brand span{color:#67d1e5}.footer-copy{max-width:310px;color:#a9b8d1;font-size:12px;line-height:1.7;margin:13px 0 20px}.footer h4{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#fff;margin:4px 0 14px}.footer a{display:block;color:#a9b8d1;font-size:12px;margin:9px 0}.footer a:hover{color:#fff}.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding:17px 0;display:flex;justify-content:space-between;gap:15px;color:#91a2bf;font-size:10px}.footer-bottom .legal{display:flex;gap:17px}.backtop{position:fixed;right:18px;bottom:18px;width:42px;height:42px;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--blue);font-weight:900;box-shadow:0 10px 30px rgba(30,55,105,.15);cursor:pointer;opacity:0;pointer-events:none;transition:.2s}.backtop.show{opacity:1;pointer-events:auto}
+@media(max-width:850px){.hero{grid-template-columns:1fr}.hero-card{display:none}.grid{grid-template-columns:repeat(2,1fr)}.footer-main{grid-template-columns:1.4fr 1fr 1fr}}@media(max-width:650px){.wrap{width:min(100% - 26px,1180px)}.nav{min-height:66px}.nav-links{display:none;position:absolute;left:13px;right:13px;top:72px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:8px;box-shadow:var(--shadow);flex-direction:column;align-items:stretch}.nav-links.open{display:flex}.nav-links a{padding:13px}.menu{display:block;margin-left:auto}.hero{padding:48px 0 25px}.hero h1{font-size:48px}.controls{flex-direction:column}.grid{grid-template-columns:1fr}.cover{height:215px}.footer-main{grid-template-columns:1fr 1fr;gap:30px}.footer-brand-block{grid-column:1/-1}.footer-bottom{flex-direction:column}.footer-bottom .legal{flex-wrap:wrap}}@media(max-width:420px){.footer-main{grid-template-columns:1fr}.footer-brand-block{grid-column:auto}}
 </style>
-  <script src="/js/G4A.js" defer></script>
+<script src="/js/G4A.js" defer></script>
 </head>
 <body>
-<header class="wrap nav"><a class="brand" href="/">NEXAUREN</a><a class="back" href="/tools/">← Tools</a></header>
+<header class="header">
+  <div class="wrap nav">
+    <a class="brand" href="/">NEXA<span>UREN</span></a>
+    <nav class="nav-links" id="navLinks" aria-label="Main navigation">
+      <a href="/">Home</a><a href="/tools/">Tools</a><a href="/blog/" class="active">Blog</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/tools/" class="nav-cta">Explore tools →</a>
+    </nav>
+    <button class="menu" id="menu" aria-label="Open menu" aria-expanded="false">☰</button>
+  </div>
+</header>
 <main class="wrap">
-<section class="hero"><span class="eyebrow">NEXAUREN · BLOG</span><h1>Ideas worth reading.</h1><p>Technology, news, culture, business and practical guides — published by Nexauren.</p></section>
-<div class="controls"><input id="search" class="search" type="search" placeholder="Search articles…" autocomplete="off"><select id="category" class="select"><option value="">All categories</option></select></div>
+<section class="hero"><div><span class="eyebrow">NEXAUREN · BLOG</span><h1>Ideas, tools & <em>what matters.</em></h1><p>Technology, AI, news, culture, business and practical guides — useful ideas from Nexauren, made to be read, understood and used.</p></div><aside class="hero-card"><strong>Explore Nexauren</strong><p>Discover useful browser tools alongside stories, guides and ideas designed to help you do more online.</p><div class="mini"><span>Technology</span><span>AI</span><span>Guides</span><span>Business</span></div></aside></section>
+<div class="categories" id="categories" aria-label="Blog categories"></div>
+<div class="section-head"><h2>Latest stories</h2><span id="resultCount"></span></div>
+<div class="controls"><input id="search" class="search" type="search" placeholder="Search articles, topics or ideas…" autocomplete="off"><select id="category" class="select"><option value="">All categories</option></select></div>
 <section id="posts" class="grid" aria-live="polite"></section><section id="empty" class="empty" hidden>No articles found.</section>
-</main><footer><div class="wrap">© 2026 Nexauren · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></div></footer>
+</main>
+<footer class="footer"><div class="wrap footer-main"><div class="footer-brand-block"><div class="footer-brand">NEXA<span>UREN</span></div><p class="footer-copy">Useful tools and useful ideas. Explore the Nexauren platform, read the latest stories and discover practical ways to work smarter online.</p><a href="/tools/">Explore all tools →</a></div><div><h4>Explore</h4><a href="/">Home</a><a href="/tools/">All tools</a><a href="/blog/">Blog</a><a href="/about/">About Nexauren</a></div><div><h4>Blog</h4><a href="/blog/">Latest articles</a><a href="/blog/?category=technology">Technology</a><a href="/blog/?category=news">News</a><a href="/blog/?category=guides">Guides</a></div><div><h4>Information</h4><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/cookies/">Cookies</a></div></div><div class="wrap footer-bottom"><span>© 2026 Nexauren. All rights reserved.</span><div class="legal"><span>Built for the web.</span><a href="/sitemap.xml">Sitemap</a></div></div></footer>
+<button class="backtop" id="backtop" aria-label="Back to top">↑</button>
+<script>
+const menu=document.getElementById('menu'),nav=document.getElementById('navLinks');
+menu?.addEventListener('click',()=>{const open=nav.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));});
+nav?.addEventListener('click',e=>{if(e.target.matches('a')){nav.classList.remove('open');menu.setAttribute('aria-expanded','false');}});
+const back=document.getElementById('backtop');window.addEventListener('scroll',()=>back.classList.toggle('show',scrollY>500),{passive:true});back.onclick=()=>scrollTo({top:0,behavior:'smooth'});
+</script>
 <script src="/blog/blog.js" defer></script>
 </body></html>
