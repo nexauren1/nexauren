@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Generate a color palette from any JPG, PNG or WebP image directly in your browser.">
+  <title>Image Palette Generator — Nexauren</title>
+  <link rel="stylesheet" href="/css/nexauren-theme.css">
+  <link rel="stylesheet" href="/css/nexauren-pages.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="nexauren-header"></div>
+  <main class="palette-page">
+    <section class="hero">
+      <a class="back" href="/category/image/">← Image tools</a>
+      <div class="eyebrow">NEXAUREN · IMAGE</div>
+      <h1>Image Palette Generator</h1>
+      <p>Extract a beautiful color palette from your image and copy the HEX, RGB or HSL values.</p>
+    </section>
+
+    <section class="tool-card">
+      <div id="dropZone" class="drop-zone" tabindex="0">
+        <div class="drop-icon">◈</div>
+        <h2>Drop an image here</h2>
+        <p>JPG, PNG or WebP · Processing happens in your browser</p>
+        <button id="chooseBtn" class="primary" type="button">Choose image</button>
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+      </div>
+
+      <div id="workspace" class="workspace" hidden>
+        <div class="preview-panel">
+          <div class="panel-head"><span>Source image</span><button id="newBtn" class="ghost" type="button">New image</button></div>
+          <div class="image-wrap"><img id="preview" alt="Selected image preview"></div>
+          <div id="fileInfo" class="file-info"></div>
+        </div>
+        <div class="palette-panel">
+          <div class="panel-head"><span>Generated palette</span><span id="countLabel">6 colors</span></div>
+          <div id="palette" class="palette-grid"></div>
+          <div class="palette-actions">
+            <button id="copyAllBtn" class="primary" type="button">Copy palette</button>
+            <button id="regenerateBtn" class="ghost" type="button">Regenerate</button>
+          </div>
+          <p class="hint">Tap any color to copy its HEX value.</p>
+        </div>
+      </div>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+  <div id="nexauren-footer"></div>
+  <div id="pageLoader"></div>
+  <script src="/js/nexauren-ads.js"></script>
+  <script src="/js/G4A.js"></script>
+  <script src="/js/global-header.js"></script>
+  <script src="/js/global-footer.js"></script>
+  <script src="/js/global-loader.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
